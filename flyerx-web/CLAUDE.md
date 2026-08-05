@@ -16,25 +16,28 @@
 
 - `../docs/design/00-auditoria-web.md` — auditoria completa do estado atual
 - `../docs/design/01-decisoes.md` — decisoes de tokens, componentes e regras visuais
+- `../docs/design/02-consolidacao.md` — registro da sessao de consolidacao
+- `../docs/design/03-layouts.md` — especificacoes de layout (web e mobile)
 
 ## Estado do retrofit
 
-- **Fase de decisoes CONCLUIDA** (2026-08-05). Proxima: consolidacao de componentes.
-- Consultar `01-decisoes.md` para vereditos, pendencias e ordem de migracao.
+- **Consolidacao CONCLUIDA** (2026-08-05). Proxima fase: migracao de telas (Grupo A: receive + send).
+- Biblioteca de componentes unificada, tokens corrigidos, sintaxe Tailwind 4 religada.
+- Commit baseline: `c734667`
 
 ### Vereditos dos pares duplicados
 
-| Par | Vencedor | Arquivo final | Status |
-|-----|----------|---------------|--------|
-| Checkbox | checkbox-custom.tsx | `checkbox.tsx` | Aguardando consolidacao |
-| Switch | switch-custom.tsx | `switch.tsx` | Aguardando consolidacao |
-| Avatar | avatar.tsx | `avatar.tsx` | OK |
-| Skeleton | skeleton-custom.tsx | `skeleton.tsx` | Aguardando consolidacao |
-| Tabs | tabs-custom.tsx | `tabs.tsx` | Aguardando consolidacao |
-| Alert | alert-custom.tsx | `alert.tsx` | Aguardando consolidacao |
-| Modal | modal.tsx | `modal.tsx` | OK |
-| Toast | sonner.tsx | `sonner.tsx` | OK (deletar toast.tsx) |
-| Select | **Manter ambos** | `select.tsx` + `select-native.tsx` | OK |
+| Par | Arquivo canonico | Status |
+|-----|------------------|--------|
+| Checkbox | `checkbox.tsx` | Consolidado |
+| Switch | `switch.tsx` | Consolidado |
+| Avatar | `avatar.tsx` | Consolidado |
+| Skeleton | `skeleton.tsx` | Consolidado |
+| Tabs | `tabs.tsx` | Consolidado |
+| Alert | `alert.tsx` | Consolidado |
+| Modal | `modal.tsx` | Consolidado |
+| Toast | `sonner.tsx` | Consolidado |
+| Select | `select.tsx` + `select-native.tsx` | Consolidado |
 
 **Regra Select:** Padrao e `select.tsx`. Usar `select-native.tsx` apenas em contextos mobile-first com poucas opcoes (<10) onde o picker nativo do OS oferece melhor experiencia touch. Em duvida, usar `select.tsx`.
 
@@ -51,8 +54,8 @@
 5. **Radius:** Usar classes padrao Tailwind que mapeiam para tokens Nocturne via @theme:
    - `rounded-sm` (4px): Skeleton de texto, elementos micro
    - `rounded-md` (8px): Badge, Tag, Tabs trigger, Checkbox box
-   - `rounded-lg` (14px): Input, Textarea, Select, Button, Toast, Alert, Dropdown
-   - `rounded-xl` (20px): Card, Modal, Surface, StatCard
+   - `rounded-lg` (14px): Input, Textarea, Select, Button, Toast, Tooltip, Dropdown
+   - `rounded-xl` (20px): Card, Modal, Surface, StatCard, Alert
    - `rounded-full` (9999px): Avatar, Switch track, IconButton, Radio dot, pills
    - **PROIBIDO:** `rounded-[Npx]`, `rounded-[--radius-*]` (sintaxe invalida no Tailwind 4)
 

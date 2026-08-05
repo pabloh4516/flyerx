@@ -261,28 +261,66 @@ select:-webkit-autofill:active {
 
 ---
 
-## PROXIMOS PASSOS
+## CONTROLE DE VERSAO
 
-### ETAPA 5 — Limpeza e showcase
+### Estrutura do repositorio
 
-1. **design-system.md da raiz**
-   - Processar arquivo DESIGN_SYSTEM.md na raiz do projeto
-   - Mover/consolidar conforme necessario
+**Decisao:** Monorepo com .git na raiz (`C:\...\Flyerx\`)
 
-2. **Showcase /design-system**
-   - Atualizar pagina com todos os componentes consolidados
-   - Remover referencias a componentes deletados
+Removidos .git isolados de:
+- flyerx-web (1 commit boilerplate)
+- flyerx-admin (1 commit boilerplate)
+- flyerx-backend (1 commit boilerplate)
+- flyerx-mobile (1 commit boilerplate)
 
-### ETAPA 6 — Relatorio e persistencia
+### .gitignore corrigido
 
-1. **Atualizar CLAUDE.md**
-   - Refletir estado pos-consolidacao
-   - Atualizar tabela de vereditos
+Ajustes aplicados ao .gitignore da raiz:
+- Cobertura global de env: `**/.env`, `**/.env.*`, `!**/.env.example`
+- Cobertura global Node: `**/node_modules/`, `**/.next/`, `**/dist/`, `**/build/`
+- Cobertura Python: `**/__pycache__/`, `**/.venv/`
+- Exclusoes de seguranca: `*.pem`, `*.key`, `**/credentials.json`
 
-2. **Relatorio final**
-   - Resumo de todas as mudancas
-   - Build status
-   - Pendencias para proximas sessoes
+### Scan de seguranca
+
+**Resultado:** LIMPO
+- Nenhum arquivo com credenciais hardcoded
+- Todos os .env reais ignorados pelo gitignore
+- Apenas .env.example incluidos (esperado)
+
+### Commit baseline
+
+```
+c734667 chore: baseline do monorepo Flyerx — estado pós-consolidação do design system Nocturne
+```
+
+**Regra daqui em diante:** Cada sessao de migracao termina com um commit proprio.
+
+---
+
+## ETAPA 5 — Limpeza e documentacao
+
+### 5.1 DESIGN_SYSTEM.md — destino final
+
+**Arquivo:** `flyerx-web/DESIGN_SYSTEM.md` (517 linhas)
+
+**Descartado:**
+- Exemplos de uso de componentes → showcase /design-system e a documentacao viva
+- Changelog v1.0.0 → historico agora esta no git e docs 00/01/02
+- Cores, tipografia, radius, sombras → cobertos por globals.css e 01-decisoes.md
+- Boas praticas → algumas estavam INCORRETAS (`p-[--space-3]` e sintaxe invalida)
+- Estrutura de arquivos → desatualizada
+
+**Migrado para `03-layouts.md`:**
+- Layout Seller Dashboard (Desktop): header 56px, sidebar 220px, main p-7
+- Layout App Mobile (referencia futura): safe area 74px, padding 22px, tab bar glass
+
+**Reconciliacao de divergencia:**
+- DESIGN_SYSTEM.md dizia: `padding: 28px 36px` (py-7 px-9)
+- Codigo real: `p-7` (28px uniforme)
+- Veredito: **p-7 uniforme e o correto**, documento antigo estava incorreto
+
+**Acao:** DESIGN_SYSTEM.md DELETADO
 
 ---
 
