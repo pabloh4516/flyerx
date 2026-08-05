@@ -39,7 +39,7 @@ export { Badge } from "./badge"
 export { StatCard } from "./stat-card"
 export { AvatarCustom, AvatarGroup } from "./avatar-custom"
 export { IconBox } from "./icon-box"
-export { DataRow } from "./data-row"
+export { DataRow, DataRowGroup } from "./data-row"
 export { ListItem } from "./list-item"
 
 // ============================================================================
@@ -54,6 +54,32 @@ export { Skeleton, SkeletonCard, SkeletonListItem, SkeletonText } from "./skelet
 // NAVIGATION
 // ============================================================================
 export { Tabs, TabsList, TabsTrigger, TabsContent } from "./tabs"
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuCheckboxItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuGroup,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+} from "./dropdown-menu"
+export {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+  SelectSeparator,
+} from "./select"
 
 // ============================================================================
 // PAGE STRUCTURE

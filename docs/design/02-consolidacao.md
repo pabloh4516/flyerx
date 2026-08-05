@@ -424,6 +424,50 @@ pnpm build — PASSOU
 
 ---
 
+## ETAPA 7 — Verificações finais e showcase completo
+
+### 7.1 Verificações de conformidade (Parte 1)
+
+| Componente | Arquivo | Linha | Classe | Status |
+|------------|---------|-------|--------|--------|
+| TABS (TabsTrigger) | tabs.tsx | 113 | `rounded-md` na base | **CONFORME** |
+| TOOLTIP | tooltip-custom.tsx | 79 | `rounded-lg` único caminho | **CONFORME** |
+| BUTTON | button.tsx | 20 | `rounded-lg` na base CVA | **CONFORME** |
+
+Nenhum defeito encontrado nas verificações de radius.
+
+### 7.2 Showcase completado (Parte 2)
+
+**Objetivo:** Exibir 100% dos componentes de `components/ui/` no showcase oficial `/design-system`.
+
+**Componentes adicionados ao showcase:**
+
+| Categoria | Componentes adicionados |
+|-----------|------------------------|
+| **Layout** | SurfaceFooter, Surface variants (elevated/accent/ghost/dashed) |
+| **Forms** | FormSection, Select (Radix/Base UI com grupos) |
+| **Cards** | Card variant="glass", CardFooter |
+| **Feedback** | AlertBanner (4 variants) |
+| **Navigation** | Tabs variants (pills/underline), DropdownMenu completo (checkbox, radio, separators) |
+| **Data Display** | DataRow, DataRowGroup |
+| **Nocturne** | Logo, BalanceDisplay, Stat, TransactionIcon, ActionCircle, IconButton, Sparkline, ProgressRing, GlowOrb demo |
+| **Skeletons** | SkeletonText explícito |
+
+**Exports adicionados ao index.ts:**
+
+```typescript
+// Navigation
+export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, ... } from "./dropdown-menu"
+export { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, ... } from "./select"
+
+// Data Display
+export { DataRowGroup } from "./data-row" // já existia DataRow
+```
+
+**Build final:** PASSOU (23 rotas estáticas)
+
+---
+
 ## CONCLUSAO
 
 **Sessao de consolidacao CONCLUIDA com sucesso.**
