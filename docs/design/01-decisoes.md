@@ -421,7 +421,61 @@ Baseado no Top 10 de inconsistencias da auditoria:
 
 ---
 
-## 11. BADGE — Variants e aliases
+## 11. BUTTON — Regra de uso dos 9 variants
+
+### Tabela de aplicação
+
+| Variant | Estilo | Quando usar |
+|---------|--------|-------------|
+| **solid** | Fundo roxo sólido | CTA principal da página (1 por tela) |
+| **primary** | Borda roxa, texto roxo | Ação principal de um card/modal/seção |
+| **accent** | Borda gradiente accent | Destaque especial (ex: "Depositar") |
+| **elevated** | Borda gradiente neutra | Ação importante mas não principal |
+| **secondary** | Borda neutra | Ações secundárias, cancelar |
+| **outline** | Alias de secondary | Compatibilidade |
+| **ghost** | Sem borda, texto roxo | Ações terciárias, ícones com label |
+| **destructive** | Borda/texto vermelho | Excluir, revogar, ação perigosa |
+| **link** | Texto sublinhado | Links inline, "ver mais" |
+
+### Regra de desempate solid vs primary
+
+**Em dúvida:** `solid` é exclusivo da ação principal da página (submit do fluxo, 1 por tela); qualquer "ação principal" local (card, modal, seção) usa `primary`.
+
+### Restrições
+
+- Máximo 1 `solid` por seção visual
+- Evitar mais de 2 variants diferentes no mesmo grupo de ações
+
+---
+
+## 12. TIPOGRAFIA — Regra de aplicação
+
+### Tabela de uso
+
+| Elemento | Componente | Tamanho | Notas |
+|----------|------------|---------|-------|
+| Título de página | `Heading size="xl"` | 32px | Apenas 1 por página |
+| Título de seção | `Heading size="lg"` | 24px | Seções principais |
+| Título de card | `CardTitle` | 17px | Dentro de cards |
+| Título de modal | `ModalHeader` | 18px | Dentro de modais |
+| Sub-seção interna | `Heading size="xs"` | 13px | **Apenas** dentro de cards/surfaces |
+| Descrição/subtítulo | `CardDescription` ou `Text variant="muted"` | 13px | Contexto adicional |
+| Label de formulário | `FormField label` ou `LabelText` | 12-13px | Acima de inputs |
+| Texto de corpo | `Text size="md"` | 14px | Conteúdo geral |
+| Legenda/caption | `Text size="xs" variant="muted"` | 12px | Notas, timestamps |
+| Kicker/eyebrow | `Kicker` | 10px | Acima de títulos principais |
+| Valor monetário (inline) | `Money` | 14-28px | Valores em texto |
+| Valor monetário (destaque) | `BalanceDisplay` | 42px+ | Saldo principal |
+
+### Restrições
+
+1. `Heading size="xs"` NUNCA para corpo de texto — apenas sub-seções internas
+2. `BalanceDisplay` apenas para saldo/valor principal (1 por página)
+3. `Kicker` sempre uppercase, antes de `Heading size="xl"` ou `size="lg"`
+
+---
+
+## 13. BADGE — Variants e aliases
 
 ### Decisao: "destructive" e alias de "error"
 

@@ -232,16 +232,16 @@ export function Stat({
       </span>
       <span className={cn(
         "text-[16px] font-medium tabular-nums",
-        trend === "up" && "text-accent-200",
-        trend === "down" && "text-neutral-300",
+        trend === "up" && "text-success",
+        trend === "down" && "text-error",
       )}>
         {prefix}{value}{suffix}
       </span>
       {trendValue && (
         <span className={cn(
           "text-[11px] flex items-center gap-1",
-          trend === "up" && "text-accent-300",
-          trend === "down" && "text-neutral-500",
+          trend === "up" && "text-success",
+          trend === "down" && "text-error",
         )}>
           {trendValue}
         </span>
@@ -343,9 +343,9 @@ export function Sparkline({
   const pathD = `M${points.join(" L")}`
 
   const strokeColor = trend === "up"
-    ? "var(--color-accent)"
+    ? "var(--color-success)"
     : trend === "down"
-      ? "var(--color-neutral-500)"
+      ? "var(--color-error)"
       : "var(--color-neutral-400)"
 
   return (

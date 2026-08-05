@@ -501,7 +501,28 @@ export { DataRowGroup } from "./data-row" // já existia DataRow
 
 ### 8.4 Registro no 01-decisoes.md
 
-Adicionado seção 11: Badge variants — `destructive` é alias de `error`.
+Adicionado seção 13: Badge variants — `destructive` é alias de `error`.
+
+---
+
+## ETAPA 9 — Aprovação das propostas e fechamento
+
+### 9.1 Cores semânticas aplicadas (D.1)
+
+**Stat e Sparkline** agora usam cores semânticas alinhadas com `Money`:
+
+| Componente | Antes | Depois |
+|------------|-------|--------|
+| Stat (trend up) | `text-accent-200/300` | `text-success` |
+| Stat (trend down) | `text-neutral-300/500` | `text-error` |
+| Sparkline (up) | `var(--color-accent)` | `var(--color-success)` |
+| Sparkline (down) | `var(--color-neutral-500)` | `var(--color-error)` |
+
+### 9.2 Regras registradas no 01-decisoes.md
+
+- **Seção 11:** Button — tabela de uso dos 9 variants + regra de desempate solid vs primary
+- **Seção 12:** Tipografia — tabela de aplicação + 3 restrições
+- **Seção 13:** Badge — destructive é alias de error
 
 **Build final:** PASSOU (23 rotas estáticas)
 
