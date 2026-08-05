@@ -228,10 +228,12 @@ A revisao de radius/spacing/tokens na consolidacao vale para **TODA** a bibliote
 
 | Arquivo | Valor atual | Conversao |
 |---------|-------------|-----------|
-| `card.tsx:25` | `gap-[--space-2]` | `gap-1.5` |
-| `card.tsx:27,30` | `p-[--space-3]` | `p-2` |
-| `card.tsx:109` | `gap-[--space-2] pt-[--space-2]` | `gap-1.5 pt-1.5` |
+| `card.tsx:25` | `gap-[--space-2]` | `gap-3` (nota 1) |
+| `card.tsx:27,30` | `p-[--space-3]` | `p-5` (nota 1) |
+| `card.tsx:109` | `gap-[--space-2] pt-[--space-2]` | `gap-3 pt-4` (nota 1) |
 | `button.tsx:92` | `px-[calc(var(--space-3)*1.2)] py-[--space-2]` | `px-2.5 py-1.5` |
+
+**Nota 1 (atualizado 2026-08-05):** A conversao literal de tokens mortos (gap-1.5, p-2, pt-1.5) foi substituida pelos valores da regra 8.2 ("Padding de card: p-4 compact, p-5 default, p-6 spacious") apos verificacao visual 6.3 confirmar que os textos dos cards estavam espremidos. Valores finais: gap-3, p-5, pt-4.
 
 ---
 

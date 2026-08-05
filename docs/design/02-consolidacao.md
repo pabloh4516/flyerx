@@ -322,6 +322,36 @@ c734667 chore: baseline do monorepo Flyerx — estado pós-consolidação do des
 
 **Acao:** DESIGN_SYSTEM.md DELETADO
 
+### 5.2 Verificacao visual 6.3 — Card spacing
+
+**Problema detectado:** Textos dos cards espremidos no showcase.
+
+**Diagnostico:**
+- card.tsx usava conversao literal da tabela 7.3: gap-1.5, p-2, pt-1.5
+- Regra 8.2 define: "Padding de card: p-4 (compact), p-5 (default), p-6 (spacious)"
+- A conversao literal estava INCORRETA — priorizou tokens mortos sobre a regra oficial
+
+**Correcao aplicada:**
+
+| Propriedade | Antes | Depois |
+|-------------|-------|--------|
+| Card gap | `gap-1.5` | `gap-3` |
+| default/glass padding | `p-2` | `p-5` |
+| accent padding | `p-[14px_16px]` | `py-3.5 px-4` |
+| elevated padding | `p-6` | `p-6` (mantido) |
+| CardFooter | `gap-1.5 pt-1.5` | `gap-3 pt-4` |
+
+**Veredito:** Regra 8.2 vence a conversao literal da 7.3. Tabela 7.3 atualizada com nota.
+
+### 5.3 Verificacao pontual pos-showcase
+
+| Item | Status |
+|------|--------|
+| Tabs (TabsTrigger rounded-md) | CONFORME |
+| Tooltip (rounded-lg) | CONFORME |
+| Button (rounded-lg todos sizes) | CONFORME |
+| Card (spacing regra 8.2) | CORRIGIDO |
+
 ---
 
 ## ARQUIVOS MODIFICADOS NESTA SESSAO

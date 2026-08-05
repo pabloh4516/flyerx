@@ -22,12 +22,12 @@ function Card({
     <div
       data-slot="card"
       className={cn(
-        "flex flex-col gap-1.5 rounded-xl text-card-foreground",
-        // Variantes
-        variant === "default" && "bg-card p-2",
+        "flex flex-col gap-3 rounded-xl text-card-foreground",
+        // Variantes — padding conforme regra 8.2: p-4 (compact), p-5 (default), p-6 (spacious)
+        variant === "default" && "bg-card p-5",
         variant === "elevated" && "card-elevated p-6",
-        variant === "accent" && "card-accent p-[14px_16px]",
-        variant === "glass" && "glass p-2",
+        variant === "accent" && "card-accent py-3.5 px-4",
+        variant === "glass" && "glass p-5",
         className
       )}
       {...props}
@@ -106,7 +106,7 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-footer"
       className={cn(
-        "flex items-center gap-1.5 pt-1.5",
+        "flex items-center gap-3 pt-4",
         className
       )}
       {...props}
