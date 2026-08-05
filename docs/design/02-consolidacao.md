@@ -365,3 +365,50 @@ c734667 chore: baseline do monorepo Flyerx — estado pós-consolidação do des
 - dialog.tsx
 - toast.tsx
 - src/app/design-system/compare/ (diretorio inteiro)
+- DESIGN_SYSTEM.md (raiz flyerx-web)
+
+---
+
+## ETAPA 6 — Fechamento
+
+### Build final
+
+```
+pnpm build — PASSOU
+23 rotas estaticas geradas
+```
+
+### Commits desta sessao
+
+| Hash | Mensagem |
+|------|----------|
+| `c734667` | chore: baseline do monorepo Flyerx — estado pós-consolidação do design system Nocturne |
+| `45e11c2` | chore(design): finaliza consolidação do design system Nocturne |
+
+### CLAUDE.md atualizado
+
+- Estado: "Consolidacao CONCLUIDA. Proxima fase: migracao de telas (Grupo A: receive + send)"
+- Tabela de vereditos: todos marcados como "Consolidado"
+- Referencia ao commit baseline: c734667
+- Regra de radius corrigida: Alert movido para rounded-xl
+
+---
+
+## CONCLUSAO
+
+**Sessao de consolidacao CONCLUIDA com sucesso.**
+
+### O que foi feito
+
+1. **Tokens:** --radius-full no @theme, --space-* deletados, cores semanticas registradas
+2. **Componentes:** 7 arquivos deletados, 5 renomeados, exports canonicos no index.ts
+3. **Sintaxe:** rounded-[--radius-*] → rounded-*, spacing conforme tabela 7.3
+4. **Visual:** autofill fix, radius review (alert→xl, tooltip→lg)
+5. **Git:** monorepo consolidado, .gitignore robusto, scan de seguranca limpo
+6. **Docs:** 02-consolidacao.md, 03-layouts.md criados, DESIGN_SYSTEM.md removido
+
+### Proxima fase
+
+**Migracao de telas — Grupo A: receive + send**
+
+Escopo: aplicar tokens e componentes consolidados nas paginas de feature, corrigindo sintaxe invalida restante (~94 ocorrencias em paginas).
