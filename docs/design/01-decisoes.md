@@ -421,4 +421,22 @@ Baseado no Top 10 de inconsistencias da auditoria:
 
 ---
 
+## 11. BADGE — Variants e aliases
+
+### Decisao: "destructive" e alias de "error"
+
+| Variant | Cor | Uso |
+|---------|-----|-----|
+| `default` | Neutral | Status neutro, tags gerais |
+| `secondary` | Neutral mais claro | Informacao secundaria |
+| `outline` | Apenas borda | Contorno sem preenchimento |
+| `success` | Verde | Confirmado, ativo, aprovado |
+| `warning` | Amarelo | Pendente, atencao |
+| `error` | Vermelho | **PADRAO** — Erro, rejeitado, falha |
+| `destructive` | Vermelho | **ALIAS** de `error` — manter para compatibilidade |
+
+**Regra:** Usar `error` como padrao. `destructive` existe apenas para compatibilidade com imports de shadcn/ui.
+
+---
+
 *Documento gerado na sessao de decisoes de 2026-08-05. Fonte de verdade para o retrofit visual do Nocturne Design System.*

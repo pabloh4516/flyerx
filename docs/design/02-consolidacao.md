@@ -468,6 +468,45 @@ export { DataRowGroup } from "./data-row" // já existia DataRow
 
 ---
 
+## ETAPA 8 — Inspeção visual profunda do showcase
+
+### 8.1 Escalas de cor (tons invisíveis)
+
+**Problema:** Swatches de cores renderizando vazios no showcase.
+
+**Diagnóstico:** Os tons EXISTEM no globals.css (linhas 26-45 :root, linhas 183-203 @theme inline). O problema era interpolação dinâmica:
+```tsx
+// INCORRETO — Tailwind não detecta classes dinâmicas
+<div className={`bg-accent-${n}`} />
+```
+
+**Correção:** Substituído por classes estáticas para cada tom (100-900).
+
+### 8.2 Issues do overlay Next.js (3 erros)
+
+| # | Tipo | Causa | Correção |
+|---|------|-------|----------|
+| 1 | Button nested | `<Button>` dentro de `<DropdownMenuTrigger>` | Trigger com classes inline |
+| 2 | Hydration mismatch | Decorrente do erro 1 | Resolvido com fix 1 |
+| 3 | MenuGroupContext missing | `DropdownMenuLabel` fora de `<Menu.Group>` | Envolvido em `DropdownMenuGroup` |
+
+### 8.3 Correções de componentes
+
+| Item | Problema | Correção |
+|------|----------|----------|
+| **Tabs pills** | rounded-md (canto reto) | Contexto de variant + `rounded-full` |
+| **Tabs underline** | Indicador ausente | Pseudo-elemento `after:` com `bg-accent-500` |
+| **PageHeader kicker** | `text-accent` (accent-900 ilegível) | `text-accent-400` |
+| **AlertBanner** | Banners sobrepostos | `space-y-3` no showcase |
+
+### 8.4 Registro no 01-decisoes.md
+
+Adicionado seção 11: Badge variants — `destructive` é alias de `error`.
+
+**Build final:** PASSOU (23 rotas estáticas)
+
+---
+
 ## CONCLUSAO
 
 **Sessao de consolidacao CONCLUIDA com sucesso.**

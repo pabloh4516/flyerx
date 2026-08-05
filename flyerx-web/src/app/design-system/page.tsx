@@ -75,6 +75,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
+  DropdownMenuGroup,
 } from '@/components/ui/dropdown-menu'
 import {
   Select,
@@ -140,28 +141,84 @@ export default function DesignSystemPage() {
               <div>
                 <LabelText size="xs" uppercase className="mb-2 block">Accent</LabelText>
                 <div className="flex gap-2">
-                  {[100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => (
-                    <div key={n} className="text-center">
-                      <div
-                        className={`w-12 h-12 rounded-lg bg-accent-${n} border border-white/10`}
-                      />
-                      <Text size="xs" variant="muted" className="mt-1">{n}</Text>
-                    </div>
-                  ))}
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-100 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">100</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-200 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">200</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-300 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">300</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-400 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">400</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-500 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">500</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-600 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">600</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-700 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">700</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-800 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">800</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-accent-900 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">900</Text>
+                  </div>
                 </div>
               </div>
 
               <div>
                 <LabelText size="xs" uppercase className="mb-2 block">Neutral</LabelText>
                 <div className="flex gap-2">
-                  {[100, 200, 300, 400, 500, 600, 700, 800, 900].map((n) => (
-                    <div key={n} className="text-center">
-                      <div
-                        className={`w-12 h-12 rounded-lg bg-neutral-${n} border border-white/10`}
-                      />
-                      <Text size="xs" variant="muted" className="mt-1">{n}</Text>
-                    </div>
-                  ))}
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-100 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">100</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-200 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">200</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-300 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">300</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-400 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">400</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-500 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">500</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-600 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">600</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-700 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">700</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-800 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">800</Text>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 rounded-lg bg-neutral-900 border border-white/10" />
+                    <Text size="xs" variant="muted" className="mt-1">900</Text>
+                  </div>
                 </div>
               </div>
 
@@ -696,7 +753,7 @@ export default function DesignSystemPage() {
             {/* AlertBanner */}
             <div>
               <LabelText size="xs" uppercase className="mb-3 block">Alert Banner (topo de página)</LabelText>
-              <div className="space-y-2 rounded-xl overflow-hidden border border-divider">
+              <div className="space-y-3">
                 <AlertBanner variant="info">
                   Sua conta está em análise. Verificação em até 24h.
                 </AlertBanner>
@@ -867,23 +924,23 @@ export default function DesignSystemPage() {
               <LabelText size="xs" uppercase className="mb-3 block">Dropdown Menu</LabelText>
               <div className="flex gap-4">
                 <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Button variant="outline">
-                      Menu Simples
-                      <ChevronRight className="size-4 rotate-90" />
-                    </Button>
+                  <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border bg-transparent text-sm font-medium hover:bg-neutral-800/50 transition-colors">
+                    Menu Simples
+                    <ChevronRight className="size-4 rotate-90" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <User className="size-4" />
-                      Perfil
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Settings className="size-4" />
-                      Configurações
-                    </DropdownMenuItem>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Minha conta</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <User className="size-4" />
+                        Perfil
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <Settings className="size-4" />
+                        Configurações
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem variant="destructive">
                       <LogOut className="size-4" />
@@ -893,14 +950,14 @@ export default function DesignSystemPage() {
                 </DropdownMenu>
 
                 <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Button variant="outline">
-                      Com Checkbox/Radio
-                      <ChevronRight className="size-4 rotate-90" />
-                    </Button>
+                  <DropdownMenuTrigger className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg border border-border bg-transparent text-sm font-medium hover:bg-neutral-800/50 transition-colors">
+                    Com Checkbox/Radio
+                    <ChevronRight className="size-4 rotate-90" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuLabel>Preferências</DropdownMenuLabel>
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel>Preferências</DropdownMenuLabel>
+                    </DropdownMenuGroup>
                     <DropdownMenuSeparator />
                     <DropdownMenuCheckboxItem
                       checked={dropdownChecked}
@@ -909,7 +966,6 @@ export default function DesignSystemPage() {
                       Mostrar ícones
                     </DropdownMenuCheckboxItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuLabel>Tema</DropdownMenuLabel>
                     <DropdownMenuRadioGroup value={dropdownRadio} onValueChange={setDropdownRadio}>
                       <DropdownMenuRadioItem value="light">Claro</DropdownMenuRadioItem>
                       <DropdownMenuRadioItem value="dark">Escuro</DropdownMenuRadioItem>

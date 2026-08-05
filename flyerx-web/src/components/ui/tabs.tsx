@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
  * Tabs — Nocturne Design System
  *
  * Tabs com estilo elevated para a tab ativa.
+ * Variants: default, pills, underline
  */
 interface TabsContextValue {
   activeTab: string
@@ -22,6 +23,9 @@ function useTabs() {
   }
   return context
 }
+
+// Context para passar o variant do TabsList para TabsTrigger
+const TabsListVariantContext = React.createContext<"default" | "pills" | "underline">("default")
 
 export interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
   defaultValue: string
@@ -70,19 +74,21 @@ export function TabsList({
   ...props
 }: TabsListProps) {
   return (
-    <div
-      role="tablist"
-      className={cn(
-        "flex items-center gap-1",
-        variant === "default" && "p-1 rounded-lg bg-neutral-900/50 border border-border",
-        variant === "pills" && "gap-2",
-        variant === "underline" && "gap-0 border-b border-border",
-        className
-      )}
-      {...props}
-    >
-      {children}
-    </div>
+    <TabsListVariantContext.Provider value={variant}>
+      <div
+        role="tablist"
+        className={cn(
+          "flex items-center gap-1",
+          variant === "default" && "p-1 rounded-lg bg-neutral-900/50 border border-border",
+          variant === "pills" && "gap-2",
+          variant === "underline" && "gap-0 border-b border-border",
+          className
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    </TabsListVariantContext.Provider>
   )
 }
 
@@ -102,6 +108,7 @@ export function TabsTrigger({
   ...props
 }: TabsTriggerProps) {
   const { activeTab, setActiveTab } = useTabs()
+  const variant = React.useContext(TabsListVariantContext)
   const isActive = activeTab === value
 
   return (
@@ -110,16 +117,28 @@ export function TabsTrigger({
       aria-selected={isActive}
       onClick={() => setActiveTab(value)}
       className={cn(
-        "flex items-center gap-2 px-4 py-2 text-[13px] font-medium rounded-md transition-all",
+        "flex items-center gap-2 px-4 py-2 text-[13px] font-medium transition-all relative",
         "focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2",
+        // Radius por variant
+        variant === "default" && "rounded-md",
+        variant === "pills" && "rounded-full",
+        variant === "underline" && "rounded-none",
         // Inactive
-        !isActive && "text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50",
-        // Active - elevated style
-        isActive && [
+        !isActive && "text-neutral-500 hover:text-neutral-300",
+        !isActive && variant !== "underline" && "hover:bg-neutral-800/50",
+        // Active - variant-specific styles
+        isActive && variant === "default" && [
           "text-accent-200",
           "bg-[linear-gradient(color-mix(in_srgb,var(--color-surface)_90%,transparent),color-mix(in_srgb,var(--color-surface)_80%,transparent))_padding-box,linear-gradient(135deg,var(--color-accent-600),var(--color-neutral-700)_60%)_border-box]",
           "border border-transparent",
           "shadow-[0_2px_8px_rgba(0,0,0,0.3)]",
+        ],
+        isActive && variant === "pills" && [
+          "text-accent-200 bg-accent-900 border border-accent-700",
+        ],
+        isActive && variant === "underline" && [
+          "text-accent-300",
+          "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-accent-500",
         ],
         className
       )}

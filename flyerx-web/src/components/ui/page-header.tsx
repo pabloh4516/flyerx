@@ -37,7 +37,7 @@ export function PageHeader({
     >
       <div className="flex flex-col gap-1">
         {kicker && (
-          <span className="text-[10px] uppercase tracking-[0.12em] text-accent">
+          <span className="text-[10px] uppercase tracking-[0.12em] text-accent-400">
             {kicker}
           </span>
         )}
