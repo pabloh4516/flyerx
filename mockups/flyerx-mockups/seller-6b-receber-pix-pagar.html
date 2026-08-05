@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flyerx — Seller · Receber PIX — Pagar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+body{margin:0;background:#0e0f18;font-family:"Inter",system-ui,sans-serif;display:flex;justify-content:center;align-items:flex-start;padding:48px 24px;min-height:100vh;box-sizing:border-box}
+.frame-desktop{background:var(--color-bg);border:1px solid rgba(255,255,255,.08);border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden}
+.phone{width:402px;height:874px;border-radius:48px;overflow:hidden;position:relative;background:#000;box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1);flex-shrink:0}
+.phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:126px;height:37px;border-radius:24px;background:#000;z-index:50}
+.phone .sb{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:21px 34px 0;z-index:40;color:#fff;font-size:16px;font-weight:600}
+.phone .sb .ic{display:flex;gap:7px;align-items:center}
+.phone .screen{height:100%;overflow:hidden}
+.phone .hb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:100px;background:rgba(255,255,255,.7);z-index:60;pointer-events:none}
+</style></head><body><div class="frame-desktop" style="width:1100px">
+<div style="padding:30px 40px 24px;display:flex;flex-direction:column;gap:22px;color:var(--color-text);min-height:760px">
+  <div style="display:flex;align-items:center;gap:16px">
+    <div style="width:46px;height:46px;border-radius:14px;border:1px solid var(--color-accent-700);background:linear-gradient(135deg,var(--color-accent-900),transparent);color:var(--color-accent-300);display:flex;align-items:center;justify-content:center"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M8 2v10M4 8.5 8 12l4-3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:21px;font-weight:500">Receber PIX</span><span style="font-size:12.5px;color:var(--color-neutral-500)">Receba em DePix instantaneamente</span></div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:0">
+    <span style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;white-space:nowrap;border:1px solid var(--color-accent-700);color:var(--color-accent-300);font-size:12.5px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>Valor</span>
+    <span style="width:56px;height:1px;background:var(--color-accent-700)"></span>
+    <span style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;white-space:nowrap;border:1px solid var(--color-accent);background:color-mix(in srgb,var(--color-accent) 12%,transparent);color:var(--color-accent-200);font-size:12.5px;font-weight:500"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><path d="M9 9h2v2H9zM12 12h2v2h-2z" fill="currentColor"></path></svg>Pagar PIX</span>
+    <span style="width:56px;height:1px;background:var(--color-divider)"></span>
+    <span style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:999px;white-space:nowrap;border:1px solid var(--color-divider);color:var(--color-neutral-600);font-size:12.5px">Confirmado</span>
+  </div>
+  <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:14px 18px;display:flex;align-items:center;gap:14px;background:color-mix(in srgb,var(--color-surface) 60%,transparent)">
+    <div style="width:40px;height:40px;border-radius:11px;border:1px solid var(--color-accent-2-700);background:var(--color-accent-2-900);color:var(--color-accent-2-300);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"></circle><path d="M8 4.5V8l2.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg></div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+      <span style="font-size:14px;font-weight:500;color:var(--color-accent-2-300)">Aguardando pagamento</span>
+      <span style="font-size:12px;color:var(--color-neutral-500)">Expira em <span style="color:var(--color-text);font-weight:500;font-variant-numeric:tabular-nums">1439:55</span></span>
+    </div>
+    <button class="btn btn-secondary" style="font-size:12.5px;padding:8px 16px;display:inline-flex;gap:7px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v2.7h-2.7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path></svg>Atualizar</button>
+    <button class="btn btn-primary" style="font-size:12.5px;padding:8px 16px;display:inline-flex;gap:7px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><path d="M9 9h2v2H9zM12 12h2v2h-2z" fill="currentColor"></path></svg>Novo PIX</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:38px;height:38px;border-radius:10px;border:1px solid var(--color-divider);color:var(--color-neutral-300);display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><path d="M9 9h2v2H9zM12 12h2v2h-2z" fill="currentColor"></path></svg></div>
+        <div style="display:flex;flex-direction:column"><span style="font-size:14.5px;font-weight:500">QR Code PIX</span><span style="font-size:11.5px;color:var(--color-neutral-600)">Escaneie com seu banco</span></div>
+      </div>
+      <div style="align-self:center;background:var(--color-neutral-100);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow-md)">
+        <svg width="210" height="210" viewBox="0 0 29 29" shape-rendering="crispEdges" role="img" aria-label="QR Code PIX">
+          <rect width="29" height="29" fill="#f3f5fe"></rect>
+          <path fill="#161826" d="M2 2h7v7H2zM20 2h7v7h-7zM2 20h7v7H2z"></path>
+          <path fill="#f3f5fe" d="M3 3h5v5H3zM21 3h5v5h-5zM3 21h5v5H3z"></path>
+          <path fill="#161826" d="M4 4h3v3H4zM22 4h3v3h-3zM4 22h3v3H4zM11 2h2v2h-2zM15 3h2v2h-2zM11 6h1v3h-1zM13 5h2v1h-2zM16 6h2v2h-2zM14 8h1v2h-1zM19 5h1v3h-1zM24 8h2v1h-2zM11 11h3v2h-3zM16 10h2v3h-2zM20 11h2v2h-2zM24 11h3v1h-3zM2 11h3v2H2zM6 12h3v1H6zM6 10h2v1H6zM13 13h2v2h-2zM19 13h1v2h-1zM23 13h2v1h-2zM3 15h2v2H3zM7 15h2v3H7zM11 15h2v3h-2zM15 15h1v2h-1zM18 15h3v1h-3zM23 15h2v2h-2zM26 14h1v3h-1zM4 18h2v1H4zM14 17h2v2h-2zM17 17h1v2h-1zM21 17h2v2h-2zM25 18h2v1h-2zM12 20h2v2h-2zM15 19h3v2h-3zM20 20h2v2h-2zM24 20h3v2h-3zM19 22h2v1h-2zM11 24h2v3h-2zM15 23h2v2h-2zM18 24h2v2h-2zM22 24h2v2h-2zM25 24h2v3h-2zM14 26h1v1h-1z"></path>
+        </svg>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:10px 18px;display:flex;flex-direction:column;gap:2px;align-items:center"><span style="font-size:9.5px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.1em">Bruto</span><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">R$ 20,00</span></div>
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:10px 18px;display:flex;flex-direction:column;gap:2px;align-items:center"><span style="font-size:9.5px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.1em">Taxa</span><span style="font-size:14px;font-weight:500;color:var(--color-neutral-400);font-variant-numeric:tabular-nums">− 2,00</span></div>
+        <div style="border:1px solid var(--color-accent);border-radius:var(--radius-md);padding:10px 18px;display:flex;flex-direction:column;gap:2px;align-items:center;background:color-mix(in srgb,var(--color-accent) 10%,transparent)"><span style="font-size:9.5px;color:var(--color-accent-300);text-transform:uppercase;letter-spacing:.1em">Líquido</span><span style="font-size:14px;font-weight:500;color:var(--color-accent-200);font-variant-numeric:tabular-nums">18,00</span></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:38px;height:38px;border-radius:10px;border:1px solid var(--color-divider);color:var(--color-neutral-300);display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"></rect><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.3"></path></svg></div>
+        <div style="display:flex;flex-direction:column"><span style="font-size:14.5px;font-weight:500">PIX Copia e Cola</span><span style="font-size:11.5px;color:var(--color-neutral-600)">Cole no app do banco</span></div>
+      </div>
+      <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:14px 16px;background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+        <span style="font-size:11px;font-family:ui-monospace,monospace;color:var(--color-neutral-400);line-height:1.7;word-break:break-all">00020101021226910014br.gov.bcb.pix2569qrcode.pix.flyerx.cc/pixqrcode/v2/b048a2acc27c7b832ab978511d83bc5204000053039865802BR5924P1ebz62070503***63042DB1</span>
+      </div>
+      <button class="btn btn-primary btn-block" style="height:46px;font-size:14px;display:inline-flex;gap:9px"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="5" y="5" width="9" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"></rect><path d="M11 5V3.5A1.5 1.5 0 0 0 9.5 2h-6A1.5 1.5 0 0 0 2 3.5v6A1.5 1.5 0 0 0 3.5 11H5" stroke="currentColor" stroke-width="1.3"></path></svg>Copiar código PIX</button>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-secondary" style="flex:1;display:inline-flex;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M6.5 9.5 13 3M13 3H9M13 3v4M13 9.5v3A1.5 1.5 0 0 1 11.5 14h-8A1.5 1.5 0 0 1 2 12.5v-8A1.5 1.5 0 0 1 3.5 3h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"></path></svg>Ver extrato</button>
+        <button class="btn btn-secondary" style="flex:1;display:inline-flex;gap:7px;font-size:12.5px"><svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2.5 7.5 8 2.5l5.5 5V14h-4v-3.5h-3V14h-4V7.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg>Início</button>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto;font-size:11px;color:var(--color-neutral-600)"><span>© 2026 Flyerx</span><div style="display:flex;gap:16px"><span>Privacidade</span><span>Termos</span></div></div>
+</div>
+</div>
+</body></html>

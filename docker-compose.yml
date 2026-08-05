@@ -1,0 +1,196 @@
+version: '3.8'
+
+services:
+  # ===========================================
+  # PHP-FPM Application
+  # ===========================================
+  app:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: flyerx-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./api:/var/www
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    networks:
+      - flyerx-network
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - PHP_MEMORY_LIMIT=512M
+      - PHP_MAX_EXECUTION_TIME=60
+
+  # ===========================================
+  # Nginx Web Server
+  # ===========================================
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: flyerx-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./api:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - flyerx-network
+    depends_on:
+      - app
+
+  # ===========================================
+  # PostgreSQL Database
+  # ===========================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: flyerx-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-flyerx}
+      POSTGRES_USER: ${DB_USERNAME:-flyerx}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - flyerx-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-flyerx}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================
+  # Redis Cache & Queue
+  # ===========================================
+  redis:
+    image: redis:7-alpine
+    container_name: flyerx-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis-data:/data
+    networks:
+      - flyerx-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===========================================
+  # Laravel Horizon (Queue Worker)
+  # ===========================================
+  horizon:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: flyerx-horizon
+    restart: unless-stopped
+    working_dir: /var/www
+    command: php artisan horizon
+    volumes:
+      - ./api:/var/www
+    networks:
+      - flyerx-network
+    depends_on:
+      - app
+      - redis
+      - postgres
+
+  # ===========================================
+  # Laravel Scheduler (Cron)
+  # ===========================================
+  scheduler:
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile
+    container_name: flyerx-scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    command: >
+      sh -c "while true; do
+        php artisan schedule:run --verbose --no-interaction &
+        sleep 60
+      done"
+    volumes:
+      - ./api:/var/www
+    networks:
+      - flyerx-network
+    depends_on:
+      - app
+      - redis
+      - postgres
+
+  # ===========================================
+  # LWK Microservice (Python/FastAPI)
+  # ===========================================
+  lwk:
+    build:
+      context: ./flyerx-backend
+      dockerfile: Dockerfile
+    container_name: flyerx-lwk
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./flyerx-backend:/app
+      - lwk-data:/app/data
+    networks:
+      - flyerx-network
+    depends_on:
+      - postgres
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - DATABASE_URL=sqlite+aiosqlite:///./data/flyerx.db
+      - INTERNAL_API_KEY=${LWK_MICROSERVICE_API_KEY:-flyerx-internal-api-key-dev-2024}
+      - LWK_NETWORK=liquid
+      - LWK_ELECTRUM_URL=blockstream.info:995
+      - EULEN_API_URL=https://depix.eulen.app/api
+      - EULEN_MOCK_MODE=true
+      - PARTNER_WITHDRAW_FEE_PERCENT=0.015
+      - PARTNER_WITHDRAW_FEE_FIXED_CENTS=0
+      - PARTNER_WITHDRAW_FEE_MIN_CENTS=50
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ===========================================
+  # Mailpit (Development Email)
+  # ===========================================
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: flyerx-mailpit
+    restart: unless-stopped
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    networks:
+      - flyerx-network
+
+# ===========================================
+# Networks
+# ===========================================
+networks:
+  flyerx-network:
+    driver: bridge
+
+# ===========================================
+# Volumes
+# ===========================================
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  lwk-data:
+    driver: local

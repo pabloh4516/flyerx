@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flyerx — App · Home — carteira em vidro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+body{margin:0;background:#0e0f18;font-family:"Inter",system-ui,sans-serif;display:flex;justify-content:center;align-items:flex-start;padding:48px 24px;min-height:100vh;box-sizing:border-box}
+.frame-desktop{background:var(--color-bg);border:1px solid rgba(255,255,255,.08);border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden}
+.phone{width:402px;height:874px;border-radius:48px;overflow:hidden;position:relative;background:#000;box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1);flex-shrink:0}
+.phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:126px;height:37px;border-radius:24px;background:#000;z-index:50}
+.phone .sb{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:21px 34px 0;z-index:40;color:#fff;font-size:16px;font-weight:600}
+.phone .sb .ic{display:flex;gap:7px;align-items:center}
+.phone .screen{height:100%;overflow:hidden}
+.phone .hb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:100px;background:rgba(255,255,255,.7);z-index:60;pointer-events:none}
+</style></head><body><div class="phone"><div class="notch"></div><div class="sb"><span>9:41</span><span class="ic"><svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#fff"/><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#fff"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#fff"/><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#fff"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity="0.35" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/></svg></span></div><div class="screen">
+<div style="background:var(--color-bg);height:100%;box-sizing:border-box;display:flex;flex-direction:column;color:var(--color-text);position:relative;overflow:hidden">
+  <div style="position:absolute;top:-120px;left:50%;transform:translateX(-50%);width:460px;height:360px;border-radius:50%;background:radial-gradient(closest-side,var(--color-section-glow) 0%,transparent 70%);opacity:.5;pointer-events:none"></div>
+  <div style="flex:1;overflow:hidden;padding:74px 22px 0;display:flex;flex-direction:column;gap:18px;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--color-accent-800),var(--color-accent-900));border:1px solid var(--color-accent-700);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">MC</div>
+        <div style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:500">Marina Costa</span><span style="font-size:10.5px;color:var(--color-neutral-600);display:flex;align-items:center;gap:4px"><svg width="9" height="9" viewBox="0 0 16 16" fill="none" style="color:var(--color-accent)"><path d="M8 1.5 13.5 4v4c0 3.2-2.3 5.6-5.5 6.5C4.8 13.6 2.5 11.2 2.5 8V4L8 1.5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path></svg>Nível 2 verificado</span></div>
+      </div>
+      <div style="width:34px;height:34px;border-radius:50%;border:1px solid var(--color-divider);display:flex;align-items:center;justify-content:center;color:var(--color-neutral-400);position:relative"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2a4 4 0 0 0-4 4v2.5L2.8 11h10.4L12 8.5V6a4 4 0 0 0-4-4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path><path d="M6.5 13a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.3"></path></svg><span style="position:absolute;top:5px;right:7px;width:6px;height:6px;border-radius:50%;background:var(--color-accent);box-shadow:0 0 6px var(--color-accent)"></span></div>
+    </div>
+    <div style="border:1px solid transparent;border-radius:var(--radius-lg);background:linear-gradient(color-mix(in srgb,var(--color-surface) 72%,transparent),color-mix(in srgb,var(--color-surface) 72%,transparent)) padding-box,linear-gradient(140deg,var(--color-accent-700),var(--color-neutral-800) 55%,var(--color-neutral-900)) border-box;backdrop-filter:blur(14px);padding:20px;display:flex;flex-direction:column;gap:16px;box-shadow:0 24px 48px rgba(0,0,0,.4)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:11.5px;color:var(--color-neutral-500)">Carteira BRL</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style="color:var(--color-neutral-600)"><path d="M2 8s2.2-4 6-4 6 4 6 4-2.2 4-6 4-6-4-6-4z" stroke="currentColor" stroke-width="1.2"></path><circle cx="8" cy="8" r="1.6" stroke="currentColor" stroke-width="1.2"></circle></svg>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:7px;font-variant-numeric:tabular-nums">
+        <span style="font-size:15px;color:var(--color-neutral-500)">R$</span>
+        <span style="font-size:38px;font-weight:500;letter-spacing:-.025em;line-height:1">12.847<span style="font-size:22px;color:var(--color-neutral-400)">,32</span></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--color-neutral-500)"><span>Limite mensal · Nível 2</span><span style="font-variant-numeric:tabular-nums">R$ 16.600 de R$ 50.000</span></div>
+        <div style="height:4px;border-radius:2px;background:var(--color-neutral-900);overflow:hidden;display:flex"><span style="width:33%;height:100%;background:linear-gradient(to right,var(--color-accent-600),var(--color-accent-400))"></span></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1;height:40px;font-size:13px">Depositar</button>
+        <button class="btn btn-secondary" style="flex:1;height:40px;font-size:13px">Sacar</button>
+        <button class="btn btn-secondary btn-icon" style="width:40px;height:40px" aria-label="Mais"><svg width="15" height="15" viewBox="0 0 22 6" fill="none"><circle cx="3" cy="3" r="2" fill="currentColor"></circle><circle cx="11" cy="3" r="2" fill="currentColor"></circle><circle cx="19" cy="3" r="2" fill="currentColor"></circle></svg></button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;overflow:hidden">
+      <div style="flex:1;border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:color-mix(in srgb,var(--color-surface) 50%,transparent)"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.08em">Entradas · ago</span><span style="font-size:15.5px;font-weight:500;color:var(--color-accent-300);font-variant-numeric:tabular-nums">R$ 3.500</span></div>
+      <div style="flex:1;border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:color-mix(in srgb,var(--color-surface) 50%,transparent)"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.08em">Saídas · ago</span><span style="font-size:15.5px;font-weight:500;font-variant-numeric:tabular-nums">R$ 1.450</span></div>
+      <div style="flex:1;border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;gap:4px;background:color-mix(in srgb,var(--color-surface) 50%,transparent)"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.08em">Em taxas</span><span style="font-size:15.5px;font-weight:500;color:var(--color-neutral-400);font-variant-numeric:tabular-nums">R$ 21,60</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;flex:1;min-height:0">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+        <span style="font-size:13.5px;font-weight:500">Atividade</span>
+        <span style="font-size:12px;color:var(--color-accent-300)">Ver tudo</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--color-divider)">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--color-accent-900);border:1px solid var(--color-accent-800);color:var(--color-accent-300);display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2v10M4 8.5 8 12l4-3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <div style="flex:1;display:flex;flex-direction:column"><span style="font-size:13.5px">Depósito PIX</span><span style="font-size:11px;color:var(--color-neutral-600)">Hoje · 14:32</span></div>
+        <span style="font-size:13.5px;color:var(--color-accent-300);font-variant-numeric:tabular-nums">+ R$ 500,00</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;padding:11px 0">
+        <div style="width:34px;height:34px;border-radius:10px;background:var(--color-neutral-900);border:1px solid var(--color-neutral-800);color:var(--color-neutral-400);display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 14V4M4 7.5 8 4l4 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+        <div style="flex:1;display:flex;flex-direction:column"><span style="font-size:13.5px">Saque PIX</span><span style="font-size:11px;color:var(--color-neutral-600)">Ontem · 19:04</span></div>
+        <span style="font-size:13.5px;color:var(--color-neutral-300);font-variant-numeric:tabular-nums">− R$ 1.200,00</span>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;border-top:1px solid var(--color-divider);padding:12px 10px 30px;background:color-mix(in srgb,var(--color-surface) 60%,transparent);backdrop-filter:blur(10px)">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--color-accent-300)"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M2.5 7.5 8 2.5l5.5 5V14h-4v-3.5h-3V14h-4V7.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg><span style="font-size:10px;font-weight:500">Início</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--color-neutral-500)"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M3 2h10v12l-2-1.4L9 14l-2-1.4L5 14l-2-1.4V2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"></path><path d="M5.5 6h5M5.5 9h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg><span style="font-size:10px">Extrato</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--color-neutral-500)"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"></rect><path d="M9 9h2v2H9zM12 12h2v2h-2z" fill="currentColor"></path></svg><span style="font-size:10px">Pix</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--color-neutral-500)"><svg width="20" height="20" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.8" stroke="currentColor" stroke-width="1.2"></circle><path d="M2.8 14c.8-2.6 2.8-4 5.2-4s4.4 1.4 5.2 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path></svg><span style="font-size:10px">Perfil</span></div>
+  </div>
+</div>
+</div><div class="hb"></div></div>
+</body></html>

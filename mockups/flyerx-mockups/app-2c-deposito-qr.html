@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flyerx — App · Depósito PIX (QR)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+body{margin:0;background:#0e0f18;font-family:"Inter",system-ui,sans-serif;display:flex;justify-content:center;align-items:flex-start;padding:48px 24px;min-height:100vh;box-sizing:border-box}
+.frame-desktop{background:var(--color-bg);border:1px solid rgba(255,255,255,.08);border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden}
+.phone{width:402px;height:874px;border-radius:48px;overflow:hidden;position:relative;background:#000;box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1);flex-shrink:0}
+.phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:126px;height:37px;border-radius:24px;background:#000;z-index:50}
+.phone .sb{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:21px 34px 0;z-index:40;color:#fff;font-size:16px;font-weight:600}
+.phone .sb .ic{display:flex;gap:7px;align-items:center}
+.phone .screen{height:100%;overflow:hidden}
+.phone .hb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:100px;background:rgba(255,255,255,.7);z-index:60;pointer-events:none}
+</style></head><body><div class="phone"><div class="notch"></div><div class="sb"><span>9:41</span><span class="ic"><svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill="#fff"/><rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill="#fff"/><rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill="#fff"/><rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill="#fff"/></svg><svg width="27" height="13" viewBox="0 0 27 13"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke="#fff" stroke-opacity="0.35" fill="none"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/></svg></span></div><div class="screen">
+<div style="background:var(--color-bg);height:100%;box-sizing:border-box;display:flex;flex-direction:column;color:var(--color-text);position:relative;overflow:hidden">
+  <div style="position:absolute;top:120px;left:50%;transform:translateX(-50%);width:380px;height:380px;border-radius:50%;background:radial-gradient(closest-side,var(--color-accent-900) 0%,transparent 70%);opacity:.5;pointer-events:none"></div>
+  <div style="flex:1;overflow:hidden;padding:74px 26px 30px;display:flex;flex-direction:column;gap:18px;position:relative">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:34px;height:34px;border-radius:50%;border:1px solid var(--color-divider);display:flex;align-items:center;justify-content:center;color:var(--color-neutral-400)"><svg width="13" height="13" viewBox="0 0 12 20" fill="none"><path d="M10 2L2 10l8 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></div>
+      <div style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:500">Depósito via PIX</span><span style="font-size:11px;color:var(--color-neutral-600)">QR Code dinâmico · uso único</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px 0">
+      <span style="font-size:12px;color:var(--color-neutral-500)">Valor a depositar</span>
+      <span style="font-size:30px;font-weight:500;font-variant-numeric:tabular-nums">R$ 500,00</span>
+    </div>
+    <div style="align-self:center;position:relative;padding:16px;background:var(--color-neutral-100);border-radius:var(--radius-lg);box-shadow:var(--shadow-md)">
+      <svg width="188" height="188" viewBox="0 0 29 29" shape-rendering="crispEdges" role="img" aria-label="QR Code PIX">
+        <rect width="29" height="29" fill="#f3f5fe"></rect>
+        <path fill="#161826" d="M2 2h7v7H2zM20 2h7v7h-7zM2 20h7v7H2z"></path>
+        <path fill="#f3f5fe" d="M3 3h5v5H3zM21 3h5v5h-5zM3 21h5v5H3z"></path>
+        <path fill="#161826" d="M4 4h3v3H4zM22 4h3v3h-3zM4 22h3v3H4zM11 2h2v2h-2zM15 3h2v2h-2zM11 6h1v3h-1zM13 5h2v1h-2zM16 6h2v2h-2zM14 8h1v2h-1zM19 5h1v3h-1zM24 8h2v1h-2zM11 11h3v2h-3zM16 10h2v3h-2zM20 11h2v2h-2zM24 11h3v1h-3zM2 11h3v2H2zM6 12h3v1H6zM6 10h2v1H6zM13 13h2v2h-2zM19 13h1v2h-1zM23 13h2v1h-2zM3 15h2v2H3zM7 15h2v3H7zM11 15h2v3h-2zM15 15h1v2h-1zM18 15h3v1h-3zM23 15h2v2h-2zM26 14h1v3h-1zM4 18h2v1H4zM14 17h2v2h-2zM17 17h1v2h-1zM21 17h2v2h-2zM25 18h2v1h-2zM12 20h2v2h-2zM15 19h3v2h-3zM20 20h2v2h-2zM24 20h3v2h-3zM19 22h2v1h-2zM11 24h2v3h-2zM15 23h2v2h-2zM18 24h2v2h-2zM22 24h2v2h-2zM25 24h2v3h-2zM14 26h1v1h-1z"></path>
+      </svg>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center"><div style="width:44px;height:44px;border-radius:10px;background:var(--color-bg);border:2px solid var(--color-neutral-100);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--color-text)">f<span style="color:var(--color-accent)">x</span></div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;align-self:center">
+      <span style="width:7px;height:7px;border-radius:50%;background:var(--color-accent);box-shadow:0 0 8px var(--color-accent)"></span>
+      <span style="font-size:12px;color:var(--color-neutral-400)">Aguardando pagamento · expira em <span style="color:var(--color-accent-300);font-variant-numeric:tabular-nums">14:37</span></span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:auto">
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:12px 14px;background:color-mix(in srgb,var(--color-surface) 70%,transparent)">
+        <span style="flex:1;font-family:ui-monospace,monospace;font-size:11px;color:var(--color-neutral-500);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">00020126580014br.gov.bcb.pix0136f1yrx-9a2…</span>
+        <button class="btn btn-primary" style="padding:6px 14px;font-size:12.5px;flex-shrink:0">Copiar código</button>
+      </div>
+      <button class="btn btn-secondary btn-block">Compartilhar</button>
+      <div style="display:flex;align-items:flex-start;gap:8px;font-size:11.5px;color:var(--color-neutral-600);line-height:1.5;padding:2px 2px 0">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none" style="flex-shrink:0;margin-top:2px"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"></circle><path d="M8 7.5v3.5M8 5.2v.2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+        <span>Crédito automático e instantâneo após a confirmação do banco pagador. Você receberá uma notificação.</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div><div class="hb"></div></div>
+</body></html>

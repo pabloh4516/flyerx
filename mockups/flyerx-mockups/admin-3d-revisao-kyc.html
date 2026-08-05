@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flyerx — Admin · Revisão KYC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+body{margin:0;background:#0e0f18;font-family:"Inter",system-ui,sans-serif;display:flex;justify-content:center;align-items:flex-start;padding:48px 24px;min-height:100vh;box-sizing:border-box}
+.frame-desktop{background:var(--color-bg);border:1px solid rgba(255,255,255,.08);border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.5);overflow:hidden}
+.phone{width:402px;height:874px;border-radius:48px;overflow:hidden;position:relative;background:#000;box-shadow:0 40px 80px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.1);flex-shrink:0}
+.phone .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:126px;height:37px;border-radius:24px;background:#000;z-index:50}
+.phone .sb{position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:21px 34px 0;z-index:40;color:#fff;font-size:16px;font-weight:600}
+.phone .sb .ic{display:flex;gap:7px;align-items:center}
+.phone .screen{height:100%;overflow:hidden}
+.phone .hb{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:139px;height:5px;border-radius:100px;background:rgba(255,255,255,.7);z-index:60;pointer-events:none}
+</style></head><body><div class="frame-desktop" style="width:1280px">
+<div style="display:flex;flex-direction:column;min-height:780px;color:var(--color-text)">
+  <div style="display:flex;align-items:center;gap:18px;padding:12px 22px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 60%,transparent)">
+    <span style="font-weight:600;font-size:15px">flyer<span style="color:var(--color-accent)">x</span> <span style="font-size:10px;color:var(--color-neutral-600);font-weight:400;letter-spacing:.1em">ADMIN</span></span>
+    <span style="font-size:12px;color:var(--color-neutral-600)">Usuários e KYC <span style="color:var(--color-neutral-400)">/ Marina Costa / Solicitação #4821</span></span>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:12px">
+      <span class="tag tag-outline" style="white-space:nowrap">Fila: 23 pendentes</span>
+      <div style="display:flex;gap:6px"><span style="padding:4px 10px;border:1px solid var(--color-divider);border-radius:6px;font-size:11.5px;color:var(--color-neutral-400)">← Anterior</span><span style="padding:4px 10px;border:1px solid var(--color-accent);border-radius:6px;font-size:11.5px;color:var(--color-accent-200)">Próxima →</span></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:var(--color-accent-900);border:1px solid var(--color-accent-800);color:var(--color-accent-300);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:500">RA</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 380px;flex:1">
+    <main style="padding:22px 26px;display:flex;flex-direction:column;gap:16px;border-right:1px solid var(--color-divider)">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--color-accent-800),var(--color-accent-900));border:1px solid var(--color-accent-700);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500">MC</div>
+          <div style="display:flex;flex-direction:column;gap:1px">
+            <span style="font-size:16.5px;font-weight:500">Marina Costa <span class="tag tag-outline" style="white-space:nowrap;margin-left:6px;font-size:10.5px">Nível 1 → 2</span></span>
+            <span style="font-size:12px;color:var(--color-neutral-500)">CPF 123.456.789-00 · marina@exemplo.com · cliente desde mar 2026</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px">
+          <svg width="52" height="52" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="16" stroke="var(--color-neutral-800)" stroke-width="4"></circle><circle cx="20" cy="20" r="16" stroke="var(--color-accent)" stroke-width="4" stroke-dasharray="88 100" stroke-linecap="round" transform="rotate(-90 20 20)"></circle><text x="20" y="23" text-anchor="middle" font-size="9.5" fill="#e9e9ed" font-family="Inter" font-weight="500">88</text></svg>
+          <div style="display:flex;flex-direction:column"><span style="font-size:12.5px;font-weight:500">Score de identidade</span><span style="font-size:11px;color:var(--color-accent-300)">Risco baixo · biometria facial 99,1%</span></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1">
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);overflow:hidden;display:flex;flex-direction:column">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)"><span style="font-size:12px;font-weight:500">CNH · frente</span><span style="font-size:10.5px;color:var(--color-neutral-600)">enviada há 2h · 2,1 MB</span></div>
+          <div style="flex:1;min-height:220px;background:var(--color-neutral-900);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--color-neutral-600)">
+            <svg width="34" height="34" viewBox="0 0 16 16" fill="none"><rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"></rect><circle cx="5.5" cy="7" r="1.6" stroke="currentColor" stroke-width="1.1"></circle><path d="M9 6.5h3.5M9 9h3.5M3.5 11.5h9" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path></svg>
+            <span style="font-size:11px">Documento do usuário</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--color-divider)"><span class="tag tag-accent" style="white-space:nowrap;font-size:10.5px">OCR válido</span><span class="tag tag-accent" style="white-space:nowrap;font-size:10.5px">Sem adulteração</span><span style="margin-left:auto;font-size:11px;color:var(--color-accent-300)">Ampliar</span></div>
+        </div>
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);overflow:hidden;display:flex;flex-direction:column">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-bottom:1px solid var(--color-divider);background:color-mix(in srgb,var(--color-surface) 70%,transparent)"><span style="font-size:12px;font-weight:500">Prova de vida · selfie</span><span style="font-size:10.5px;color:var(--color-neutral-600)">enviada há 2h · vídeo 6s</span></div>
+          <div style="flex:1;min-height:220px;background:var(--color-neutral-900);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;color:var(--color-neutral-600)">
+            <svg width="34" height="34" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="6" r="2.6" stroke="currentColor" stroke-width="1.2"></circle><path d="M3.5 13.5c.7-2.4 2.4-3.7 4.5-3.7s3.8 1.3 4.5 3.7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"></path><path d="M2 4.5v-2h2.5M14 4.5v-2h-2.5M2 11.5v2h2.5M14 11.5v2h-2.5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"></path></svg>
+            <span style="font-size:11px">Selfie do usuário</span>
+          </div>
+          <div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--color-divider)"><span class="tag tag-accent" style="white-space:nowrap;font-size:10.5px">Match facial 99,1%</span><span class="tag tag-accent" style="white-space:nowrap;font-size:10.5px">Vivacidade OK</span><span style="margin-left:auto;font-size:11px;color:var(--color-accent-300)">Reproduzir</span></div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:11px 14px;display:flex;flex-direction:column;gap:3px"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.07em">Receita Federal</span><span style="font-size:12.5px;color:var(--color-accent-300);display:flex;align-items:center;gap:5px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>CPF regular</span></div>
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:11px 14px;display:flex;flex-direction:column;gap:3px"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.07em">Listas restritivas</span><span style="font-size:12.5px;color:var(--color-accent-300);display:flex;align-items:center;gap:5px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Sem ocorrências</span></div>
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:11px 14px;display:flex;flex-direction:column;gap:3px"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.07em">PEP</span><span style="font-size:12.5px;color:var(--color-accent-300);display:flex;align-items:center;gap:5px"><svg width="11" height="11" viewBox="0 0 16 16" fill="none"><path d="m3.5 8.5 3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>Não exposta</span></div>
+        <div style="border:1px solid var(--color-neutral-700);border-radius:var(--radius-md);padding:11px 14px;display:flex;flex-direction:column;gap:3px;background:color-mix(in srgb,var(--color-neutral-800) 30%,transparent)"><span style="font-size:10px;color:var(--color-neutral-600);text-transform:uppercase;letter-spacing:.07em">Dispositivo</span><span style="font-size:12.5px;color:var(--color-neutral-300)">Novo aparelho · 1ª conta</span></div>
+      </div>
+    </main>
+    <aside style="padding:22px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:12.5px;font-weight:500">Decisão</span>
+        <button class="btn btn-primary btn-block" style="height:44px">Aprovar Nível 2</button>
+        <div style="display:flex;gap:8px"><button class="btn btn-secondary" style="flex:1;font-size:12.5px">Solicitar reenvio</button><button class="btn btn-secondary" style="flex:1;font-size:12.5px;color:var(--color-neutral-400)">Rejeitar</button></div>
+        <div style="border:1px solid var(--color-divider);border-radius:var(--radius-md);padding:10px 12px;font-size:11.5px;color:var(--color-neutral-600)">Adicionar nota interna…</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12.5px;font-weight:500">Limites após aprovação</span>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--color-divider)"><span style="color:var(--color-neutral-500)">Depósito mensal</span><span style="font-variant-numeric:tabular-nums">R$ 5.000 → <span style="color:var(--color-accent-300)">R$ 50.000</span></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--color-divider)"><span style="color:var(--color-neutral-500)">Saque mensal</span><span style="font-variant-numeric:tabular-nums">R$ 5.000 → <span style="color:var(--color-accent-300)">R$ 50.000</span></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;padding:6px 0"><span style="color:var(--color-neutral-500)">Saque por operação</span><span style="font-variant-numeric:tabular-nums">R$ 2.000 → <span style="color:var(--color-accent-300)">R$ 20.000</span></span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <span style="font-size:12.5px;font-weight:500;margin-bottom:10px">Trilha de eventos</span>
+        <div style="display:flex;gap:12px;padding-bottom:16px;position:relative">
+          <div style="display:flex;flex-direction:column;align-items:center"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-accent);box-shadow:0 0 8px var(--color-accent);margin-top:3px"></span><span style="flex:1;width:1px;background:linear-gradient(var(--color-accent-800),var(--color-divider))"></span></div>
+          <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:11.5px">Documentos enviados pelo app</span><span style="font-size:10.5px;color:var(--color-neutral-600)">hoje · 12:18 · iPhone · São Paulo, BR</span></div>
+        </div>
+        <div style="display:flex;gap:12px;padding-bottom:16px">
+          <div style="display:flex;flex-direction:column;align-items:center"><span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--color-accent-600);margin-top:3px"></span><span style="flex:1;width:1px;background:var(--color-divider)"></span></div>
+          <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:11.5px">Análise automática concluída</span><span style="font-size:10.5px;color:var(--color-neutral-600)">hoje · 12:19 · score 88/100</span></div>
+        </div>
+        <div style="display:flex;gap:12px;padding-bottom:16px">
+          <div style="display:flex;flex-direction:column;align-items:center"><span style="width:9px;height:9px;border-radius:50%;border:1px solid var(--color-neutral-600);margin-top:3px"></span><span style="flex:1;width:1px;background:var(--color-divider)"></span></div>
+          <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:11.5px">Atribuída a Rafael Almeida</span><span style="font-size:10.5px;color:var(--color-neutral-600)">hoje · 14:02 · fila prioritária</span></div>
+        </div>
+        <div style="display:flex;gap:12px">
+          <div style="display:flex;flex-direction:column;align-items:center"><span style="width:9px;height:9px;border-radius:50%;border:1px dashed var(--color-neutral-600);margin-top:3px"></span></div>
+          <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:11.5px;color:var(--color-neutral-500)">Aguardando decisão</span><span style="font-size:10.5px;color:var(--color-neutral-600)">SLA: 9h 41min restantes</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+</div>
+</body></html>
