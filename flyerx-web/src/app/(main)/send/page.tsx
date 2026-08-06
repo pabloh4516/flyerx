@@ -27,6 +27,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Container } from '@/components/ui/container';
 import { Logo } from '@/components/ui/nocturne';
 
 import { useCreatePix2DepixWithdraw, usePix2DepixWithdrawStatus, useInvalidateWalletData } from '@/hooks/use-queries';
@@ -166,7 +167,7 @@ export default function SellerSendPage() {
   };
 
   return (
-    <div className="p-7 flex flex-col gap-6 min-h-full">
+    <Container size="lg" padded={false} className="p-7 flex flex-col gap-6 min-h-full">
       {/* Header */}
       <div className="flex items-center gap-4">
         <div className="size-12 rounded-lg border border-neutral-700 bg-gradient-to-br from-neutral-900 to-transparent text-neutral-300 flex items-center justify-center">
@@ -493,6 +494,6 @@ export default function SellerSendPage() {
           </Link>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

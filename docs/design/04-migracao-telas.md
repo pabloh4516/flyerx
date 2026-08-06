@@ -123,6 +123,11 @@ Nenhum achado funcional.
 
 **Status:** MIGRADO em 2026-08-05. Build: PASSOU.
 
+**Correcao pos-migracao (2026-08-05):**
+| De | Para | Motivo |
+|----|------|--------|
+| `<div className="p-7...">` wrapper | `<Container size="lg" padded={false} className="p-7...">` | Regra 8.4: Container limita largura em monitores largos |
+
 ---
 
 ### send/page.tsx
@@ -229,6 +234,11 @@ Nenhum achado funcional.
 Nenhum achado funcional.
 
 **Status:** MIGRADO em 2026-08-05. Build: PASSOU.
+
+**Correcao pos-migracao (2026-08-05):**
+| De | Para | Motivo |
+|----|------|--------|
+| `<div className="p-7...">` wrapper | `<Container size="lg" padded={false} className="p-7...">` | Regra 8.4: Container limita largura em monitores largos |
 
 ---
 

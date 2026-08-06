@@ -27,6 +27,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Container } from '@/components/ui/container';
 import { Logo } from '@/components/ui/nocturne';
 
 import { useCreatePix2DepixDeposit, usePix2DepixDepositStatus, useInvalidateWalletData } from '@/hooks/use-queries';
@@ -188,7 +189,7 @@ export default function SellerReceivePage() {
   };
 
   return (
-    <div className="p-7 flex flex-col gap-6 min-h-full">
+    <Container size="lg" padded={false} className="p-7 flex flex-col gap-6 min-h-full">
       {/* Header */}
       <div className="flex items-center gap-4">
         <div className="size-12 rounded-lg border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent text-accent-300 flex items-center justify-center">
@@ -544,6 +545,6 @@ export default function SellerReceivePage() {
           </Link>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }
