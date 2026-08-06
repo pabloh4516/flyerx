@@ -1,0 +1,54 @@
+ API
+
+## Docs
+- [📜 API Overview](https://docs.eulen.app/-api-overview-782111m0.md): 
+- Docs [🔑 Authentication](https://docs.eulen.app/-authentication-781855m0.md): 
+- Docs [💻 Examples](https://docs.eulen.app/-examples-783935m0.md): 
+- Docs [🪝 Webhook](https://docs.eulen.app/-webhook-849106m0.md): 
+- Docs > ✅ Possible Statuses [📥💰 Deposit Statuses](https://docs.eulen.app/-deposit-statuses-1443187m0.md): 
+- Docs > ✅ Possible Statuses [📤💸 Withdraw Statuses](https://docs.eulen.app/-withdraw-statuses-1966899m0.md): 
+- Docs > 🛡️ Security & Limits [✅ Best Practices](https://docs.eulen.app/-best-practices-782734m0.md): 
+- Docs > 🛡️ Security & Limits [🪲 Bug Bounty](https://docs.eulen.app/-bug-bounty-784939m0.md): 
+- Docs > 🛡️ Security & Limits [🧱 Firewall](https://docs.eulen.app/-firewall-823355m0.md): 
+- Docs > 🛡️ Security & Limits [🚦 API Limits](https://docs.eulen.app/-api-limits-823358m0.md): 
+- Docs > 🧩 Advanced (optional) [🎲 Nonce](https://docs.eulen.app/-nonce-782110m0.md): 
+- Docs > 🧩 Advanced (optional) [🔀 Sync / Async call](https://docs.eulen.app/-sync-async-call-781991m0.md): 
+- Docs > 🚀 Features [⏱️ QR Delay](https://docs.eulen.app/%EF%B8%8F-qr-delay-2048965m0.md): 
+
+## API Docs
+- API Endpoints [Ping](https://docs.eulen.app/ping-12521558e0.md): The API "does nothing" except return "Pong!" if everything is OK. Additionally, it returns the JWT token in a human-readable format. Useful for checking overall API system availability and also debugging the JWT token.
+- API Endpoints [Deposit (PIX ➔ DePix)](https://docs.eulen.app/deposit-pix-depix-12532107e0.md): The system generates a dynamic QR code designed for deposits in Reais (BRL) through the PIX banking system. The QR code is provided in two formats: text format, which allows for easy copy-and-paste into banking applications, and PNG format, displaying a scannable QR code image for convenience.
+- API Endpoints [Deposit Status](https://docs.eulen.app/deposit-status-12667971e0.md): The `/deposit-status` API is used to retrieve the status of a financial deposit in the system. It provides information about the deposit, such as its current state, amount, and other metadata.
+- API Endpoints [Deposits](https://docs.eulen.app/deposits-20408160e0.md): This API returns a list of deposits in a compact form. It may be used from time to time as a fallback in case the webhook fails.
+- API Endpoints [User Info](https://docs.eulen.app/user-info-21725604e0.md): This endpoint allows for checking the limits for a specific user by EUID.
+- API Endpoints [Withdraw](https://docs.eulen.app/withdraw-25979382e0.md): # How to use this API correctly
+- API Endpoints [Withdraw Status](https://docs.eulen.app/withdraw-status-25979384e0.md): The `/withdraw-status` API is used to retrieve the status of a financial withdrawal in the system. It provides information about the withdrawal, such as its current state, amount, and other metadata.
+
+## Schemas
+- [AsyncResponse](https://docs.eulen.app/asyncresponse-4526058d0.md): 
+- [AllPossibleObjResponses](https://docs.eulen.app/allpossibleobjresponses-4527065d0.md): 
+- [SantandardResponse](https://docs.eulen.app/standardresponse-4526059d0.md): 
+- [PingObjOrError](https://docs.eulen.app/pingobjorerror-4526610d0.md): 
+- [JWTClaims](https://docs.eulen.app/jwtclaims-4526606d0.md): 
+- [ObjResponse](https://docs.eulen.app/objresponse-4527086d0.md): 
+- [ErrorObj](https://docs.eulen.app/errorobj-4527136d0.md): 
+- [PingObj](https://docs.eulen.app/pingobj-4527336d0.md): 
+- [ErrorResponse](https://docs.eulen.app/errorresponse-4527417d0.md): 
+- [DepositRequest](https://docs.eulen.app/depositrequest-4527919d0.md): 
+- [DepositObjOrError](https://docs.eulen.app/depositobjorerror-4528878d0.md): 
+- [DepositObj](https://docs.eulen.app/depositobj-4528879d0.md): 
+- [PingResponse](https://docs.eulen.app/pingresponse-4530502d0.md): 
+- [DepositResponse](https://docs.eulen.app/depositresponse-4530503d0.md): 
+- [DepositStatusObj](https://docs.eulen.app/depositstatusobj-4663203d0.md): 
+- [DepositStatusResponse](https://docs.eulen.app/depositstatusresponse-4663204d0.md): 
+- [DepositWebhookBody](https://docs.eulen.app/depositwebhookbody-5517307d0.md): 
+- [DepositsResponse](https://docs.eulen.app/depositsresponse-8819914d0.md): 
+- [DepositStatus](https://docs.eulen.app/depositstatus-8937563d0.md): 
+- [UserInfoResponse](https://docs.eulen.app/userinforesponse-9624477d0.md): 
+- [WithdrawStatusResponse](https://docs.eulen.app/withdrawstatusresponse-11843345d0.md): 
+- [WithdrawStatusObj](https://docs.eulen.app/withdrawstatusobj-11843344d0.md): 
+- [WithdrawResponse](https://docs.eulen.app/withdrawresponse-11843530d0.md): 
+- [WithdrawObj](https://docs.eulen.app/withdrawobj-11843531d0.md): 
+- [WithdrawStatus](https://docs.eulen.app/withdrawstatus-11844895d0.md): 
+- [WithdrawWebhookBody](https://docs.eulen.app/withdrawwebhookbody-13016756d0.md): 
+- [MEDWebhookBody](https://docs.eulen.app/medwebhookbody-13199801d0.md): 

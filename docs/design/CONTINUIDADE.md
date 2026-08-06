@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 8 — Fase 6, Passo 0)
+**Atualizado em:** 2026-08-06 (sessão 10 — Fase 6, Passo 1a COMPLETO)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -26,7 +26,51 @@
   - [x] **RETROFIT VISUAL COMPLETO**
 - [ ] Fase 6 — Integração & Conteúdo — **EM ANDAMENTO**:
   - [x] **Passo 0 CONCLUÍDO** (higiene documental) — sessão 8
-  - [x] **Passo 1a CONCLUÍDO** (catálogos dos backends + julgamento) — sessão 9
+  - [x] **Passo 1a COMPLETO** (3 catálogos + documentação Eulen versionada) — sessões 9-10
+
+---
+
+## Sessão 10 (2026-08-06) — Fase 6, Passo 1a COMPLETO (Catálogo Eulen)
+
+### O que foi feito
+
+1. **Documentação Eulen obtida e versionada**
+   - Índice salvo em `docs/integracao/referencias/eulen/llmsEULEN.txt`
+   - 15+ páginas da documentação oficial consultadas via WebFetch
+
+2. **Catálogo 00c-catalogo-provedor-eulen.md COMPLETO**
+   - 7 endpoints documentados com request/response
+   - 10 status de depósito + 6 status de saque
+   - 3 tipos de webhook (deposit, withdraw, MED)
+   - Capacidades avançadas: QR Delay, Nonce, Sync/Async
+   - Rate limits por endpoint
+   - **Seção 7: Confronto completo com implementação Laravel**
+   - **Tabela de 20 capacidades não aproveitadas**
+
+3. **Análises de risco registradas**
+   - **MED (Mecanismo Especial de Devolução):** webhook não tratado, risco de saldo negativo
+   - **Status intermediários:** `will_refund`, `under_review`, `delayed` não distinguidos no frontend
+   - **Limites dinâmicos:** `/user-info` não chamado, limites hardcoded
+
+### Resumo dos Status
+
+**Depósito (10 status):**
+| Terminal | Status |
+|----------|--------|
+| Não | pending, delayed, under_review, approved, will_refund |
+| Sim | depix_sent, refunded, canceled, expired, error |
+
+**Saque (6 status):**
+| Terminal | Status |
+|----------|--------|
+| Não | unsent, sending |
+| Sim | sent, error, canceled, refunded |
+
+### Próximo passo
+
+**Passo 1b — Integração frontend-backend:**
+- Conectar flyerx-web com api/ (Laravel) para funcionalidades reais
+- Documentar em docs/integracao/ os pontos de integração
 
 ---
 
@@ -37,7 +81,7 @@
 1. **3 catálogos criados em docs/integracao/**
    - `00a-catalogo-api-laravel.md` — 24 rotas, 6 domínios, contratos completos, modelos, estados, integração Eulen
    - `00b-catalogo-microservico-lwk.md` — 9 endpoints, 10 estados de saque, ciclo de vida, taxas, limites
-   - `00c-catalogo-provedor-eulen.md` — [AGUARDANDO DOCUMENTAÇÃO] (pasta docs/integracao/referencias/eulen/ não existe)
+   - `00c-catalogo-provedor-eulen.md` — estrutura criada, aguardando documentação oficial
 
 2. **Julgamento dos 18 documentos [SUSPEITO-VERIFICAR]**
 
