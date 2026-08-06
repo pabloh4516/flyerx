@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 11 — Fase 6, Passo 1b COMPLETO)
+**Atualizado em:** 2026-08-06 (sessão 12 — Fase 6, Passo 2 COMPLETO)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -28,6 +28,35 @@
   - [x] **Passo 0 CONCLUÍDO** (higiene documental) — sessão 8
   - [x] **Passo 1a COMPLETO** (3 catálogos + documentação Eulen versionada) — sessões 9-10
   - [x] **Passo 1b COMPLETO** (inventário de dados das telas) — sessão 11
+  - [x] **Passo 2 COMPLETO** (decisões de integração) — sessão 12
+
+---
+
+## Sessão 12 (2026-08-06) — Fase 6, Passo 2 COMPLETO (Decisões de Integração)
+
+### O que foi feito
+
+1. **Documento `docs/integracao/02-decisoes-integracao.md` criado**
+   - A) Spec por tela v1 (7 telas: dashboard, receive, send, history, carteira, settings, auth)
+   - B) Mapa de religação (23 funções órfãs/semi-órfãs mapeadas)
+   - C) Backend novo (endpoints de Carteira Liquid)
+   - D) Navegação v1 (menu final com 6 itens)
+   - E) Fila de execução (5 grupos ordenados)
+   - F) Registros pós-v1 (MED/webhook como pré-requisitos de go-live)
+
+2. **Decisões registradas**
+   - **Correção arquitetural:** receive/send passam a usar Laravel em vez de Eulen direto
+   - **Mudança de paradigma send:** Fluxo de saldo interno (não precisa enviar DePix)
+   - **Pix-keys → Carteira:** Nova tela de gestão de endereço Liquid
+   - **3 telas escondidas:** payment-links, subaccounts, developers (código permanece)
+
+### Próximo passo
+
+**Passo 3 Grupo 1 — History (religação pura):**
+- Substituir `mockTransactions` por `useTransactions()`
+- Implementar filtros, busca, paginação
+- Adicionar estados: loading, vazio, erro
+- Adicionar campos expandíveis: E2E, payerName, receiptUrl
 
 ---
 
