@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 10 — Fase 6, Passo 1a COMPLETO)
+**Atualizado em:** 2026-08-06 (sessão 11 — Fase 6, Passo 1b COMPLETO)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -27,6 +27,51 @@
 - [ ] Fase 6 — Integração & Conteúdo — **EM ANDAMENTO**:
   - [x] **Passo 0 CONCLUÍDO** (higiene documental) — sessão 8
   - [x] **Passo 1a COMPLETO** (3 catálogos + documentação Eulen versionada) — sessões 9-10
+  - [x] **Passo 1b COMPLETO** (inventário de dados das telas) — sessão 11
+
+---
+
+## Sessão 11 (2026-08-06) — Fase 6, Passo 1b COMPLETO (Inventário de Telas)
+
+### O que foi feito
+
+1. **Análise de 14 telas do flyerx-web**
+   - Para cada tela: dados exibidos (REAL/MOCK/DERIVADO), fontes, estados, ações
+   - Cruzamento com catálogos 00a (Laravel) e 00c (Eulen)
+
+2. **Documento `docs/integracao/01b-inventario-telas.md` criado**
+   - 14 seções detalhadas (uma por tela)
+   - Resumo executivo com rankings e oportunidades
+
+### Principais Descobertas
+
+**4 Telas-Fachada (100% mock, sem backend):**
+- payment-links — Links de Pagamento
+- subaccounts — Subcontas/Multi-usuário
+- developers — API Keys + Webhooks de saída
+- pix-keys — Cadastro de chaves PIX
+
+**1 Tela 100% mock com backend existente:**
+- history — Extrato (deveria usar `/v1/wallet/history`)
+
+**Top 3 Oportunidades de Conteúdo:**
+1. `receiptUrl` — Comprovante oficial do PIX (alto impacto)
+2. `centralBankId` (E2E) — Prova irrefutável do PIX (alto impacto)
+3. `payerName` — Identifica quem pagou (alto impacto)
+
+**Estados faltantes:**
+- 9 telas sem skeleton/loading
+- 9 telas sem tratamento de erro
+
+**Ações decorativas:**
+- 25+ botões/ações sem implementação real
+
+### Próximo passo
+
+**Passo 2 — Decisões de integração:**
+- Priorizar quais dados conectar
+- Decidir destino das telas-fachada
+- Implementar estados faltantes
 
 ---
 
