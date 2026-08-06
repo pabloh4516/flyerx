@@ -88,7 +88,7 @@ export function StatCard({
             <span
               className={cn(
                 "flex items-center gap-1 text-[11px]",
-                trend === "up" && "text-accent-300",
+                trend === "up" && "text-success",
                 trend === "down" && "text-error",
                 trend === "neutral" && "text-neutral-500"
               )}

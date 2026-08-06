@@ -43,9 +43,9 @@ export function Checkbox({
               variant === "default" && "input-elevated",
               variant === "accent" && "border-accent-700 bg-accent-900/30",
             ],
-            // Checked
+            // Checked — usando primary (accent vibrante) para contraste
             checked && [
-              "border-accent bg-accent text-primary-foreground",
+              "border-primary bg-primary text-background",
               "shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent)_20%,transparent)]",
             ]
           )}
@@ -103,15 +103,15 @@ export function Radio({
             "peer-disabled:opacity-50 peer-disabled:cursor-not-allowed",
             // Unchecked
             !checked && "input-elevated",
-            // Checked
+            // Checked — usando primary (accent vibrante) para contraste
             checked && [
-              "border-accent bg-surface",
+              "border-primary bg-surface",
               "shadow-[0_0_6px_color-mix(in_srgb,var(--color-accent)_15%,transparent)]",
             ]
           )}
         >
           {checked && (
-            <div className="w-2.5 h-2.5 rounded-full bg-accent shadow-[0_0_4px_color-mix(in_srgb,var(--color-accent)_50%,transparent)]" />
+            <div className="w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_4px_color-mix(in_srgb,var(--color-accent)_50%,transparent)]" />
           )}
         </div>
       </div>

@@ -564,6 +564,104 @@ select option {
 
 ---
 
+## ETAPA 11 — Auditoria sistêmica de contraste
+
+### 11.1 Defeitos confirmados e corrigidos
+
+| Componente | Problema | Causa raiz | Correção |
+|------------|----------|------------|----------|
+| **Button solid** | Texto ilegível | `text-primary-foreground` ambíguo | `text-background` explícito |
+| **Switch unchecked** | Track invisível | Gradiente sutil demais | `bg-neutral-800 border-neutral-600` |
+| **Switch checked** | Track escuro demais | `bg-accent` = accent-900 | `bg-primary` (accent vibrante) |
+| **Checkbox checked** | Fundo escuro | `bg-accent` = accent-900 | `bg-primary text-background` |
+| **Radio checked dot** | Dot escuro | `bg-accent` = accent-900 | `bg-primary` |
+| **StatCard trend up** | Cor inconsistente | `text-accent-300` | `text-success` (semântica) |
+| **.kicker** (CSS) | Potencial ilegibilidade | `var(--color-accent)` | `var(--color-accent-400)` |
+
+### 11.2 Tabela de auditoria completa
+
+**Legenda:** ✅ OK | 🔧 CORRIGIDO | ⚠️ DÚVIDA
+
+#### a) Texto sobre fundo colorido
+
+| Componente | Estado | Fundo | Texto | Veredito |
+|------------|--------|-------|-------|----------|
+| Button solid | default | bg-primary | text-background | 🔧 CORRIGIDO |
+| Button solid | hover | bg-accent-500 | text-background | 🔧 CORRIGIDO |
+| Badge accent | default | bg-accent-800 | text-accent-100 | ✅ OK |
+| Badge success | default | bg-success-muted | text-success | ✅ OK |
+| Badge warning | default | bg-warning-muted | text-warning | ✅ OK |
+| Badge error | default | bg-error-muted | text-error | ✅ OK |
+| Tabs trigger ativo | default | gradiente | text-accent-200 | ✅ OK |
+| Tabs trigger ativo | pills | bg-accent-900 | text-accent-200 | ✅ OK |
+| DropdownMenu item | focus | bg-accent | text-accent-foreground | ✅ OK |
+| Select item | focus | bg-accent | text-accent-foreground | ✅ OK |
+
+#### b) Controles sobre superfícies
+
+| Componente | Estado | Sobre Card | Sobre Surface elevated | Veredito |
+|------------|--------|------------|------------------------|----------|
+| Checkbox | unchecked | input-elevated | input-elevated | ✅ OK |
+| Checkbox | checked | bg-primary | bg-primary | 🔧 CORRIGIDO |
+| Radio | unchecked | input-elevated | input-elevated | ✅ OK |
+| Radio | checked | bg-surface + dot primary | idem | 🔧 CORRIGIDO |
+| Switch | unchecked | bg-neutral-800 | bg-neutral-800 | 🔧 CORRIGIDO |
+| Switch | checked | bg-primary | bg-primary | 🔧 CORRIGIDO |
+| Input | default | input-elevated | input-elevated | ✅ OK |
+| Textarea | default | input-elevated | input-elevated | ✅ OK |
+| SelectNative | default | input-elevated | input-elevated | ✅ OK |
+
+#### c) Estados de baixa ênfase
+
+| Componente | Estado | Classe | Veredito |
+|------------|--------|--------|----------|
+| Button | disabled | opacity-45 | ✅ OK |
+| Checkbox/Radio | disabled | opacity-50 | ✅ OK |
+| Switch | disabled | opacity-50 | ✅ OK |
+| Input | placeholder | text-neutral-600 | ✅ OK (sutil mas visível) |
+| Alert | description | text-neutral-400 | ✅ OK |
+| StatCard | description | text-neutral-600 | ✅ OK |
+
+#### d) Focus ring
+
+| Componente | Classe | Veredito |
+|------------|--------|----------|
+| Button | focus-visible:outline-ring | ✅ OK |
+| Input/Textarea | input-elevated:focus | ✅ OK |
+| Checkbox/Radio | peer-focus-visible:outline-ring | ✅ OK |
+| Switch | peer-focus-visible:outline-ring | ✅ OK |
+| Select | focus-visible:border-ring | ✅ OK |
+| DropdownMenu | focus:bg-accent | ✅ OK |
+
+#### e) Controles nativos
+
+| Elemento | Correção | Veredito |
+|----------|----------|----------|
+| Scrollbar | neutral-700/600 | ✅ OK |
+| ::selection | accent 30% | ✅ OK |
+| Autofill | color-scheme + webkit override | ✅ OK |
+| SelectNative dropdown | color-scheme: dark | ✅ OK |
+
+### 11.3 Mapeamento accent vs primary documentado
+
+Descoberta crítica: `bg-accent` e `text-accent` no Tailwind mapeiam para **accent-900** (#2b2741), não para o accent vibrante (#9184d9).
+
+| Para... | Usar... | Não usar... |
+|---------|---------|-------------|
+| Fundo vibrante | `bg-primary` | `bg-accent` |
+| Texto accent legível | `text-primary`, `text-accent-300/400` | `text-accent` |
+| Fundo de destaque escuro | `bg-accent` | — |
+| Fundo de item focado | `bg-accent` + `text-accent-foreground` | — |
+
+### 11.4 Regras registradas
+
+- **01-decisoes.md** seção 14: Regras de contraste completas
+- **CLAUDE.md** regra 10: Resumo das regras de contraste
+
+**Build:** PASSOU (23 rotas estáticas)
+
+---
+
 ## CONCLUSAO
 
 **Sessao de consolidacao CONCLUIDA com sucesso.**
@@ -573,9 +671,10 @@ select option {
 1. **Tokens:** --radius-full no @theme, --space-* deletados, cores semanticas registradas
 2. **Componentes:** 7 arquivos deletados, 5 renomeados, exports canonicos no index.ts
 3. **Sintaxe:** rounded-[--radius-*] → rounded-*, spacing conforme tabela 7.3
-4. **Visual:** autofill fix, radius review (alert→xl, tooltip→lg)
+4. **Visual:** autofill fix, color-scheme dark, radius review (alert→xl, tooltip→lg)
 5. **Git:** monorepo consolidado, .gitignore robusto, scan de seguranca limpo
 6. **Docs:** 02-consolidacao.md, 03-layouts.md criados, DESIGN_SYSTEM.md removido
+7. **Contraste:** Auditoria sistemica, 7 bugs corrigidos (Button solid, Switch, Checkbox, Radio, StatCard, kicker)
 
 ### Proxima fase
 

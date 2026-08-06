@@ -657,12 +657,12 @@
     color: var(--color-error);
   }
 
-  /* Kicker text (small caps label) */
+  /* Kicker text (small caps label) — usar accent-400 para contraste sobre fundos escuros */
   .kicker {
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    color: var(--color-accent);
+    color: var(--color-accent-400);
   }
 
   /* Muted/secondary text */

@@ -45,14 +45,13 @@ export function Switch({
             s.track,
             "peer-focus-visible:outline-2 peer-focus-visible:outline-ring peer-focus-visible:outline-offset-2",
             "peer-disabled:opacity-50 peer-disabled:cursor-not-allowed",
-            // Unchecked - elevated style
+            // Unchecked - borda e preenchimento visíveis sobre qualquer superfície
             !checked && [
-              "border border-transparent",
-              "bg-[linear-gradient(var(--color-surface),color-mix(in_srgb,var(--color-surface)_90%,var(--color-bg)))_padding-box,linear-gradient(145deg,var(--color-neutral-600),var(--color-neutral-800)_60%)_border-box]",
+              "bg-neutral-800 border border-neutral-600",
             ],
-            // Checked - accent glow (sutil)
+            // Checked - accent vibrante com glow sutil
             checked && [
-              "bg-accent",
+              "bg-primary",
               "shadow-[0_0_8px_color-mix(in_srgb,var(--color-accent)_25%,transparent)]",
             ]
           )}

@@ -493,4 +493,74 @@ Baseado no Top 10 de inconsistencias da auditoria:
 
 ---
 
+## 14. CONTRASTE — Regras obrigatórias
+
+### 14.1 Texto sobre fundo colorido
+
+| Contexto | Regra |
+|----------|-------|
+| Texto sobre fundo accent (bg-primary, bg-accent-*) | Usar `text-background` (escuro) para máximo contraste |
+| Texto sobre fundo semântico (success, warning, error muted) | Usar a cor semântica correspondente (text-success, text-warning, text-error) |
+
+**PROIBIDO:** `text-primary-foreground` em contextos onde o fundo é accent claro — usar `text-background` explicitamente.
+
+### 14.2 Tons escuros como cor de texto
+
+**Tons 800/900 (accent ou neutral) NUNCA como cor de texto sobre fundo escuro.**
+
+| Classe | Valor | Uso permitido |
+|--------|-------|---------------|
+| `text-accent-800` | #423a6a | ❌ PROIBIDO como texto |
+| `text-accent-900` | #2b2741 | ❌ PROIBIDO como texto |
+| `text-neutral-800` | #3f424d | ❌ PROIBIDO como texto |
+| `text-neutral-900` | #292b31 | ❌ PROIBIDO como texto |
+
+**Tons seguros para texto:** accent-100 a accent-400, neutral-100 a neutral-600.
+
+### 14.3 Mapeamento Tailwind de `accent` vs `primary`
+
+| Classe Tailwind | Mapeia para | Valor | Uso |
+|-----------------|-------------|-------|-----|
+| `bg-accent` | accent-900 | #2b2741 | ✅ Fundos de destaque (escuro) |
+| `text-accent` | accent-900 | #2b2741 | ❌ PROIBIDO (ilegível) |
+| `bg-primary` | accent | #9184d9 | ✅ Fundos vibrantes |
+| `text-primary` | accent | #9184d9 | ✅ Texto accent vibrante |
+
+**Regra:** Para cores vibrantes, usar `primary` (Button solid, Switch checked, Checkbox checked). Para fundos escuros de destaque, usar `accent` (DropdownMenu focus, Select focus).
+
+### 14.4 Controles de formulário
+
+**Todos os controles DEVEM ter borda/preenchimento visível sobre Card E Surface elevated.**
+
+| Componente | Estado unchecked | Veredito |
+|------------|-----------------|----------|
+| Checkbox | `input-elevated` (borda gradiente) | ✅ OK |
+| Radio | `input-elevated` (borda gradiente) | ✅ OK |
+| Switch | `bg-neutral-800 border-neutral-600` | ✅ CORRIGIDO |
+| Input | `input-elevated` | ✅ OK |
+| Select/SelectNative | `input-elevated` | ✅ OK |
+
+### 14.5 Focus ring
+
+**Todo componente interativo DEVE ter focus ring visível.**
+
+```
+focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2
+```
+
+`--ring` = accent (#9184d9) — visível sobre fundos escuros.
+
+### 14.6 Histórico de bugs corrigidos
+
+| Bug | Causa raiz | Correção |
+|-----|------------|----------|
+| Input branco (autofill) | Chrome autofill override | `color-scheme: dark` + webkit override em globals.css |
+| PageHeader kicker invisível | `text-accent` = accent-900 | Mudado para `text-accent-400` |
+| SelectNative picker claro | Navegador ignorando tema | `color-scheme: dark` em :root |
+| Button solid ilegível | `text-primary-foreground` ambíguo | Mudado para `text-background` |
+| Switch track invisível | Gradiente sutil demais | `bg-neutral-800 border-neutral-600` |
+| Checkbox/Radio checked escuro | `bg-accent` = accent-900 | Mudado para `bg-primary` |
+
+---
+
 *Documento gerado na sessao de decisoes de 2026-08-05. Fonte de verdade para o retrofit visual do Nocturne Design System.*

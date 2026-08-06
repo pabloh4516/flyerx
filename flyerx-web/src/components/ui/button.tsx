@@ -72,10 +72,11 @@ const buttonVariants = cva(
         ].join(" "),
 
         // Solid — fundo roxo sólido (para CTAs principais)
+        // Texto DEVE ser escuro para contraste sobre fundo accent claro
         solid: [
-          "border-transparent bg-primary text-primary-foreground",
-          "hover:bg-accent-500",
-          "active:bg-accent-600",
+          "border-transparent bg-primary text-background",
+          "hover:bg-accent-500 hover:text-background",
+          "active:bg-accent-600 active:text-background",
         ].join(" "),
 
         // Destructive — vermelho

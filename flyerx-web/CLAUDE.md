@@ -70,7 +70,7 @@
    - Tamanhos: `size-3` (badge), `size-3.5` (checkmark), `size-4` (padrao), `size-5` (nav/modal), `size-6` (destaque)
    - strokeWidth: usar default (2), exceto checkmark (3) ou icones sutis (1.5)
    - **PROIBIDO:** `size-[Npx]` arbitrario, outras bibliotecas de icones
-   - Cor: herdar do texto parent ou usar classes semanticas (`text-accent`, `text-neutral-*`)
+   - Cor: herdar do texto parent ou usar classes semanticas (`text-primary`, `text-accent-300`, `text-neutral-*`)
 
 9. **Grid/Layout:**
    - Sidebar: `w-[220px]`, `px-3 py-4`
@@ -80,6 +80,14 @@
    - Breakpoints: sm(640) md(768) lg(1024) xl(1280) 2xl(1536)
    - **PROIBIDO:** padding/margin arbitrario (`p-[23px]`), max-width arbitrario
    - Excecao: largura de sidebar, grid proporcional (`grid-cols-[1.5fr_1fr]`)
+
+10. **Contraste (CRITICO):**
+   - Texto sobre fundo accent claro: usar `text-background` (escuro), NUNCA `text-primary-foreground`
+   - Tons 800/900 (accent ou neutral) NUNCA como cor de texto sobre fundo escuro
+   - `text-accent` = accent-900 (escuro demais) — usar `text-accent-300` ou `text-accent-400` para texto
+   - `bg-accent` = accent-900 — OK para fundos de destaque; para fundos vibrantes usar `bg-primary`
+   - Controles de formulario (checkbox, radio, switch) DEVEM ter borda visivel sobre Card e Surface
+   - Ver `01-decisoes.md` secao 14 para tabela completa
 
 ## Comandos
 
