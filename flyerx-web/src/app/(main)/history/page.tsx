@@ -196,7 +196,7 @@ export default function SellerHistoryPage() {
 
       {/* Filters */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 border border-divider rounded-lg px-3 py-2 flex-1 max-w-[320px]">
+        <div className="flex items-center gap-2 border border-divider rounded-lg px-3 py-2 flex-1 max-w-xs">
           <Search className="size-4 text-neutral-500" />
           <input
             type="text"

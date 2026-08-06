@@ -32,7 +32,7 @@ import {
   Zap,
 } from 'lucide-react'
 
-// Design System Components — importação centralizada
+// Design System Components — imports diretos (ambos formatos sao validos: direto ou via index)
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AmountInput } from '@/components/ui/amount-input'

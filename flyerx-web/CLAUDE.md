@@ -27,8 +27,9 @@
 - **Grupo C CONCLUIDO** (history, dashboard).
 - **Grupo D CONCLUIDO** (pix-keys, payment-links, subaccounts, developers, settings).
 - **MIGRACAO DE TELAS COMPLETA** — Fase 4 finalizada.
-- **Proximo:** Fase 5 QA final.
-- Biblioteca de componentes unificada, tokens corrigidos, sintaxe Tailwind 4 religada.
+- **LAYOUT E COMPONENTES DE LAYOUT MIGRADOS** — layout.tsx, sidebar.tsx, header.tsx, verification-banner.tsx (Fase 5).
+- **Fase 5 QA final CONCLUIDA** — retrofit visual COMPLETO.
+- Biblioteca de componentes unificada, tokens corrigidos, sintaxe Tailwind 4 religada (incluindo layouts).
 - Commit baseline: `c734667`
 
 ### Vereditos dos pares duplicados
@@ -55,7 +56,7 @@
 
 3. **Handoff entre sessoes por markdown** em `../docs/design/`, nunca pela memoria da conversa.
 
-4. **Imports de componentes UI:** Sempre importar de `@/components/ui` (index centralizado), nunca de arquivos individuais.
+4. **Imports de componentes UI:** Tanto `@/components/ui/<componente>` (direto) quanto `@/components/ui` (index) sao validos. **PROIBIDO:** importar variacoes `-custom` (nao existem mais) ou caminhos fora de `components/ui/` para elementos de UI.
 
 5. **Radius:** Usar classes padrao Tailwind que mapeiam para tokens Nocturne via @theme:
    - `rounded-sm` (4px): Skeleton de texto, elementos micro

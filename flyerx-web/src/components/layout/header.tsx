@@ -53,11 +53,11 @@ export function Header({ onMenuClick }: HeaderProps) {
             className="md:hidden"
             onClick={onMenuClick}
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="size-5" />
           </Button>
 
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Wallet className="h-6 w-6 text-primary" />
+            <Wallet className="size-6 text-primary" />
             <span className="font-bold text-xl hidden sm:inline-block">Flyerx</span>
           </Link>
         </div>
@@ -66,15 +66,15 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center gap-2">
           {/* Notifications */}
           <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-destructive rounded-full" />
+            <Bell className="size-5" />
+            <span className="absolute top-1 right-1 size-2 bg-destructive rounded-full" />
           </Button>
 
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger>
-              <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                <Avatar className="h-9 w-9">
+              <Button variant="ghost" className="relative size-9 rounded-full">
+                <Avatar className="size-9">
                   <AvatarFallback className="bg-primary text-primary-foreground">
                     {user?.name ? getInitials(user.name) : 'U'}
                   </AvatarFallback>
@@ -93,19 +93,19 @@ export function Header({ onMenuClick }: HeaderProps) {
               <DropdownMenuSeparator />
               <Link href="/settings">
                 <DropdownMenuItem className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
+                  <User className="mr-2 size-4" />
                   Minha Conta
                 </DropdownMenuItem>
               </Link>
               <Link href="/security">
                 <DropdownMenuItem className="cursor-pointer">
-                  <Shield className="mr-2 h-4 w-4" />
+                  <Shield className="mr-2 size-4" />
                   Segurança
                 </DropdownMenuItem>
               </Link>
               <Link href="/settings">
                 <DropdownMenuItem className="cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" />
+                  <Settings className="mr-2 size-4" />
                   Configurações
                 </DropdownMenuItem>
               </Link>
@@ -114,7 +114,7 @@ export function Header({ onMenuClick }: HeaderProps) {
                 className="cursor-pointer text-destructive focus:text-destructive"
                 onClick={logout}
               >
-                <LogOut className="mr-2 h-4 w-4" />
+                <LogOut className="mr-2 size-4" />
                 Sair
               </DropdownMenuItem>
             </DropdownMenuContent>

@@ -36,13 +36,13 @@ export function VerificationBanner({ kycLevel = 'NONE' }: VerificationBannerProp
   return (
     <Link
       href="/settings/verification"
-      className="flex items-center gap-3.5 p-3.5 rounded-[--radius-md] border border-accent-800 bg-[linear-gradient(120deg,color-mix(in_srgb,var(--color-section)_55%,transparent),transparent_70%)] hover:border-accent-700 transition-colors"
+      className="flex items-center gap-3.5 p-3.5 rounded-md border border-accent-800 bg-[linear-gradient(120deg,color-mix(in_srgb,var(--color-section)_55%,transparent),transparent_70%)] hover:border-accent-700 transition-colors"
     >
       <ProgressRing value={config.progress} size={40} strokeWidth={4} />
 
       <div className="flex-1 flex flex-col gap-0.5 min-w-0">
-        <span className="text-[13px] font-medium">{config.title}</span>
-        <span className="text-[11.5px] text-neutral-500 leading-[1.45]">
+        <span className="text-sm font-medium">{config.title}</span>
+        <span className="text-xs text-neutral-500 leading-normal">
           {config.description}
         </span>
       </div>

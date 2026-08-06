@@ -177,7 +177,7 @@ export default function SellerDashboardPage() {
               </span>
             </div>
 
-            <div className="w-px h-[30px] bg-border" />
+            <div className="w-px h-8 bg-border" />
 
             <div className="flex flex-col gap-1">
               <span className="text-[10px] text-neutral-600 uppercase tracking-wider">
@@ -188,7 +188,7 @@ export default function SellerDashboardPage() {
               </span>
             </div>
 
-            <div className="w-px h-[30px] bg-border" />
+            <div className="w-px h-8 bg-border" />
 
             <div className="flex flex-col gap-1">
               <span className="text-[10px] text-neutral-600 uppercase tracking-wider">
@@ -259,7 +259,7 @@ export default function SellerDashboardPage() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {quickActions.map((action) => (
           <Link
             key={action.href}

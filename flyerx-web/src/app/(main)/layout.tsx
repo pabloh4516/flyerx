@@ -77,7 +77,7 @@ export default function SellerLayout({
     <Link
       href={item.href}
       className={cn(
-        'flex items-center gap-2.5 px-2.5 py-2 rounded-[--radius-md] text-[13px] transition-colors',
+        'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm transition-colors',
         isActive(item.href)
           ? 'bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] text-accent-200 border border-accent-800'
           : 'text-neutral-400 hover:text-neutral-300 hover:bg-neutral-900/50'
@@ -86,7 +86,7 @@ export default function SellerLayout({
       <item.icon className="size-3.5" />
       <span>{item.label}</span>
       {item.badge && (
-        <span className="tag tag-outline ml-auto text-[9.5px] px-1.5 py-0.5 whitespace-nowrap">
+        <span className="tag tag-outline ml-auto text-[10px] px-1.5 py-0.5 whitespace-nowrap">
           {item.badge}
         </span>
       )}
@@ -100,9 +100,9 @@ export default function SellerLayout({
         <Logo />
 
         {/* Search */}
-        <div className="flex items-center gap-2 border border-border rounded-[--radius-md] px-3 py-1.5 w-[300px] text-neutral-600">
+        <div className="flex items-center gap-2 border border-border rounded-md px-3 py-1.5 w-[300px] text-neutral-600">
           <Search className="size-3.5" />
-          <span className="text-[12.5px]">Buscar transação, chave, link…</span>
+          <span className="text-xs">Buscar transação, chave, link…</span>
           <span className="ml-auto text-[10px] border border-border rounded px-1.5 py-0.5 font-mono">
             ⌘K
           </span>
@@ -118,7 +118,7 @@ export default function SellerLayout({
           </Link>
 
           {/* Notifications */}
-          <button className="relative w-[34px] h-[34px] rounded-full border border-border flex items-center justify-center text-neutral-400 hover:text-neutral-300 hover:border-neutral-700 transition-colors">
+          <button className="relative size-9 rounded-full border border-border flex items-center justify-center text-neutral-400 hover:text-neutral-300 hover:border-neutral-700 transition-colors">
             <Bell className="size-3.5" />
             <span className="absolute top-1 right-1.5 w-1.5 h-1.5 rounded-full bg-accent shadow-[0_0_6px_var(--color-accent)]" />
           </button>
@@ -129,10 +129,10 @@ export default function SellerLayout({
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2.5 border border-border rounded-full py-1 pl-1 pr-3 hover:border-neutral-700 transition-colors"
             >
-              <div className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-800 to-accent-900 border border-accent-700 text-accent-200 flex items-center justify-center text-[11px] font-medium">
+              <div className="size-7 rounded-full bg-gradient-to-br from-accent-800 to-accent-900 border border-accent-700 text-accent-200 flex items-center justify-center text-xs font-medium">
                 {userInitial}
               </div>
-              <span className="text-[12.5px]">{userName}</span>
+              <span className="text-xs">{userName}</span>
               <ChevronDown className="size-3 text-neutral-600" />
             </button>
 
@@ -142,16 +142,16 @@ export default function SellerLayout({
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)}
                 />
-                <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-[--radius-md] shadow-lg z-50 py-1">
+                <div className="absolute right-0 top-full mt-2 w-48 bg-surface border border-border rounded-lg shadow-lg z-50 py-1">
                   <Link
                     href="/settings"
-                    className="flex items-center gap-2 px-3 py-2 text-[13px] text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
                   >
                     Configurações
                   </Link>
                   <button
                     onClick={() => logout()}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
                   >
                     <LogOut className="size-3.5" />
                     Sair da conta
@@ -167,7 +167,7 @@ export default function SellerLayout({
         {/* Sidebar */}
         <aside className="w-[220px] border-r border-border px-3 py-4 flex flex-col gap-0.5 bg-[color-mix(in_srgb,var(--color-surface)_35%,transparent)]">
           {/* Principal */}
-          <span className="text-[9.5px] uppercase tracking-[0.14em] text-neutral-600 px-2.5 pb-2">
+          <span className="text-[10px] uppercase tracking-[0.14em] text-neutral-600 px-2.5 pb-2">
             Principal
           </span>
           {mainNav.map((item) => (
@@ -175,7 +175,7 @@ export default function SellerLayout({
           ))}
 
           {/* Movimentar */}
-          <span className="text-[9.5px] uppercase tracking-[0.14em] text-neutral-600 px-2.5 pt-4 pb-2">
+          <span className="text-[10px] uppercase tracking-[0.14em] text-neutral-600 px-2.5 pt-4 pb-2">
             Movimentar
           </span>
           {moveNav.map((item) => (
@@ -183,7 +183,7 @@ export default function SellerLayout({
           ))}
 
           {/* Plataforma */}
-          <span className="text-[9.5px] uppercase tracking-[0.14em] text-neutral-600 px-2.5 pt-4 pb-2">
+          <span className="text-[10px] uppercase tracking-[0.14em] text-neutral-600 px-2.5 pt-4 pb-2">
             Plataforma
           </span>
           {platformNav.map((item) => (
@@ -193,9 +193,9 @@ export default function SellerLayout({
           {/* Bottom section */}
           <div className="mt-auto flex flex-col gap-2">
             {/* Limit card */}
-            <div className="border border-accent-800 rounded-[--radius-md] p-3 flex flex-col gap-2 bg-[linear-gradient(140deg,color-mix(in_srgb,var(--color-section)_40%,transparent),transparent_80%)]">
+            <div className="border border-accent-800 rounded-md p-3 flex flex-col gap-2 bg-[linear-gradient(140deg,color-mix(in_srgb,var(--color-section)_40%,transparent),transparent_80%)]">
               <div className="flex justify-between items-center">
-                <span className="text-[11px] font-medium">Limite mensal</span>
+                <span className="text-xs font-medium">Limite mensal</span>
                 <span className="text-[10px] text-neutral-500 tabular-nums">
                   {limitPercent}%
                 </span>
@@ -215,7 +215,7 @@ export default function SellerLayout({
             {/* Logout */}
             <button
               onClick={() => logout()}
-              className="flex items-center gap-2.5 px-2.5 py-1.5 text-[12px] text-neutral-500 hover:text-neutral-400 transition-colors"
+              className="flex items-center gap-2.5 px-2.5 py-1.5 text-xs text-neutral-500 hover:text-neutral-400 transition-colors"
             >
               <LogOut className="size-3.5" />
               Sair da conta

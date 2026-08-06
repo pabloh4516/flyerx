@@ -76,11 +76,11 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Mobile header */}
         <div className="flex h-16 items-center justify-between px-4 border-b md:hidden">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <Wallet className="h-6 w-6 text-primary" />
+            <Wallet className="size-6 text-primary" />
             <span className="font-bold text-xl">Flyerx</span>
           </Link>
           <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
+            <X className="size-5" />
           </Button>
         </div>
 
@@ -94,13 +94,13 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                 href={item.href}
                 onClick={onClose}
                 className={cn(
-                  'flex items-center gap-3 rounded-[--radius-lg] px-3 py-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                   isActive
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                 )}
               >
-                <item.icon className="h-5 w-5" />
+                <item.icon className="size-5" />
                 {item.name}
               </Link>
             );
