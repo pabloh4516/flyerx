@@ -169,12 +169,12 @@ export default function SellerSendPage() {
     <div className="p-7 flex flex-col gap-6 min-h-full">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-[46px] h-[46px] rounded-[14px] border border-neutral-700 bg-gradient-to-br from-neutral-900 to-transparent text-neutral-300 flex items-center justify-center">
+        <div className="size-12 rounded-lg border border-neutral-700 bg-gradient-to-br from-neutral-900 to-transparent text-neutral-300 flex items-center justify-center">
           <ArrowUpRight className="size-5" />
         </div>
         <div className="flex-1 flex flex-col gap-0.5">
-          <span className="text-[21px] font-medium">Enviar PIX</span>
-          <span className="text-[12.5px] text-neutral-500">
+          <span className="text-xl font-medium">Enviar PIX</span>
+          <span className="text-xs text-neutral-500">
             Pague com DePix, receba via PIX
           </span>
         </div>
@@ -186,7 +186,7 @@ export default function SellerSendPage() {
           <div key={s.id} className="flex items-center">
             <span
               className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-[12.5px] border transition-colors',
+                'inline-flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-xs border transition-colors',
                 step === s.id
                   ? 'border-accent bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] text-accent-200 font-medium'
                   : step > s.id
@@ -216,14 +216,14 @@ export default function SellerSendPage() {
       {/* Step 1: Request */}
       {step === 1 && (
         <div className="grid grid-cols-[1fr_0.85fr] gap-11 items-start">
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4.5">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-[38px] h-[38px] rounded-[10px] border border-border text-neutral-300 flex items-center justify-center">
+              <div className="size-10 rounded-md border border-border text-neutral-300 flex items-center justify-center">
                 <Check className="size-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[14.5px] font-medium">Fazer PIX</span>
-                <span className="text-[11.5px] text-neutral-600">
+                <span className="text-sm font-medium">Fazer PIX</span>
+                <span className="text-xs text-neutral-600">
                   Mín: R$ {limits.withdraw.min.toFixed(2).replace('.', ',')} | Máx: R$ {limits.withdraw.max.toLocaleString('pt-BR')}
                 </span>
               </div>
@@ -231,7 +231,7 @@ export default function SellerSendPage() {
 
             {/* PIX key type */}
             <div className="flex flex-col gap-2">
-              <span className="text-[10.5px] text-neutral-500 uppercase tracking-wider">
+              <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
                 Tipo de chave PIX
               </span>
               <div className="flex gap-2">
@@ -241,14 +241,14 @@ export default function SellerSendPage() {
                     type="button"
                     onClick={() => setValue('pixKeyType', type)}
                     className={cn(
-                      'flex-1 border rounded-[--radius-md] p-3 flex flex-col items-center gap-1.5 transition-colors',
+                      'flex-1 border rounded-md p-3 flex flex-col items-center gap-1.5 transition-colors',
                       pixKeyType === type
                         ? 'border-accent bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] text-accent-200'
                         : 'border-border text-neutral-400 hover:border-neutral-700'
                     )}
                   >
                     <Icon className="size-4" />
-                    <span className="text-[11.5px] font-medium">{label}</span>
+                    <span className="text-xs font-medium">{label}</span>
                   </button>
                 ))}
               </div>
@@ -256,7 +256,7 @@ export default function SellerSendPage() {
 
             {/* PIX key input */}
             <div className="flex flex-col gap-2">
-              <span className="text-[10.5px] text-neutral-500 uppercase tracking-wider">
+              <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
                 Chave PIX
               </span>
               <Input
@@ -271,34 +271,34 @@ export default function SellerSendPage() {
                 {...register('pixKey')}
               />
               {errors.pixKey && (
-                <p className="text-[12px] text-destructive">{errors.pixKey.message}</p>
+                <p className="text-xs text-destructive">{errors.pixKey.message}</p>
               )}
             </div>
 
             {/* Amount input */}
             <div className="flex flex-col gap-2">
-              <span className="text-[10.5px] text-neutral-500 uppercase tracking-wider">
+              <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
                 Valor líquido
               </span>
-              <div className="flex items-baseline gap-2 border border-accent-800 rounded-[--radius-md] p-3.5 bg-[color-mix(in_srgb,var(--color-surface)_60%,transparent)] tabular-nums">
-                <span className="text-[14px] text-neutral-500">R$</span>
+              <div className="flex items-baseline gap-2 border border-accent-800 rounded-lg p-3.5 bg-[color-mix(in_srgb,var(--color-surface)_60%,transparent)] tabular-nums">
+                <span className="text-sm text-neutral-500">R$</span>
                 <Input
                   type="number"
                   step="0.01"
                   min={limits.withdraw.min}
                   max={limits.withdraw.max}
-                  className="text-[26px] font-medium h-auto py-0 px-0 border-0 bg-transparent focus-visible:ring-0 w-32"
+                  className="text-2xl font-medium h-auto py-0 px-0 border-0 bg-transparent focus-visible:ring-0 w-32"
                   {...register('amount', { valueAsNumber: true })}
                 />
               </div>
               {errors.amount && (
-                <p className="text-[12px] text-destructive">{errors.amount.message}</p>
+                <p className="text-xs text-destructive">{errors.amount.message}</p>
               )}
             </div>
 
             <Button
               type="submit"
-              variant="primary"
+              variant="solid"
               size="lg"
               fullWidth
               disabled={createWithdraw.isPending}
@@ -312,12 +312,12 @@ export default function SellerSendPage() {
           {/* How it works */}
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-3 mb-1">
-              <div className="w-[38px] h-[38px] rounded-[10px] border border-accent-800 bg-accent-900 text-accent-300 flex items-center justify-center">
+              <div className="size-10 rounded-md border border-accent-800 bg-accent-900 text-accent-300 flex items-center justify-center">
                 <Info className="size-4" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[14.5px] font-medium">Como funciona</span>
-                <span className="text-[11.5px] text-neutral-600">
+                <span className="text-sm font-medium">Como funciona</span>
+                <span className="text-xs text-neutral-600">
                   Passo a passo simples
                 </span>
               </div>
@@ -330,17 +330,17 @@ export default function SellerSendPage() {
             ].map((item, i) => (
               <div
                 key={i}
-                className="border border-border rounded-[--radius-md] p-3.5 flex gap-3 items-center bg-[color-mix(in_srgb,var(--color-surface)_50%,transparent)]"
+                className="border border-border rounded-lg p-3.5 flex gap-3 items-center bg-[color-mix(in_srgb,var(--color-surface)_50%,transparent)]"
               >
-                <div className="w-8 h-8 rounded-[9px] border border-border flex items-center justify-center relative text-neutral-300 shrink-0">
+                <div className="size-8 rounded-md border border-border flex items-center justify-center relative text-neutral-300 shrink-0">
                   <item.icon className="size-3.5" />
-                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-accent-800 text-accent-200 text-[9px] flex items-center justify-center font-medium">
+                  <span className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-accent-800 text-accent-200 text-[9px] flex items-center justify-center font-medium">
                     {i + 1}
                   </span>
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <span className="text-[13px] font-medium">{item.title}</span>
-                  <span className="text-[11.5px] text-neutral-500">{item.desc}</span>
+                  <span className="text-sm font-medium">{item.title}</span>
+                  <span className="text-xs text-neutral-500">{item.desc}</span>
                 </div>
               </div>
             ))}
@@ -352,15 +352,15 @@ export default function SellerSendPage() {
       {step === 2 && withdraw && (
         <>
           {/* Status bar */}
-          <div className="border border-border rounded-[--radius-md] p-3.5 flex items-center gap-3.5 bg-[color-mix(in_srgb,var(--color-surface)_60%,transparent)]">
-            <div className="w-10 h-10 rounded-[11px] border border-amber-700 bg-amber-900 text-amber-300 flex items-center justify-center shrink-0">
-              <Clock className="size-4.5" />
+          <div className="border border-border rounded-lg p-3.5 flex items-center gap-3.5 bg-[color-mix(in_srgb,var(--color-surface)_60%,transparent)]">
+            <div className="size-10 rounded-lg border border-amber-700 bg-amber-900 text-amber-300 flex items-center justify-center shrink-0">
+              <Clock className="size-5" />
             </div>
             <div className="flex-1 flex flex-col gap-0.5">
-              <span className="text-[14px] font-medium text-amber-300">
+              <span className="text-sm font-medium text-amber-300">
                 Aguardando pagamento
               </span>
-              <span className="text-[12px] text-neutral-500">
+              <span className="text-xs text-neutral-500">
                 Envie DePix para o endereço abaixo
               </span>
             </div>
@@ -378,27 +378,27 @@ export default function SellerSendPage() {
             {/* QR Code */}
             <div className="flex flex-col gap-4 items-center">
               <div className="flex items-center gap-3 self-start">
-                <div className="w-[38px] h-[38px] rounded-[10px] border border-border text-neutral-300 flex items-center justify-center">
+                <div className="size-10 rounded-md border border-border text-neutral-300 flex items-center justify-center">
                   <Send className="size-4" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[14.5px] font-medium">Endereço DePix</span>
-                  <span className="text-[11.5px] text-neutral-600">
+                  <span className="text-sm font-medium">Endereço DePix</span>
+                  <span className="text-xs text-neutral-600">
                     Envie de sua wallet Liquid
                   </span>
                 </div>
               </div>
 
-              <div className="bg-neutral-100 rounded-[--radius-lg] p-4.5 shadow-md">
+              <div className="bg-neutral-100 rounded-lg p-5 shadow-md">
                 <div className="w-[210px] h-[210px] flex items-center justify-center">
                   <Logo size="lg" className="opacity-50" />
                 </div>
               </div>
 
               {/* Amount */}
-              <div className="border border-accent rounded-[--radius-md] px-6 py-3 flex flex-col gap-0.5 items-center bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)]">
-                <span className="text-[9.5px] text-accent-300 uppercase tracking-wider">Valor a enviar</span>
-                <span className="text-[20px] font-medium text-accent-200 tabular-nums">
+              <div className="border border-accent rounded-md px-6 py-3 flex flex-col gap-0.5 items-center bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)]">
+                <span className="text-[10px] text-accent-300 uppercase tracking-wider">Valor a enviar</span>
+                <span className="text-xl font-medium text-accent-200 tabular-nums">
                   {formatCurrency(amount + fee)} DePix
                 </span>
               </div>
@@ -407,19 +407,19 @@ export default function SellerSendPage() {
             {/* Address */}
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-[38px] h-[38px] rounded-[10px] border border-border text-neutral-300 flex items-center justify-center">
+                <div className="size-10 rounded-md border border-border text-neutral-300 flex items-center justify-center">
                   <Copy className="size-4" />
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[14.5px] font-medium">Endereço Liquid</span>
-                  <span className="text-[11.5px] text-neutral-600">
+                  <span className="text-sm font-medium">Endereço Liquid</span>
+                  <span className="text-xs text-neutral-600">
                     Copie e cole na sua wallet
                   </span>
                 </div>
               </div>
 
-              <div className="border border-border rounded-[--radius-md] p-3.5 bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)]">
-                <span className="text-[11px] font-mono text-neutral-400 leading-relaxed break-all">
+              <div className="border border-border rounded-lg p-3.5 bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)]">
+                <span className="text-xs font-mono text-neutral-400 leading-relaxed break-all">
                   {withdraw.flyerxAddress}
                 </span>
               </div>
@@ -451,18 +451,18 @@ export default function SellerSendPage() {
       {/* Step 3: Confirmed */}
       {step === 3 && withdraw && (
         <div className="flex flex-col items-center gap-6 py-12">
-          <div className="w-16 h-16 rounded-full border border-accent bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)] flex items-center justify-center text-accent-300 shadow-[0_0_40px_color-mix(in_srgb,var(--color-accent)_30%,transparent)]">
+          <div className="size-16 rounded-full border border-accent bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)] flex items-center justify-center text-accent-300 shadow-[0_0_40px_color-mix(in_srgb,var(--color-accent)_30%,transparent)]">
             <Check className="size-7" />
           </div>
 
           <div className="flex flex-col items-center gap-1">
-            <span className="text-[19px] font-medium">PIX enviado</span>
-            <span className="text-[12.5px] text-neutral-500">
+            <span className="text-xl font-medium">PIX enviado</span>
+            <span className="text-xs text-neutral-500">
               O destinatário receberá em instantes
             </span>
           </div>
 
-          <div className="text-[36px] font-medium text-accent-200 tabular-nums">
+          <div className="text-4xl font-medium text-accent-200 tabular-nums">
             {formatCurrency(amount)}
           </div>
 
@@ -482,7 +482,7 @@ export default function SellerSendPage() {
       )}
 
       {/* Footer */}
-      <div className="flex justify-between items-center mt-auto pt-1 text-[11px] text-neutral-600">
+      <div className="flex justify-between items-center mt-auto pt-1 text-xs text-neutral-600">
         <span>© 2026 Flyerx</span>
         <div className="flex gap-4">
           <Link href="/privacy" className="hover:text-neutral-400">

@@ -10,7 +10,10 @@
 - [x] Fase 1 — Auditoria (00-auditoria-web.md)
 - [x] Fase 2 — Decisões (01-decisoes.md, 14 seções: tokens, pares, radius, spacing, ícones, grid, tipografia D.3, buttons D.2, contraste seção 14)
 - [x] Fase 3 — Consolidação da biblioteca (02-consolidacao.md; commits c734667 até 0c5842c; inclui: unificação de pares, sintaxe Tailwind 4 religada, autofill fix, color-scheme dark, auditoria sistêmica de contraste com 7 correções)
-- [ ] Fase 4 — Migração de telas: Grupos A+B (receive, send, login, register, forgot-password, verify-email) → depois C+D (history, dashboard, pix-keys, payment-links, subaccounts, developers, settings). Relatório em 04-migracao-telas.md. Commit por grupo. Checkpoint visual do usuário entre grupos.
+- [ ] Fase 4 — Migração de telas:
+  - [x] **Grupo A CONCLUÍDO** (receive, send) — commit `5a41644`
+  - [ ] Grupo B (login, register, forgot-password, verify-email) — aguardando verificação visual do Grupo A
+  - [ ] Grupos C+D (history, dashboard, pix-keys, payment-links, subaccounts, developers, settings)
 - [ ] Fase 5 — QA final em sessão LIMPA, comparando o app contra 01-decisoes.md + CLAUDE.md, incluindo varredura de contraste em todos os estados das telas
 
 ---
@@ -51,7 +54,7 @@ Para cores vibrantes (CTAs, estados checked) usar **PRIMARY**; accent puro só p
 
 ---
 
-## Commits da consolidação
+## Commits da consolidação e migração
 
 | Hash | Descrição |
 |------|-----------|
@@ -62,6 +65,7 @@ Para cores vibrantes (CTAs, estados checked) usar **PRIMARY**; accent puro só p
 | `aee027a` | chore(design): aplica cores semânticas e registra regras de Button/Tipografia |
 | `6994961` | fix(design): força tema escuro em controles nativos (color-scheme dark) |
 | `0c5842c` | fix(design): auditoria sistêmica de contraste em todos os estados |
+| `5a41644` | feat(design): migra receive e send para o design system Nocturne (Grupo A) |
 
 ---
 
