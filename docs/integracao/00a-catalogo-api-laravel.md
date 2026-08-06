@@ -430,6 +430,75 @@
 | 3 | Subcontas não implementadas | Médio | Telas existem no frontend, backend não tem |
 | 4 | API Keys de desenvolvedor não implementadas | Baixo | Telas existem no frontend, backend não tem |
 | 5 | Webhooks de saída não implementados | Baixo | Sistema interno não notifica externos |
+| 6 | **Endereço Liquid do usuário não persistido** | **ALTO** | Ver seção 7.1 |
+
+---
+
+## 7. Adendo: Verificação Pré-Passo-2
+
+*Adicionado em 2026-08-06*
+
+### 7.1 Gestão de Carteira/Endereço Liquid
+
+**Status:** NÃO IMPLEMENTADO NO BACKEND
+
+| Verificação | Resultado |
+|-------------|-----------|
+| Endpoint para cadastrar endereço Liquid | ❌ Não existe |
+| Endpoint para consultar endereço Liquid | ❌ Não existe |
+| Campo na tabela `users` | ❌ Não existe (apenas `metadata` JSON genérico) |
+| Campo na tabela `wallets` | ❌ Não existe |
+| Grep por `liquid_address`, `lq1`, `wallet_address` | Sem resultados em migrations |
+
+**Descoberta importante:** O frontend armazena carteiras Liquid em **localStorage** via Zustand (`useFeesStore` em `stores/fees.ts`). Isso é um workaround que:
+
+- Funciona para testes locais
+- **Perde dados** ao trocar navegador/dispositivo
+- **Não tem validação** servidor
+- **Não tem auditoria** ou histórico
+
+**Estrutura atual no frontend:**
+```typescript
+// types/fees.ts
+interface SavedWallet {
+  id: string;
+  label: string;
+  address: string;      // Endereço Liquid (lq1... ou ex1...)
+  isDefault: boolean;
+  createdAt: string;
+}
+
+// stores/fees.ts - persiste em localStorage('flyerx-fees-storage')
+wallets: SavedWallet[];
+addWallet(), removeWallet(), setDefaultWallet(), getDefaultWallet()
+```
+
+**Para integrar corretamente, o backend precisaria:**
+
+| Endpoint | Método | Propósito |
+|----------|--------|-----------|
+| `/v1/wallet/liquid-address` | GET | Consultar endereço atual |
+| `/v1/wallet/liquid-address` | PUT | Atualizar endereço |
+| `/v1/wallet/liquid-addresses` | GET | Listar todos (se múltiplos) |
+
+**Sugestão de campos na tabela `wallets`:**
+```sql
+ALTER TABLE wallets ADD COLUMN liquid_address VARCHAR(100) NULL;
+ALTER TABLE wallets ADD COLUMN liquid_addresses JSONB DEFAULT '[]';
+```
+
+### 7.2 Confirmação de Domínios Ausentes
+
+| Domínio | Busca realizada | Resultado |
+|---------|-----------------|-----------|
+| Payment Links | `payment.?link`, `charge`, `invoice` em rotas/controllers | ❌ Não existe |
+| Subcontas | `sub_?account`, `team`, `sub_?user` | ❌ Não existe |
+| API Keys | `api_?token`, `personal_access` | ⚠️ Apenas Sanctum (auth) |
+
+**Sobre `personal_access_tokens`:**
+- É a tabela padrão do Laravel Sanctum para autenticação
+- **NÃO** é sistema de API keys para integrações de desenvolvedor
+- Campos: `id`, `tokenable_type/id`, `name`, `token`, `abilities`, `last_used_at`, `expires_at`
 
 ---
 

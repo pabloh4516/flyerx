@@ -739,4 +739,109 @@ Dados disponíveis no backend/Eulen que poderiam ser exibidos:
 
 ---
 
+---
+
+## 16. Adendo: Funções de API Órfãs
+
+*Adicionado em 2026-08-06 — Verificação Pré-Passo-2*
+
+### 16.1 Análise de uso: lib/api/*.ts
+
+#### lib/api/wallet.ts
+
+| Função | Status | Hook que importa | Tela que usa |
+|--------|--------|------------------|--------------|
+| `getWallet` | ✅ USADA | `useWallet` | (hook disponível, não usado diretamente) |
+| `getBalance` | ✅ USADA | `useBalance` | `dashboard/page.tsx` |
+| `listTransactions` | ✅ USADA | `useTransactions` | `dashboard/page.tsx` |
+| `getTransaction` | ⚠️ SEMI-ÓRFÃ | `useTransaction` | Nenhuma tela usa o hook |
+| `exportTransactionsCsv` | ❌ ÓRFÃ | Nenhum | Botão "Exportar" em history é decorativo |
+| `exportTransactionsPdf` | ❌ ÓRFÃ | Nenhum | Botão "Exportar" em history é decorativo |
+
+#### lib/api/deposits.ts
+
+| Função | Status | Hook que importa | Tela que usa |
+|--------|--------|------------------|--------------|
+| `createDeposit` | ⚠️ SEMI-ÓRFÃ | `useCreateDeposit` | Nenhuma — `receive/` usa Pix2Depix |
+| `getDeposit` | ⚠️ SEMI-ÓRFÃ | `useDeposit` | Nenhuma tela usa o hook |
+| `listDeposits` | ⚠️ SEMI-ÓRFÃ | `useDeposits` | Nenhuma tela usa o hook |
+| `cancelDeposit` | ❌ ÓRFÃ | Nenhum | — |
+
+#### lib/api/withdrawals.ts
+
+| Função | Status | Hook que importa | Tela que usa |
+|--------|--------|------------------|--------------|
+| `estimateWithdrawalFee` | ⚠️ SEMI-ÓRFÃ | `useEstimateFee` | Nenhuma — taxa calculada localmente |
+| `createWithdrawal` | ⚠️ SEMI-ÓRFÃ | `useCreateWithdrawal` | Nenhuma — `send/` usa Pix2Depix |
+| `getWithdrawal` | ❌ ÓRFÃ | Nenhum | — |
+| `listWithdrawals` | ⚠️ SEMI-ÓRFÃ | `useWithdrawals` | Nenhuma — `history/` usa mocks |
+| `cancelWithdrawal` | ❌ ÓRFÃ | Nenhum | — |
+| `validatePixKey` | ❌ ÓRFÃ | Nenhum | — |
+
+#### lib/api/pix2depix.ts
+
+| Função | Status | Hook que importa | Tela que usa |
+|--------|--------|------------------|--------------|
+| `createPix2DepixDeposit` | ✅ USADA | `useCreatePix2DepixDeposit` | `receive/page.tsx` |
+| `getPix2DepixDepositStatus` | ✅ USADA | `usePix2DepixDepositStatus` | `receive/page.tsx` |
+| `createPix2DepixWithdraw` | ✅ USADA | `useCreatePix2DepixWithdraw` | `send/page.tsx` |
+| `getPix2DepixWithdrawStatus` | ✅ USADA | `usePix2DepixWithdrawStatus` | `send/page.tsx` |
+| `getPix2DepixUserInfo` | ⚠️ SEMI-ÓRFÃ | `usePix2DepixUserInfo` | Nenhuma tela usa o hook |
+| `isValidLiquidAddress` | ✅ USADA | — | Usado em validações |
+| `isValidEUID` | ⚠️ SEMI-ÓRFÃ | — | Não encontrado em uso |
+| `checkDailyLimit` | ⚠️ SEMI-ÓRFÃ | — | Não encontrado em uso |
+
+#### lib/api/flyerx-backend.ts
+
+| Função | Status | Hook que importa | Tela que usa |
+|--------|--------|------------------|--------------|
+| `getDevToken` | ⚠️ DEV-ONLY | — | Apenas para desenvolvimento |
+| `hasBackendToken` | ⚠️ DEV-ONLY | — | — |
+| `clearBackendToken` | ⚠️ DEV-ONLY | — | — |
+| `createBackendWithdrawal` | ❌ ÓRFÃ | Nenhum | Backend LWK não ativado |
+| `getBackendWithdrawal` | ❌ ÓRFÃ | Nenhum | — |
+| `getBackendWithdrawalStatus` | ❌ ÓRFÃ | Nenhum | — |
+| `listBackendWithdrawals` | ❌ ÓRFÃ | Nenhum | — |
+| `cancelBackendWithdrawal` | ❌ ÓRFÃ | Nenhum | — |
+| `estimateBackendFee` | ❌ ÓRFÃ | Nenhum | — |
+| `getDailyLimit` | ✅ USADA | `useDailyLimit` | Hook disponível |
+| `checkBackendHealth` | ⚠️ DEV-ONLY | — | — |
+| `shouldUseBackendLWK` | ⚠️ FEATURE-FLAG | — | Controla fluxo |
+| `setUseBackendLWK` | ⚠️ FEATURE-FLAG | — | — |
+
+#### lib/api/auth.ts
+
+| Status | Observação |
+|--------|------------|
+| ✅ TODAS USADAS | Sistema de auth funcional — login, register, 2FA, devices |
+
+### 16.2 Resumo
+
+| Classificação | Quantidade | Descrição |
+|---------------|------------|-----------|
+| ✅ USADA | 14 | Função chamada por tela real |
+| ⚠️ SEMI-ÓRFÃ | 11 | Hook existe mas nenhuma tela usa |
+| ❌ ÓRFÃ | 12 | Função sem import/uso |
+| ⚠️ DEV/FLAG | 5 | Funções de desenvolvimento/feature flags |
+
+### 16.3 Observações
+
+1. **Fluxo duplo (Laravel vs Pix2Depix):**
+   - `lib/api/deposits.ts` e `lib/api/withdrawals.ts` chamam API Laravel
+   - `lib/api/pix2depix.ts` chama API Eulen diretamente via proxy Next.js
+   - As telas `receive/` e `send/` usam **Pix2Depix**, não Laravel
+   - As funções Laravel estão prontas mas órfãs por escolha de arquitetura
+
+2. **Backend LWK (flyerx-backend/):**
+   - `lib/api/flyerx-backend.ts` tem funções prontas
+   - Feature flag `NEXT_PUBLIC_USE_BACKEND_LWK` controla ativação
+   - Atualmente **desativado** — funções são órfãs
+
+3. **History com mocks:**
+   - `useTransactions`, `useWithdrawals`, `useDeposits` existem
+   - `history/page.tsx` ignora e usa `mockTransactions` hardcoded
+   - Integração seria simples: trocar mock por hook
+
+---
+
 *Documento gerado em 2026-08-06 como registro para decisões do Passo 2 da Fase 6.*
