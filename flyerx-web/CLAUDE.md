@@ -24,7 +24,8 @@
 - **Consolidacao CONCLUIDA** (2026-08-05).
 - **Grupo A CONCLUIDO** (receive, send).
 - **Grupo B CONCLUIDO** (login, register, forgot-password, verify-email).
-- **Proximo:** Grupos C (history, dashboard) e D (pix-keys, payment-links, subaccounts, developers, settings).
+- **Grupo C CONCLUIDO** (history, dashboard).
+- **Proximo:** Grupo D (pix-keys, payment-links, subaccounts, developers, settings).
 - Biblioteca de componentes unificada, tokens corrigidos, sintaxe Tailwind 4 religada.
 - Commit baseline: `c734667`
 

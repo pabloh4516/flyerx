@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-05 (sessão 4)
+**Atualizado em:** 2026-08-05 (sessão 5)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -13,9 +13,37 @@
 - [ ] Fase 4 — Migração de telas:
   - [x] **Grupo A CONCLUÍDO** (receive, send) — commits `98b6fa1` até `9d0c21b`
   - [x] **Grupo B COMPLETO** (login, register, forgot-password, verify-email) — sessões 3-4
+  - [x] **Grupo C COMPLETO** (history, dashboard) — sessão 5, commit `82e56f5`
   - [x] **Templates criados** (05-templates.md) — Template A (app) e Template B (auth)
-  - [ ] **PRÓXIMO:** Grupos C (history, dashboard) e D (pix-keys, payment-links, subaccounts, developers, settings)
+  - [ ] **PRÓXIMO:** Grupo D (pix-keys, payment-links, subaccounts, developers, settings)
 - [ ] Fase 5 — QA final em sessão LIMPA, comparando o app contra 01-decisoes.md + CLAUDE.md, incluindo varredura de contraste em todos os estados das telas
+
+---
+
+## Sessão 5 (2026-08-05) — Grupo C
+
+### O que foi feito
+
+1. **history/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: `rounded-[--radius-xl]` → `rounded-xl`, `rounded-[--radius-lg]` → `rounded-lg`, etc.
+   - StatusBadge manual substituído por Badge oficial com variants success/warning/error
+   - Tipografia: `text-[12px]` → `text-xs`, `text-[13px]` → `text-sm`
+   - Tamanhos: `w-8 h-8` → `size-8`
+   - Container: `<Container size="lg" padded={false}>` aplicado
+
+2. **dashboard/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: `rounded-[--radius-lg]` → `rounded-lg`, `rounded-[--radius-md]` → `rounded-md`
+   - Tipografia completa: 15+ valores arbitrários corrigidos para tokens
+   - Balance display: `text-[44px]` → `text-5xl`, `text-[26px]` → `text-2xl`
+   - Tamanhos: `w-[38px] h-[38px]` → `size-10`, `rounded-[10px]` → `rounded-md`
+   - Container: `<Container size="lg" padded={false}>` aplicado
+
+3. **04-migracao-telas.md atualizado** com inventário completo do Grupo C
+
+### Pendente para próxima sessão
+
+- **Grupo D:** pix-keys, payment-links, subaccounts, developers, settings
+  - Processo: mesmo ciclo (sintaxe → tipografia → spacing → radius → Container → build → doc)
 
 ---
 
@@ -124,19 +152,15 @@
 
 O usuário deve verificar ANTES de iniciar a próxima sessão:
 
-1. **receive/page.tsx:**
+1. **history/page.tsx:**
    - Container limitando largura em monitor largo
-   - AmountInput com fundo escuro e spinners ocultos
-   - StepsGuide com passos em cards (visual novo)
+   - Badge oficial com cores corretas (verde/amarelo/vermelho)
+   - Tipografia padronizada (text-xs, text-sm)
 
-2. **send/page.tsx:**
+2. **dashboard/page.tsx:**
    - Container limitando largura em monitor largo
-   - AmountInput com fundo escuro e spinners ocultos
-   - StepsGuide (já era o visual original, deve estar igual)
-
-3. **/design-system:**
-   - AmountInput com todos os estados
-   - StepsGuide com exemplo
+   - Balance display com tipografia tokens (text-5xl, text-2xl)
+   - Quick actions com icon boxes size-10 e rounded-md
 
 ---
 
@@ -191,7 +215,10 @@ Para cores vibrantes (CTAs, estados checked) usar **PRIMARY**; accent puro só p
 | `ab7c9dd` | fix(design): aplica Container conforme regra 8.4 em receive e send |
 | `f858547` | feat(design): cria AmountInput e aplica em receive/send |
 | `9d0c21b` | feat(design): cria StepsGuide (padrão cards) e unifica bloco como-funciona |
+| `6143f05` | feat(design): migra login e register (Grupo B parte 1) |
+| `171dbfd` | feat(design): migra forgot-password/verify-email e cria templates de página (Grupo B completo) |
+| `82e56f5` | feat(design): migra history e dashboard (Grupo C) |
 
 ---
 
-*Documento atualizado em 2026-08-05 (sessão 3). Próxima sessão: Grupo B parte 2 (forgot-password + verify-email).*
+*Documento atualizado em 2026-08-05 (sessão 5). Próxima sessão: Grupo D (pix-keys, payment-links, subaccounts, developers, settings).*
