@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
+import { Button, Container } from '@/components/ui';
 
 interface ApiKey {
   id: string;
@@ -88,7 +88,7 @@ export default function DevelopersPage() {
   };
 
   return (
-    <div className="p-6 flex flex-col gap-6">
+    <Container size="lg" padded={false} className="p-6 flex flex-col gap-6">
       {/* Header */}
       <div>
         <h1 className="text-lg font-semibold">Desenvolvedores</h1>
@@ -98,55 +98,55 @@ export default function DevelopersPage() {
       </div>
 
       {/* Quick Links */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <a
           href="#"
-          className="rounded-[--radius-xl] border border-divider bg-surface p-4 hover:border-accent/50 transition-colors group"
+          className="rounded-xl border border-divider bg-surface p-4 hover:border-accent/50 transition-colors group"
         >
           <Terminal className="size-5 text-accent-300 mb-2" />
-          <p className="text-[13px] font-medium group-hover:text-accent-200 transition-colors">
+          <p className="text-sm font-medium group-hover:text-accent-200 transition-colors">
             Documentação API
           </p>
-          <p className="text-[11px] text-neutral-500 mt-0.5">
+          <p className="text-xs text-neutral-500 mt-0.5">
             Guia completo de integração
           </p>
         </a>
         <a
           href="#"
-          className="rounded-[--radius-xl] border border-divider bg-surface p-4 hover:border-accent/50 transition-colors group"
+          className="rounded-xl border border-divider bg-surface p-4 hover:border-accent/50 transition-colors group"
         >
           <Code className="size-5 text-accent-300 mb-2" />
-          <p className="text-[13px] font-medium group-hover:text-accent-200 transition-colors">
+          <p className="text-sm font-medium group-hover:text-accent-200 transition-colors">
             SDKs
           </p>
-          <p className="text-[11px] text-neutral-500 mt-0.5">
+          <p className="text-xs text-neutral-500 mt-0.5">
             Node.js, Python, PHP
           </p>
         </a>
         <a
           href="#"
-          className="rounded-[--radius-xl] border border-divider bg-surface p-4 hover:border-accent/50 transition-colors group"
+          className="rounded-xl border border-divider bg-surface p-4 hover:border-accent/50 transition-colors group"
         >
           <ExternalLink className="size-5 text-accent-300 mb-2" />
-          <p className="text-[13px] font-medium group-hover:text-accent-200 transition-colors">
+          <p className="text-sm font-medium group-hover:text-accent-200 transition-colors">
             Sandbox
           </p>
-          <p className="text-[11px] text-neutral-500 mt-0.5">
+          <p className="text-xs text-neutral-500 mt-0.5">
             Ambiente de testes
           </p>
         </a>
       </div>
 
       {/* API Keys */}
-      <div className="rounded-[--radius-xl] border border-divider bg-surface">
+      <div className="rounded-xl border border-divider bg-surface">
         <div className="flex items-center justify-between p-4 border-b border-divider">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-[--radius-lg] bg-accent/10 border border-accent/30 flex items-center justify-center">
+            <div className="size-9 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center">
               <Key className="size-4 text-accent-300" />
             </div>
             <div>
-              <h2 className="text-[14px] font-medium">Chaves de API</h2>
-              <p className="text-[11px] text-neutral-500">Gerencie suas chaves de acesso</p>
+              <h2 className="text-sm font-medium">Chaves de API</h2>
+              <p className="text-xs text-neutral-500">Gerencie suas chaves de acesso</p>
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-2">
@@ -160,9 +160,9 @@ export default function DevelopersPage() {
             <div key={apiKey.id} className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-[13px] font-medium">{apiKey.name}</p>
+                  <p className="text-sm font-medium">{apiKey.name}</p>
                   <div className="flex items-center gap-2 mt-1">
-                    <code className="text-[12px] text-neutral-400 font-mono bg-neutral-900 px-2 py-0.5 rounded">
+                    <code className="text-xs text-neutral-400 font-mono bg-neutral-900 px-2 py-0.5 rounded">
                       {visibleKeys.has(apiKey.id)
                         ? apiKey.key.replace('...', 'ghi789jkl012mno345')
                         : apiKey.key}
@@ -173,7 +173,7 @@ export default function DevelopersPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => toggleKeyVisibility(apiKey.id)}
-                    className="w-8 h-8 rounded-[--radius-lg] border border-divider flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors"
+                    className="size-8 rounded-lg border border-divider flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors"
                   >
                     {visibleKeys.has(apiKey.id) ? (
                       <EyeOff className="size-4" />
@@ -183,7 +183,7 @@ export default function DevelopersPage() {
                   </button>
                   <button
                     onClick={() => copyToClipboard(apiKey.key, apiKey.id)}
-                    className="w-8 h-8 rounded-[--radius-lg] border border-divider flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors"
+                    className="size-8 rounded-lg border border-divider flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors"
                   >
                     {copiedId === apiKey.id ? (
                       <Check className="size-4 text-green-400" />
@@ -191,16 +191,16 @@ export default function DevelopersPage() {
                       <Copy className="size-4" />
                     )}
                   </button>
-                  <button className="w-8 h-8 rounded-[--radius-lg] border border-divider flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors">
+                  <button className="size-8 rounded-lg border border-divider flex items-center justify-center text-neutral-500 hover:text-neutral-300 hover:border-neutral-600 transition-colors">
                     <RefreshCw className="size-4" />
                   </button>
-                  <button className="w-8 h-8 rounded-[--radius-lg] border border-divider flex items-center justify-center text-neutral-500 hover:text-red-400 hover:border-red-500/50 transition-colors">
+                  <button className="size-8 rounded-lg border border-divider flex items-center justify-center text-neutral-500 hover:text-red-400 hover:border-red-500/50 transition-colors">
                     <Trash2 className="size-4" />
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 mt-3 text-[11px] text-neutral-600">
+              <div className="flex items-center gap-4 mt-3 text-xs text-neutral-600">
                 <span>Criada em {new Date(apiKey.createdAt).toLocaleDateString('pt-BR')}</span>
                 {apiKey.lastUsed && (
                   <span>Último uso: {new Date(apiKey.lastUsed).toLocaleString('pt-BR')}</span>
@@ -212,15 +212,15 @@ export default function DevelopersPage() {
       </div>
 
       {/* Webhooks */}
-      <div className="rounded-[--radius-xl] border border-divider bg-surface">
+      <div className="rounded-xl border border-divider bg-surface">
         <div className="flex items-center justify-between p-4 border-b border-divider">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-[--radius-lg] bg-accent/10 border border-accent/30 flex items-center justify-center">
+            <div className="size-9 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center">
               <Webhook className="size-4 text-accent-300" />
             </div>
             <div>
-              <h2 className="text-[14px] font-medium">Webhooks</h2>
-              <p className="text-[11px] text-neutral-500">Receba notificações em tempo real</p>
+              <h2 className="text-sm font-medium">Webhooks</h2>
+              <p className="text-xs text-neutral-500">Receba notificações em tempo real</p>
             </div>
           </div>
           <Button variant="outline" size="sm" className="gap-2">
@@ -235,10 +235,10 @@ export default function DevelopersPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <code className="text-[12px] text-neutral-300 font-mono">
+                    <code className="text-xs text-neutral-300 font-mono">
                       {webhook.url}
                     </code>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] ${
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] ${
                       webhook.status === 'active'
                         ? 'bg-green-500/20 text-green-400 border border-green-500/30'
                         : 'bg-neutral-800 text-neutral-500 border border-neutral-700'
@@ -259,14 +259,14 @@ export default function DevelopersPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button className="w-8 h-8 rounded-[--radius-lg] border border-divider flex items-center justify-center text-neutral-500 hover:text-red-400 hover:border-red-500/50 transition-colors">
+                  <button className="size-8 rounded-lg border border-divider flex items-center justify-center text-neutral-500 hover:text-red-400 hover:border-red-500/50 transition-colors">
                     <Trash2 className="size-4" />
                   </button>
                 </div>
               </div>
 
               {webhook.lastTriggered && (
-                <p className="text-[11px] text-neutral-600 mt-3">
+                <p className="text-xs text-neutral-600 mt-3">
                   Último disparo: {new Date(webhook.lastTriggered).toLocaleString('pt-BR')}
                 </p>
               )}
@@ -274,6 +274,6 @@ export default function DevelopersPage() {
           ))}
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

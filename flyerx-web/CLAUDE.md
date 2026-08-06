@@ -25,7 +25,9 @@
 - **Grupo A CONCLUIDO** (receive, send).
 - **Grupo B CONCLUIDO** (login, register, forgot-password, verify-email).
 - **Grupo C CONCLUIDO** (history, dashboard).
-- **Proximo:** Grupo D (pix-keys, payment-links, subaccounts, developers, settings).
+- **Grupo D CONCLUIDO** (pix-keys, payment-links, subaccounts, developers, settings).
+- **MIGRACAO DE TELAS COMPLETA** — Fase 4 finalizada.
+- **Proximo:** Fase 5 QA final.
 - Biblioteca de componentes unificada, tokens corrigidos, sintaxe Tailwind 4 religada.
 - Commit baseline: `c734667`
 

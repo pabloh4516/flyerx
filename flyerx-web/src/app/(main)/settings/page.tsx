@@ -15,9 +15,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui';
+import { Button, Input, Switch, Container } from '@/components/ui';
 
 import { useAuthStore } from '@/stores/auth';
 
@@ -56,7 +54,7 @@ export default function SellerSettingsPage() {
   ];
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <Container size="lg" padded={false} className="p-6 flex flex-col gap-5">
       {/* Header */}
       <div>
         <h1 className="text-lg font-semibold">Configurações</h1>
@@ -66,12 +64,12 @@ export default function SellerSettingsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 rounded-[--radius-xl] bg-surface border border-divider w-fit">
+      <div className="flex gap-1 p-1 rounded-xl bg-surface border border-divider w-fit">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-[--radius-lg] text-[13px] transition-colors whitespace-nowrap ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-colors whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-accent/20 text-accent-200'
                 : 'text-neutral-500 hover:text-neutral-300'
@@ -86,12 +84,12 @@ export default function SellerSettingsPage() {
       {/* Business Tab */}
       {activeTab === 'business' && (
         <div className="space-y-4">
-          <div className="rounded-[--radius-xl] border border-divider bg-surface p-4">
-            <h2 className="text-[13px] font-medium text-neutral-400 mb-4">Informações da empresa</h2>
+          <div className="rounded-xl border border-divider bg-surface p-4">
+            <h2 className="text-sm font-medium text-neutral-400 mb-4">Informações da empresa</h2>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <Building className="size-3" />
                   Razão social
                 </label>
@@ -102,7 +100,7 @@ export default function SellerSettingsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <Building className="size-3" />
                   Nome fantasia
                 </label>
@@ -113,7 +111,7 @@ export default function SellerSettingsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <FileText className="size-3" />
                   CNPJ
                 </label>
@@ -125,7 +123,7 @@ export default function SellerSettingsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <Mail className="size-3" />
                   Email comercial
                 </label>
@@ -137,7 +135,7 @@ export default function SellerSettingsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <Phone className="size-3" />
                   Telefone
                 </label>
@@ -148,7 +146,7 @@ export default function SellerSettingsPage() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <label className="flex items-center gap-1.5 text-[11px] text-neutral-500">
+                <label className="flex items-center gap-1.5 text-xs text-neutral-500">
                   <MapPin className="size-3" />
                   Endereço
                 </label>
@@ -160,22 +158,22 @@ export default function SellerSettingsPage() {
             </div>
           </div>
 
-          <div className="rounded-[--radius-xl] border border-divider bg-surface p-4">
+          <div className="rounded-xl border border-divider bg-surface p-4">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-9 h-9 rounded-[--radius-lg] bg-accent/10 border border-accent/30 flex items-center justify-center">
+              <div className="size-9 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center">
                 <Shield className="size-4 text-accent-300" />
               </div>
               <div>
-                <p className="text-[13px] font-medium">Segurança</p>
-                <p className="text-[11px] text-neutral-500">Configurações de segurança da conta</p>
+                <p className="text-sm font-medium">Segurança</p>
+                <p className="text-xs text-neutral-500">Configurações de segurança da conta</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <p className="text-[13px]">Autenticação em duas etapas</p>
-                  <p className="text-[11px] text-neutral-500">Adicione uma camada extra de segurança</p>
+                  <p className="text-sm">Autenticação em duas etapas</p>
+                  <p className="text-xs text-neutral-500">Adicione uma camada extra de segurança</p>
                 </div>
                 <Switch checked={user?.twoFactorEnabled} />
               </div>
@@ -184,8 +182,8 @@ export default function SellerSettingsPage() {
 
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <p className="text-[13px]">Confirmar transações por email</p>
-                  <p className="text-[11px] text-neutral-500">Receba confirmação para saques</p>
+                  <p className="text-sm">Confirmar transações por email</p>
+                  <p className="text-xs text-neutral-500">Receba confirmação para saques</p>
                 </div>
                 <Switch defaultChecked />
               </div>
@@ -202,14 +200,14 @@ export default function SellerSettingsPage() {
 
       {/* Notifications Tab */}
       {activeTab === 'notifications' && (
-        <div className="rounded-[--radius-xl] border border-divider bg-surface p-4">
-          <h2 className="text-[13px] font-medium text-neutral-400 mb-4">Preferências de notificação</h2>
+        <div className="rounded-xl border border-divider bg-surface p-4">
+          <h2 className="text-sm font-medium text-neutral-400 mb-4">Preferências de notificação</h2>
 
           <div className="space-y-4">
             <div className="flex items-center justify-between py-2">
               <div>
-                <p className="text-[13px]">Pagamentos recebidos</p>
-                <p className="text-[11px] text-neutral-500">Notificar quando receber um pagamento</p>
+                <p className="text-sm">Pagamentos recebidos</p>
+                <p className="text-xs text-neutral-500">Notificar quando receber um pagamento</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -218,8 +216,8 @@ export default function SellerSettingsPage() {
 
             <div className="flex items-center justify-between py-2">
               <div>
-                <p className="text-[13px]">Saques concluídos</p>
-                <p className="text-[11px] text-neutral-500">Notificar quando um saque for processado</p>
+                <p className="text-sm">Saques concluídos</p>
+                <p className="text-xs text-neutral-500">Notificar quando um saque for processado</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -228,8 +226,8 @@ export default function SellerSettingsPage() {
 
             <div className="flex items-center justify-between py-2">
               <div>
-                <p className="text-[13px]">Relatório diário</p>
-                <p className="text-[11px] text-neutral-500">Receber resumo diário por email</p>
+                <p className="text-sm">Relatório diário</p>
+                <p className="text-xs text-neutral-500">Receber resumo diário por email</p>
               </div>
               <Switch />
             </div>
@@ -238,8 +236,8 @@ export default function SellerSettingsPage() {
 
             <div className="flex items-center justify-between py-2">
               <div>
-                <p className="text-[13px]">Alertas de segurança</p>
-                <p className="text-[11px] text-neutral-500">Notificar sobre atividades suspeitas</p>
+                <p className="text-sm">Alertas de segurança</p>
+                <p className="text-xs text-neutral-500">Notificar sobre atividades suspeitas</p>
               </div>
               <Switch defaultChecked />
             </div>
@@ -248,8 +246,8 @@ export default function SellerSettingsPage() {
 
             <div className="flex items-center justify-between py-2">
               <div>
-                <p className="text-[13px]">Novidades do Flyerx</p>
-                <p className="text-[11px] text-neutral-500">Receber atualizações sobre novos recursos</p>
+                <p className="text-sm">Novidades do Flyerx</p>
+                <p className="text-xs text-neutral-500">Receber atualizações sobre novos recursos</p>
               </div>
               <Switch />
             </div>
@@ -259,20 +257,20 @@ export default function SellerSettingsPage() {
 
       {/* Appearance Tab */}
       {activeTab === 'appearance' && (
-        <div className="rounded-[--radius-xl] border border-divider bg-surface p-4">
-          <h2 className="text-[13px] font-medium text-neutral-400 mb-4">Personalização</h2>
+        <div className="rounded-xl border border-divider bg-surface p-4">
+          <h2 className="text-sm font-medium text-neutral-400 mb-4">Personalização</h2>
 
           <div className="space-y-4">
             <div>
-              <p className="text-[13px] mb-2">Cor da marca</p>
-              <p className="text-[11px] text-neutral-500 mb-3">
+              <p className="text-sm mb-2">Cor da marca</p>
+              <p className="text-xs text-neutral-500 mb-3">
                 Essa cor será usada nos seus links de pagamento
               </p>
               <div className="flex items-center gap-3">
                 {['#9184d9', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#ec4899'].map((color) => (
                   <button
                     key={color}
-                    className="w-8 h-8 rounded-[--radius-lg] border-2 border-transparent hover:border-white/50 transition-colors"
+                    className="size-8 rounded-lg border-2 border-transparent hover:border-white/50 transition-colors"
                     style={{ backgroundColor: color }}
                   />
                 ))}
@@ -280,17 +278,17 @@ export default function SellerSettingsPage() {
             </div>
 
             <div className="border-t border-divider pt-4">
-              <p className="text-[13px] mb-2">Logo da empresa</p>
-              <p className="text-[11px] text-neutral-500 mb-3">
+              <p className="text-sm mb-2">Logo da empresa</p>
+              <p className="text-xs text-neutral-500 mb-3">
                 Exibida nos links de pagamento e recibos
               </p>
-              <div className="w-20 h-20 rounded-[--radius-xl] border border-dashed border-divider flex items-center justify-center text-neutral-600 cursor-pointer hover:border-neutral-500 transition-colors">
-                <span className="text-[11px]">Upload</span>
+              <div className="size-20 rounded-xl border border-dashed border-divider flex items-center justify-center text-neutral-600 cursor-pointer hover:border-neutral-500 transition-colors">
+                <span className="text-xs">Upload</span>
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </Container>
   );
 }

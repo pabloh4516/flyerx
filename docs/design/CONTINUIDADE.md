@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-05 (sessão 5)
+**Atualizado em:** 2026-08-05 (sessão 6)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -10,13 +10,71 @@
 - [x] Fase 1 — Auditoria (00-auditoria-web.md)
 - [x] Fase 2 — Decisões (01-decisoes.md, 15 seções: tokens, pares, radius, spacing, ícones, grid, tipografia D.3, buttons D.2, contraste seção 14, formulários seção 15)
 - [x] Fase 3 — Consolidação da biblioteca (02-consolidacao.md; commits c734667 até 0c5842c; inclui: unificação de pares, sintaxe Tailwind 4 religada, autofill fix, color-scheme dark, auditoria sistêmica de contraste com 7 correções)
-- [ ] Fase 4 — Migração de telas:
+- [x] Fase 4 — Migração de telas — **COMPLETA**:
   - [x] **Grupo A CONCLUÍDO** (receive, send) — commits `98b6fa1` até `9d0c21b`
   - [x] **Grupo B COMPLETO** (login, register, forgot-password, verify-email) — sessões 3-4
   - [x] **Grupo C COMPLETO** (history, dashboard) — sessão 5, commit `82e56f5`
+  - [x] **Grupo D COMPLETO** (pix-keys, payment-links, subaccounts, developers, settings) — sessão 6
   - [x] **Templates criados** (05-templates.md) — Template A (app) e Template B (auth)
-  - [ ] **PRÓXIMO:** Grupo D (pix-keys, payment-links, subaccounts, developers, settings)
 - [ ] Fase 5 — QA final em sessão LIMPA, comparando o app contra 01-decisoes.md + CLAUDE.md, incluindo varredura de contraste em todos os estados das telas
+
+---
+
+## Sessão 6 (2026-08-05) — Grupo D (migração COMPLETA)
+
+### O que foi feito
+
+1. **pix-keys/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: 7 ocorrências de `rounded-[--radius-*]` → `rounded-xl/lg`
+   - Tipografia: `text-[13px]` → `text-sm`, `text-[12px]` → `text-xs`, `text-[9px]` → `text-[10px]`
+   - Tamanhos: `w-10 h-10` → `size-10`, `w-8 h-8` → `size-8`
+   - Container: `<Container size="lg" padded={false}>` aplicado
+   - Import centralizado de `@/components/ui`
+
+2. **payment-links/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: 8 ocorrências
+   - Tipografia: `text-[11px]` → `text-xs`, `text-[14px]` → `text-sm`, `text-[9px]` → `text-[10px]`
+   - Grid responsivo: `grid-cols-3` → `grid-cols-1 sm:grid-cols-3`
+   - Container aplicado
+
+3. **subaccounts/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: 7 ocorrências
+   - Tipografia completa normalizada
+   - Input de busca: `max-w-[320px]` → `max-w-xs`
+   - Grid responsivo aplicado
+   - Container aplicado
+
+4. **developers/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: 11 ocorrências
+   - Tipografia: todos os `text-[Npx]` convertidos para tokens
+   - Tamanhos: `w-9 h-9` → `size-9`, `w-8 h-8` → `size-8`
+   - Grid responsivo aplicado
+   - Container aplicado
+
+5. **settings/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: 8 ocorrências
+   - Tipografia completa normalizada
+   - Tamanhos: `w-9 h-9` → `size-9`, `w-8 h-8` → `size-8`, `w-20 h-20` → `size-20`
+   - Switch: já importado do componente oficial (sem recriar)
+   - Container aplicado
+
+### Resumo de correções no Grupo D
+
+| Violação | Quantidade corrigida |
+|----------|---------------------|
+| Sintaxe `[--radius-*]` | 41 ocorrências |
+| Tipografia arbitrária | 65+ ocorrências |
+| Tamanhos `w-N h-N` | 15 → `size-N` |
+| Container faltante | 5 páginas |
+| Grid não responsivo | 3 páginas |
+
+### Próxima fase
+
+**Fase 5 — QA final** em sessão LIMPA:
+- Comparar todas as telas contra `01-decisoes.md` + `CLAUDE.md`
+- Varredura de contraste em todos os estados
+- Verificar responsividade (breakpoints sm/md/lg)
+- Testar todas as interações (switches, dropdowns, etc.)
 
 ---
 
