@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 7 — QA final)
+**Atualizado em:** 2026-08-06 (sessão 8 — Fase 6, Passo 0)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -24,7 +24,45 @@
   - [x] Regra de imports atualizada (ambos formatos válidos)
   - [x] Documentação corrigida (CLAUDE.md, 06-qa-final.md)
   - [x] **RETROFIT VISUAL COMPLETO**
-- [ ] Fase 6 — Integração & Conteúdo
+- [ ] Fase 6 — Integração & Conteúdo — **EM ANDAMENTO**:
+  - [x] **Passo 0 CONCLUÍDO** (higiene documental) — sessão 8
+
+---
+
+## Sessão 8 (2026-08-06) — Fase 6, Passo 0 (Higiene Documental)
+
+### O que foi feito
+
+1. **Inventário completo de documentação**
+   - 38 arquivos .md inventariados (excluindo vendor/node_modules)
+   - Classificação: ATUAL, SUSPEITO-FUNCIONAL, SUSPEITO-VERIFICAR, OBSOLETO
+
+2. **Quarentena criada (docs/_arquivo/)**
+   - 5 documentos comprovadamente obsoletos movidos:
+     - `plano-backend-lwk.md` — plano já executado
+     - `plano-backend-lwk-resumo.md` — resumo de plano já executado
+     - `integracao-frontend-backend.md` — arquitetura diferente da implementada
+     - `architecture/09-ROADMAP.md` — roadmap com checkboxes vazios; backend COMPLETO
+     - `flyerx-admin/README.md` — README genérico do create-next-app
+   - `LEIA-ME.md` criado com instruções
+
+3. **Documentos marcados como [SUSPEITO-VERIFICAR]**
+   - 19 documentos (incluindo toda `docs/architecture/` exceto 09-ROADMAP.md)
+   - Serão confrontados com código real pelo Passo 1a (catálogos dos backends)
+   - Até lá, não devem ser usados como fonte de verdade sem confirmação
+
+4. **CLAUDE.md da raiz atualizado**
+   - Regra 8 adicionada: fontes de verdade documentais
+   - docs/design/, docs/integracao/, CONTINUIDADE.md, CLAUDE.md são as fontes
+   - docs/_arquivo/ está obsoleto — nunca usar
+   - READMEs de api/ e flyerx-backend/ não são fonte de verdade
+
+### Próximo passo
+
+**Passo 1a — Catálogos dos backends:**
+- Extrair endpoints, schemas, fluxos de api/ e flyerx-backend/ a partir do CÓDIGO
+- Gerar docs/integracao/ como fonte de verdade
+- Confrontar documentos [SUSPEITO-VERIFICAR] e decidir: CONFIRMADO ou DIVERGENTE
 
 ---
 

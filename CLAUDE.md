@@ -42,6 +42,14 @@ Plataforma financeira digital (fintech) que oferece carteira digital em BRL com 
 
 7. **Respeitar CLAUDE.md locais.** `flyerx-web` possui (ou possuirá) um CLAUDE.md próprio com regras específicas do design system Nocturne. Sessões dentro de `flyerx-web` devem respeitar ambos os arquivos.
 
+8. **Fontes de verdade documentais.** As únicas fontes de verdade são:
+   - `docs/design/` — Design system Nocturne, decisões, templates
+   - `docs/integracao/` — Catálogos dos backends (gerados a partir do código)
+   - `CONTINUIDADE.md` — Handoff entre sessões
+   - `CLAUDE.md` (raiz e flyerx-web) — Regras do repositório
+
+   Documentos em `docs/_arquivo/` estão **obsoletos** — nunca usar. Qualquer documento fora dessas fontes deve ser tratado com desconfiança e confirmado com o usuário antes de embasar decisões. A documentação atualizada dos backends são os catálogos em `docs/integracao/` (gerados a partir do código) — READMEs antigos de `api/` e `flyerx-backend/` não são fonte de verdade.
+
 ## Comandos úteis
 
 ### Docker (backend completo)
