@@ -43,6 +43,7 @@ import { PageHeader } from '@/components/ui/page-header'
 import { Section } from '@/components/ui/section'
 import { ListItem } from '@/components/ui/list-item'
 import { EmptyState } from '@/components/ui/empty-state'
+import { StepsGuide } from '@/components/ui/steps-guide'
 import {
   GlowOrb,
   TransactionIcon,
@@ -1032,6 +1033,24 @@ export default function DesignSystemPage() {
                     Nova ação
                   </Button>
                 }
+              />
+            </Surface>
+
+            {/* Steps Guide */}
+            <Surface padding="lg">
+              <LabelText size="xs" uppercase className="mb-3 block">Steps Guide</LabelText>
+              <Text variant="muted" size="sm" className="mb-4">
+                Bloco como funciona com passos numerados em cards.
+              </Text>
+              <StepsGuide
+                headerIcon={Zap}
+                title="Como funciona"
+                subtitle="Passo a passo simples"
+                steps={[
+                  { icon: CreditCard, title: 'Informe o valor', description: 'Digite quanto quer enviar' },
+                  { icon: Upload, title: 'Confirme o pagamento', description: 'Revise e confirme' },
+                  { icon: Check, title: 'Pronto!', description: 'Transacao concluida' },
+                ]}
               />
             </Surface>
 

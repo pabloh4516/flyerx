@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { AmountInput } from '@/components/ui/amount-input';
 import { Container } from '@/components/ui/container';
+import { StepsGuide } from '@/components/ui/steps-guide';
 import { Logo } from '@/components/ui/nocturne';
 
 import { useCreatePix2DepixWithdraw, usePix2DepixWithdrawStatus, useInvalidateWalletData } from '@/hooks/use-queries';
@@ -302,41 +303,16 @@ export default function SellerSendPage() {
           </form>
 
           {/* How it works */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="size-10 rounded-md border border-accent-800 bg-accent-900 text-accent-300 flex items-center justify-center">
-                <Info className="size-4" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">Como funciona</span>
-                <span className="text-xs text-neutral-600">
-                  Passo a passo simples
-                </span>
-              </div>
-            </div>
-
-            {[
-              { icon: CreditCard, title: 'Informe a chave PIX', desc: 'Selecione o tipo e digite sua chave' },
-              { icon: Send, title: 'Pague na sua wallet', desc: 'Escaneie o QR ou copie o endereço' },
-              { icon: Check, title: 'Receba o PIX', desc: 'O sistema processa automaticamente' },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="border border-border rounded-lg p-3.5 flex gap-3 items-center bg-[color-mix(in_srgb,var(--color-surface)_50%,transparent)]"
-              >
-                <div className="size-8 rounded-md border border-border flex items-center justify-center relative text-neutral-300 shrink-0">
-                  <item.icon className="size-3.5" />
-                  <span className="absolute -top-1.5 -right-1.5 size-4 rounded-full bg-accent-800 text-accent-200 text-[9px] flex items-center justify-center font-medium">
-                    {i + 1}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">{item.title}</span>
-                  <span className="text-xs text-neutral-500">{item.desc}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StepsGuide
+            headerIcon={Info}
+            title="Como funciona"
+            subtitle="Passo a passo simples"
+            steps={[
+              { icon: CreditCard, title: 'Informe a chave PIX', description: 'Selecione o tipo e digite sua chave' },
+              { icon: Send, title: 'Pague na sua wallet', description: 'Escaneie o QR ou copie o endereço' },
+              { icon: Check, title: 'Receba o PIX', description: 'O sistema processa automaticamente' },
+            ]}
+          />
         </div>
       )}
 

@@ -29,6 +29,7 @@ import { Input } from '@/components/ui/input';
 import { AmountInput } from '@/components/ui/amount-input';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
+import { StepsGuide } from '@/components/ui/steps-guide';
 import { Logo } from '@/components/ui/nocturne';
 
 import { useCreatePix2DepixDeposit, usePix2DepixDepositStatus, useInvalidateWalletData } from '@/hooks/use-queries';
@@ -348,35 +349,16 @@ export default function SellerReceivePage() {
           </form>
 
           {/* How it works */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <div className="size-10 rounded-md border border-accent-800 bg-accent-900 text-accent-300 flex items-center justify-center">
-                <Zap className="size-4" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">Como funciona</span>
-                <span className="text-xs text-neutral-600">
-                  Passo a passo simples
-                </span>
-              </div>
-            </div>
-
-            {[
-              { step: 1, title: 'Digite o valor', desc: 'Informe quanto deseja depositar em Reais' },
-              { step: 2, title: 'Pague o PIX', desc: 'Use seu app do banco para escanear ou colar' },
-              { step: 3, title: 'Receba em DePix', desc: 'Creditado automaticamente na sua carteira' },
-            ].map((item) => (
-              <div key={item.step} className="flex gap-3.5">
-                <div className="size-8 rounded-md bg-neutral-900 border border-neutral-800 flex items-center justify-center text-xs font-medium text-accent-300 shrink-0">
-                  {item.step}
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-sm font-medium">{item.title}</span>
-                  <span className="text-xs text-neutral-500">{item.desc}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <StepsGuide
+            headerIcon={Zap}
+            title="Como funciona"
+            subtitle="Passo a passo simples"
+            steps={[
+              { icon: CreditCard, title: 'Digite o valor', description: 'Informe quanto deseja depositar em Reais' },
+              { icon: QrCode, title: 'Pague o PIX', description: 'Use seu app do banco para escanear ou colar' },
+              { icon: Check, title: 'Receba em DePix', description: 'Creditado automaticamente na sua carteira' },
+            ]}
+          />
         </div>
       )}
 

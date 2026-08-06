@@ -684,6 +684,25 @@ Descoberta crítica: `bg-accent` e `text-accent` no Tailwind mapeiam para **acce
 
 ---
 
+### StepsGuide (2026-08-05)
+
+**Motivo:** Bloco "como funciona" implementado de forma diferente nas duas paginas — em send, cada passo era um card; em receive, passos soltos sem card. Unificacao para eliminar duplicacao.
+
+**Arquivo:** `components/ui/steps-guide.tsx`
+
+**Decisao de design:** A versao com cards (originalmente em send) foi escolhida como padrao oficial — cada passo em card com background, borda e padding, seguindo tokens de Surface/Card.
+
+**Caracteristicas:**
+- Header com icone, titulo e subtitulo
+- Lista de passos numerados em cards
+- Cada passo com icone, titulo e descricao
+- Badge de numero sobreposto ao icone
+- Exportado via `index.ts`, adicionado ao showcase `/design-system`
+
+**Aplicado em:** receive/page.tsx, send/page.tsx (substitui implementacoes manuais)
+
+---
+
 ## CONCLUSAO
 
 **Sessao de consolidacao CONCLUIDA com sucesso.**

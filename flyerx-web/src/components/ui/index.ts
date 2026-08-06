@@ -87,6 +87,8 @@ export {
 // ============================================================================
 export { PageHeader } from "./page-header"
 export { EmptyState } from "./empty-state"
+export { StepsGuide } from "./steps-guide"
+export type { StepItem, StepsGuideProps } from "./steps-guide"
 
 // ============================================================================
 // EFFECTS & NOCTURNE

@@ -337,6 +337,20 @@ A revisao de radius/spacing/tokens na consolidacao vale para **TODA** a bibliote
 
 **Excecoes:** largura de sidebar, grid proporcional (`grid-cols-[1.5fr_1fr]`)
 
+### 8.5 STEPS/COMO FUNCIONA
+
+**Padrao oficial:** Cada passo em card com background, borda e padding (componente `StepsGuide`).
+
+**Estrutura:**
+- Header com icone, titulo e subtitulo
+- Lista de passos numerados
+- Cada passo: icone com badge de numero, titulo e descricao
+- Fundo: `bg-[color-mix(in_srgb,var(--color-surface)_50%,transparent)]`
+- Borda: `border-border rounded-lg`
+- Padding: `p-3.5`
+
+**Uso:** Blocos "como funciona" em fluxos de feature (receive, send, etc.).
+
 ---
 
 ## 9. ORDEM DE MIGRACAO DAS TELAS
