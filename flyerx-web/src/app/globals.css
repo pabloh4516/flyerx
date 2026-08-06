@@ -12,6 +12,9 @@
    Design Tokens — Nocturne
    ───────────────────────────────────────────────────────────────────────── */
 :root {
+  /* Força tema escuro em controles nativos (select, scrollbar, autofill) */
+  color-scheme: dark;
+
   /* Core */
   --color-bg: #161826;
   --color-surface: #232532;
@@ -305,6 +308,12 @@
     -webkit-text-fill-color: var(--color-text) !important;
     caret-color: var(--color-accent) !important;
     transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Select option — fallback para navegadores que ignoram color-scheme */
+  select option {
+    background-color: var(--color-surface);
+    color: var(--color-text);
   }
 }
 

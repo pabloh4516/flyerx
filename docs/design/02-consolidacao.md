@@ -528,6 +528,42 @@ Adicionado seção 13: Badge variants — `destructive` é alias de `error`.
 
 ---
 
+## ETAPA 10 — Fix tema escuro em controles nativos
+
+### 10.1 Problema detectado
+
+**SelectNative** renderiza dropdown com tema claro quando aberto — fundo branco, texto preto.
+
+**Causa:** Navegador não detecta preferência de tema escuro apenas via CSS variables. Controles nativos (select, scrollbar, date picker) usam o valor de `color-scheme` para decidir aparência.
+
+### 10.2 Correção aplicada
+
+**globals.css** (:root, linha 5):
+```css
+:root {
+  /* Força tema escuro em controles nativos (select, scrollbar, autofill) */
+  color-scheme: dark;
+  /* ... */
+}
+```
+
+**Fallback para navegadores que ignoram color-scheme** (linhas 312-316):
+```css
+/* Select option — fallback para navegadores que ignoram color-scheme */
+select option {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
+```
+
+### 10.3 Verificação
+
+- Autofill fix (seção 4.2) continua funcional — testado com campos preenchidos
+- SelectNative agora renderiza dropdown com tema escuro
+- Build: PASSOU (23 rotas estáticas)
+
+---
+
 ## CONCLUSAO
 
 **Sessao de consolidacao CONCLUIDA com sucesso.**
