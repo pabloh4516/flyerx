@@ -467,6 +467,27 @@ Nenhum achado funcional.
 | 176 | `text-[15px]` | `text-base` |
 | 198 | `text-[10.5px]` | `text-[10px]` |
 
+**Conversoes aplicadas:**
+| De | Para | Contexto |
+|----|------|----------|
+| `<div class="w-full max-w-[420px]...">` | `<Container size="sm" padded={false}>` | Regra 8.4: Container size sm para auth |
+| `rounded-[--radius-xl]` | `rounded-xl` | Info box |
+| `w-[52px] h-[52px] rounded-[14px]` | `size-14 rounded-lg` | Logo box |
+| `gap-[14px]` | `gap-3.5` | Espacamento header |
+| `gap-[6px]` | `gap-1.5` | Espacamento interno |
+| `text-[24px]`, `text-[28px]` | `text-2xl` | Titulos |
+| `text-[13.5px]`, `text-[13px]` | `text-sm` | Descricoes |
+| `text-[12px]` | `text-xs` | Labels e erros |
+| `text-[15px]` | `text-base` | Botao |
+| `text-[10.5px]` | `text-[10px]` | Footer kicker |
+| `size-[11px]` | `size-3` | Icone seguranca |
+| `variant="primary"` (CTA) | `variant="solid"` | Botao principal (D.2) |
+
+**TODO.md (achados):**
+Nenhum achado funcional.
+
+**Status:** MIGRADO em 2026-08-05. Build: PASSOU.
+
 ---
 
 ### verify-email/page.tsx
@@ -502,6 +523,25 @@ Nenhum achado funcional.
 | 166 | `text-[24px]` | `text-2xl` |
 | 169 | `text-[13.5px]` | `text-sm` |
 | 182 | `text-[15px]` | `text-base` |
+
+**Conversoes aplicadas:**
+| De | Para | Contexto |
+|----|------|----------|
+| `<div class="w-full max-w-[420px]...">` | `<Container size="sm" padded={false}>` | Regra 8.4: Container size sm para auth |
+| `w-[72px] h-[72px]` | `size-[72px]` | Icon circle (mantido por ser tamanho especifico) |
+| `rounded-[--radius-xl]` | `rounded-xl` | Info box |
+| `text-[24px]` | `text-2xl` | Titulos (loading, error, success) |
+| `text-[13.5px]`, `text-[13px]` | `text-sm` | Descricoes |
+| `text-[15px]` | `text-base` | Botoes |
+| `text-[10.5px]` | `text-[10px]` | Footer kicker |
+| `gap-[6px]` | `gap-1.5` | Footer spacing |
+| `size-[11px]` | `size-3` | Icone seguranca |
+| `variant="primary"` (CTA) | `variant="solid"` | Botoes principais (D.2) |
+
+**TODO.md (achados):**
+Nenhum achado funcional.
+
+**Status:** MIGRADO em 2026-08-05. Build: PASSOU.
 
 ---
 

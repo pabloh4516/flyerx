@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { ChevronLeft, Loader2, Mail, Shield } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Container } from '@/components/ui/container';
 import { Input } from '@/components/ui/input';
 import { GlowOrb } from '@/components/ui/nocturne';
 
@@ -58,18 +59,18 @@ export default function ForgotPasswordPage() {
           className="bottom-[-220px] right-[-140px] opacity-70"
         />
 
-        <div className="w-full max-w-[420px] relative z-10">
+        <Container size="sm" padded={false} className="relative z-10">
           {/* Header */}
           <div className="flex flex-col items-center gap-6 mb-8">
-            <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 flex items-center justify-center glow-accent">
+            <div className="size-[72px] rounded-full bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 flex items-center justify-center glow-accent">
               <Mail className="size-8 text-primary" />
             </div>
 
             <div className="flex flex-col items-center gap-2 text-center">
-              <h1 className="text-[24px] font-medium tracking-[-0.02em]">
+              <h1 className="text-2xl font-medium tracking-[-0.02em]">
                 Verifique seu email
               </h1>
-              <p className="text-[13.5px] text-neutral-500 leading-relaxed max-w-[320px]">
+              <p className="text-sm text-neutral-500 leading-relaxed max-w-xs">
                 Enviamos um link de recuperação para{' '}
                 <span className="text-neutral-300">{sentEmail}</span>
               </p>
@@ -77,8 +78,8 @@ export default function ForgotPasswordPage() {
           </div>
 
           {/* Info */}
-          <div className="rounded-[--radius-xl] border border-divider bg-surface/50 p-4 mb-6">
-            <p className="text-[13px] text-neutral-400 text-center leading-relaxed">
+          <div className="rounded-xl border border-divider bg-surface/50 p-4 mb-6">
+            <p className="text-sm text-neutral-400 text-center leading-relaxed">
               Se você não receber o email em alguns minutos, verifique sua pasta de spam
               ou tente novamente.
             </p>
@@ -110,11 +111,11 @@ export default function ForgotPasswordPage() {
           </div>
 
           {/* Footer de segurança */}
-          <div className="flex items-center justify-center gap-[6px] text-[10.5px] text-neutral-600 mt-8">
-            <Shield className="size-[11px]" />
+          <div className="flex items-center justify-center gap-1.5 text-[10px] text-neutral-600 mt-8">
+            <Shield className="size-3" />
             <span>Seus dados estão protegidos com criptografia</span>
           </div>
-        </div>
+        </Container>
       </div>
     );
   }
@@ -133,19 +134,19 @@ export default function ForgotPasswordPage() {
         className="bottom-[-220px] right-[-140px] opacity-70"
       />
 
-      <div className="w-full max-w-[420px] relative z-10">
+      <Container size="sm" padded={false} className="relative z-10">
         {/* Header */}
-        <div className="flex flex-col gap-[14px] mb-8">
-          <div className="w-[52px] h-[52px] rounded-[14px] border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent flex items-center justify-center text-[20px] font-semibold glow-accent">
+        <div className="flex flex-col gap-3.5 mb-8">
+          <div className="size-14 rounded-lg border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent flex items-center justify-center text-xl font-semibold glow-accent">
             <span>f</span>
             <span className="text-primary">x</span>
           </div>
 
-          <div className="flex flex-col gap-[6px]">
-            <h1 className="text-[28px] font-medium tracking-[-0.02em] leading-[1.15]">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-2xl font-medium tracking-[-0.02em] leading-[1.15]">
               Esqueceu sua senha?
             </h1>
-            <p className="text-[13.5px] text-neutral-500 leading-[1.5]">
+            <p className="text-sm text-neutral-500 leading-[1.5]">
               Digite seu email e enviaremos um link para redefinir sua senha
             </p>
           </div>
@@ -155,7 +156,7 @@ export default function ForgotPasswordPage() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           {/* Email */}
           <div className="flex flex-col gap-2">
-            <label className="text-[12px] text-neutral-500">Email</label>
+            <label className="text-xs text-neutral-500">Email</label>
             <Input
               type="email"
               placeholder="seu@email.com"
@@ -163,17 +164,17 @@ export default function ForgotPasswordPage() {
               disabled={isLoading}
             />
             {errors.email && (
-              <p className="text-[12px] text-destructive">{errors.email.message}</p>
+              <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
 
           <Button
             type="submit"
-            variant="primary"
+            variant="solid"
             size="lg"
             fullWidth
             disabled={isLoading}
-            className="h-12 text-[15px] mt-2"
+            className="h-12 text-base mt-2"
           >
             {isLoading && <Loader2 className="size-4 animate-spin" />}
             Enviar link de recuperação
@@ -195,11 +196,11 @@ export default function ForgotPasswordPage() {
         </form>
 
         {/* Footer de segurança */}
-        <div className="flex items-center justify-center gap-[6px] text-[10.5px] text-neutral-600 mt-8">
-          <Shield className="size-[11px]" />
+        <div className="flex items-center justify-center gap-1.5 text-[10px] text-neutral-600 mt-8">
+          <Shield className="size-3" />
           <span>Seus dados estão protegidos com criptografia</span>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

@@ -21,7 +21,10 @@
 
 ## Estado do retrofit
 
-- **Consolidacao CONCLUIDA** (2026-08-05). Proxima fase: migracao de telas (Grupo A: receive + send).
+- **Consolidacao CONCLUIDA** (2026-08-05).
+- **Grupo A CONCLUIDO** (receive, send).
+- **Grupo B CONCLUIDO** (login, register, forgot-password, verify-email).
+- **Proximo:** Grupos C (history, dashboard) e D (pix-keys, payment-links, subaccounts, developers, settings).
 - Biblioteca de componentes unificada, tokens corrigidos, sintaxe Tailwind 4 religada.
 - Commit baseline: `c734667`
 
@@ -115,3 +118,25 @@ src/components/
 ├── forms/        # Componentes de formulario
 └── layout/       # Componentes de layout (header, sidebar)
 ```
+
+## Pagina nova
+
+Ao criar qualquer pagina nova:
+
+1. **Copiar o esqueleto** de `../docs/design/05-templates.md` conforme o tipo:
+   - **Template A** (app): paginas em `(main)/` — Container size lg, grid responsivo
+   - **Template B** (auth/formulario): paginas em `(auth)/` — min-h-screen centralizado, Container size sm
+
+2. **Montar SOMENTE** com componentes de `components/ui/`
+
+3. **Faltou peca?** Criar na biblioteca (`components/ui/`) + adicionar ao showcase (`/design-system`) ANTES de usar na pagina
+
+4. **Zero valor visual arbitrario** (`[Npx]`, `[--`, `[#hex]`) — excecoes documentadas em 05-templates.md
+
+5. **Conferir contra o checklist** do template antes do commit:
+   - Container correto?
+   - Componentes so da biblioteca?
+   - Tipografia conforme D.3?
+   - Maximo 1 solid?
+   - Labels externos (auth)?
+   - Responsivo?

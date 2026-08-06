@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-05 (sessão 3)
+**Atualizado em:** 2026-08-05 (sessão 4)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -8,14 +8,50 @@
 ## Estado atual do fluxo
 
 - [x] Fase 1 — Auditoria (00-auditoria-web.md)
-- [x] Fase 2 — Decisões (01-decisoes.md, 14 seções: tokens, pares, radius, spacing, ícones, grid, tipografia D.3, buttons D.2, contraste seção 14)
+- [x] Fase 2 — Decisões (01-decisoes.md, 15 seções: tokens, pares, radius, spacing, ícones, grid, tipografia D.3, buttons D.2, contraste seção 14, formulários seção 15)
 - [x] Fase 3 — Consolidação da biblioteca (02-consolidacao.md; commits c734667 até 0c5842c; inclui: unificação de pares, sintaxe Tailwind 4 religada, autofill fix, color-scheme dark, auditoria sistêmica de contraste com 7 correções)
 - [ ] Fase 4 — Migração de telas:
   - [x] **Grupo A CONCLUÍDO** (receive, send) — commits `98b6fa1` até `9d0c21b`
-  - [x] **Grupo B parte 1 CONCLUÍDO** (login, register) — sessão 3
-  - [ ] **Grupo B parte 2** (forgot-password, verify-email) — PRÓXIMA SESSÃO
-  - [ ] Grupos C+D (history, dashboard, pix-keys, payment-links, subaccounts, developers, settings)
+  - [x] **Grupo B COMPLETO** (login, register, forgot-password, verify-email) — sessões 3-4
+  - [x] **Templates criados** (05-templates.md) — Template A (app) e Template B (auth)
+  - [ ] **PRÓXIMO:** Grupos C (history, dashboard) e D (pix-keys, payment-links, subaccounts, developers, settings)
 - [ ] Fase 5 — QA final em sessão LIMPA, comparando o app contra 01-decisoes.md + CLAUDE.md, incluindo varredura de contraste em todos os estados das telas
+
+---
+
+## Sessão 4 (2026-08-05) — Grupo B parte 2 + Templates
+
+### O que foi feito
+
+1. **forgot-password/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: `rounded-[--radius-xl]` → `rounded-xl`
+   - Tipografia: `text-[24px]` → `text-2xl`, `text-[28px]` → `text-2xl`, `text-[13.5px]` → `text-sm`, etc.
+   - Spacing: `gap-[14px]` → `gap-3.5`, `gap-[6px]` → `gap-1.5`
+   - Tamanho: `w-[52px] h-[52px]` → `size-14`, `size-[11px]` → `size-3`
+   - Buttons: `variant="primary"` → `variant="solid"` (D.2)
+   - Container: `<Container size="sm" padded={false}>` aplicado
+
+2. **verify-email/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: `rounded-[--radius-xl]` → `rounded-xl`
+   - Tipografia: `text-[24px]` → `text-2xl`, `text-[13.5px]` → `text-sm`, `text-[15px]` → `text-base`, etc.
+   - Spacing: `gap-[6px]` → `gap-1.5`
+   - Tamanho: `size-[11px]` → `size-3`
+   - Buttons: `variant="primary"` → `variant="solid"` (D.2)
+   - Container: `<Container size="sm" padded={false}>` aplicado
+
+3. **05-templates.md CRIADO**
+   - Template A (Página do app): Container lg, PageHeader, grid responsivo, componentes da biblioteca
+   - Template B (Página de auth): min-h-screen centralizado, Container sm, GlowOrbs, labels externos
+   - Cada template com esqueleto de código completo + checklist pré-commit
+
+4. **CLAUDE.md atualizado**
+   - Estado do retrofit atualizado (Grupos A e B completos)
+   - Seção "Página nova" adicionada com regras para criar páginas
+
+### Pendente para próxima sessão
+
+- **Grupos C+D:** history, dashboard, pix-keys, payment-links, subaccounts, developers, settings
+  - Processo: mesmo ciclo (sintaxe → tipografia → spacing → radius → Container → build → doc)
 
 ---
 

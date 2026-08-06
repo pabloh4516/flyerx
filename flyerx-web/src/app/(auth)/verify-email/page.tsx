@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { CheckCircle, XCircle, Loader2, ArrowRight, Shield } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { Container } from '@/components/ui/container';
 import { GlowOrb } from '@/components/ui/nocturne';
 
 import { verifyEmail } from '@/lib/api/auth';
@@ -60,22 +61,22 @@ function VerifyEmailForm() {
           className="bottom-[-220px] right-[-140px] opacity-70"
         />
 
-        <div className="w-full max-w-[420px] relative z-10">
+        <Container size="sm" padded={false} className="relative z-10">
           <div className="flex flex-col items-center gap-6">
-            <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 flex items-center justify-center">
+            <div className="size-[72px] rounded-full bg-gradient-to-br from-primary/20 to-transparent border border-primary/30 flex items-center justify-center">
               <Loader2 className="size-8 text-primary animate-spin" />
             </div>
 
             <div className="flex flex-col items-center gap-2 text-center">
-              <h1 className="text-[24px] font-medium tracking-[-0.02em]">
+              <h1 className="text-2xl font-medium tracking-[-0.02em]">
                 Verificando email...
               </h1>
-              <p className="text-[13.5px] text-neutral-500 leading-relaxed">
+              <p className="text-sm text-neutral-500 leading-relaxed">
                 Aguarde enquanto verificamos seu email
               </p>
             </div>
           </div>
-        </div>
+        </Container>
       </div>
     );
   }
@@ -95,25 +96,25 @@ function VerifyEmailForm() {
           className="bottom-[-220px] right-[-140px] opacity-70"
         />
 
-        <div className="w-full max-w-[420px] relative z-10">
+        <Container size="sm" padded={false} className="relative z-10">
           <div className="flex flex-col items-center gap-6 mb-8">
-            <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-destructive/20 to-transparent border border-destructive/30 flex items-center justify-center">
+            <div className="size-[72px] rounded-full bg-gradient-to-br from-destructive/20 to-transparent border border-destructive/30 flex items-center justify-center">
               <XCircle className="size-8 text-destructive" />
             </div>
 
             <div className="flex flex-col items-center gap-2 text-center">
-              <h1 className="text-[24px] font-medium tracking-[-0.02em]">
+              <h1 className="text-2xl font-medium tracking-[-0.02em]">
                 Falha na verificação
               </h1>
-              <p className="text-[13.5px] text-neutral-500 leading-relaxed max-w-[320px]">
+              <p className="text-sm text-neutral-500 leading-relaxed max-w-xs">
                 {errorMessage}
               </p>
             </div>
           </div>
 
           {/* Info */}
-          <div className="rounded-[--radius-xl] border border-divider bg-surface/50 p-4 mb-6">
-            <p className="text-[13px] text-neutral-400 text-center leading-relaxed">
+          <div className="rounded-xl border border-divider bg-surface/50 p-4 mb-6">
+            <p className="text-sm text-neutral-400 text-center leading-relaxed">
               O link de verificação pode ter expirado. Faça login para solicitar
               um novo link de verificação.
             </p>
@@ -122,10 +123,10 @@ function VerifyEmailForm() {
           {/* Actions */}
           <Link href="/login" className="block">
             <Button
-              variant="primary"
+              variant="solid"
               size="lg"
               fullWidth
-              className="h-12 text-[15px]"
+              className="h-12 text-base"
             >
               Ir para o login
               <ArrowRight className="size-4" />
@@ -133,11 +134,11 @@ function VerifyEmailForm() {
           </Link>
 
           {/* Footer de segurança */}
-          <div className="flex items-center justify-center gap-[6px] text-[10.5px] text-neutral-600 mt-8">
-            <Shield className="size-[11px]" />
+          <div className="flex items-center justify-center gap-1.5 text-[10px] text-neutral-600 mt-8">
+            <Shield className="size-3" />
             <span>Seus dados estão protegidos com criptografia</span>
           </div>
-        </div>
+        </Container>
       </div>
     );
   }
@@ -156,17 +157,17 @@ function VerifyEmailForm() {
         className="bottom-[-220px] right-[-140px] opacity-70"
       />
 
-      <div className="w-full max-w-[420px] relative z-10">
+      <Container size="sm" padded={false} className="relative z-10">
         <div className="flex flex-col items-center gap-6 mb-8">
-          <div className="w-[72px] h-[72px] rounded-full bg-gradient-to-br from-green-500/20 to-transparent border border-green-500/30 flex items-center justify-center glow-accent">
+          <div className="size-[72px] rounded-full bg-gradient-to-br from-green-500/20 to-transparent border border-green-500/30 flex items-center justify-center glow-accent">
             <CheckCircle className="size-8 text-green-500" />
           </div>
 
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-[24px] font-medium tracking-[-0.02em]">
+            <h1 className="text-2xl font-medium tracking-[-0.02em]">
               Email verificado!
             </h1>
-            <p className="text-[13.5px] text-neutral-500 leading-relaxed max-w-[320px]">
+            <p className="text-sm text-neutral-500 leading-relaxed max-w-xs">
               Seu email foi verificado com sucesso. Agora você pode acessar sua conta.
             </p>
           </div>
@@ -175,10 +176,10 @@ function VerifyEmailForm() {
         {/* Actions */}
         <Link href="/login" className="block">
           <Button
-            variant="primary"
+            variant="solid"
             size="lg"
             fullWidth
-            className="h-12 text-[15px]"
+            className="h-12 text-base"
           >
             Continuar para o login
             <ArrowRight className="size-4" />
@@ -186,11 +187,11 @@ function VerifyEmailForm() {
         </Link>
 
         {/* Footer de segurança */}
-        <div className="flex items-center justify-center gap-[6px] text-[10.5px] text-neutral-600 mt-8">
-          <Shield className="size-[11px]" />
+        <div className="flex items-center justify-center gap-1.5 text-[10px] text-neutral-600 mt-8">
+          <Shield className="size-3" />
           <span>Seus dados estão protegidos com criptografia</span>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }
