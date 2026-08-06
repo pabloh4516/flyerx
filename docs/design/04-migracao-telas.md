@@ -312,6 +312,40 @@ Nenhum achado funcional.
 - L145-157: Email input glass → reescrever com `Input` padrao
 - L199-206: Email readonly → `Surface` ou `Card` variant ghost
 
+**Conversoes aplicadas:**
+| De | Para | Contexto |
+|----|------|----------|
+| `<div class="w-full max-w-[400px]...">` | `<Container size="sm" padded={false}>` | Regra 8.4: Container limita largura em formularios auth |
+| `w-[52px] h-[52px] rounded-[14px]` | `size-14 rounded-lg` | Logo box |
+| `gap-[14px]` | `gap-3.5` | Espacamento entre secoes |
+| `gap-[6px]` | `gap-1.5` | Espacamento interno |
+| `text-[28px]` | `text-2xl` | Titulo principal |
+| `text-[13.5px]` | `text-sm` | Descricao |
+| `rounded-[--radius-md]` | `rounded-lg` | Input glass, email readonly |
+| `p-[13px_16px]` | `py-3 px-4` | Padding interno de campos |
+| `gap-[2px]` | `gap-0.5` | Espacamento micro |
+| `text-[10.5px]` | `text-[10px]` | Kickers (excecao valida) |
+| `text-[14.5px]`, `text-[14px]`, `text-[13px]` | `text-sm` | Textos corpo |
+| `text-[15px]` | `text-base` | Botoes |
+| `text-[11px]`, `text-[12px]` | `text-xs` | Labels e erros |
+| `text-[20px]` | `text-xl` | Titulo 2FA |
+| `text-[24px]` | `text-2xl` | Input codigo 2FA |
+| `size-[11px]` | `size-3` | Icone seguranca |
+| `variant="primary"` (CTA) | `variant="solid"` | Botao principal (D.2) |
+| `rounded-[--radius-md]` (link register) | `rounded-md` | Link para registro |
+
+**TODO.md (achados):**
+Nenhum achado funcional.
+
+**Correção pós-verificação visual (2026-08-05):**
+| De | Para | Motivo |
+|----|------|--------|
+| Campo E-mail com label interno (glass box) | Label externo + `<Input>` padrão | Regra 15: label externo é padrão oficial |
+| Email readonly com label interno | Label externo + div estilizada h-10 | Consistência visual |
+| `gap-3.5` entre campos | `gap-4` | Regra 15.1: gap entre campos = gap-4 |
+
+**Status:** MIGRADO em 2026-08-05. Build: PASSOU.
+
 ---
 
 ### register/page.tsx
@@ -364,6 +398,29 @@ Nenhum achado funcional.
 | 356 | `text-[15px]` | `text-base` |
 | 365 | `text-[13px]` | `text-sm` |
 | 374 | `text-[10.5px]` | `text-[10px]` |
+
+**Conversoes aplicadas:**
+| De | Para | Contexto |
+|----|------|----------|
+| `<div class="w-full max-w-[420px]...">` | `<Container size="sm" padded={false}>` | Regra 8.4: Container limita largura em formularios auth |
+| `w-[52px] h-[52px] rounded-[14px]` | `size-14 rounded-lg` | Logo box |
+| `gap-[14px]` | `gap-3.5` | Espacamento entre secoes |
+| `gap-[6px]` | `gap-1.5` | Espacamento interno |
+| `text-[28px]` | `text-2xl` | Titulo principal |
+| `text-[13.5px]` | `text-sm` | Descricao |
+| `text-[12px]` | `text-xs` | Labels, erros, termos |
+| `text-[15px]` | `text-base` | Botoes |
+| `text-[13px]` | `text-sm` | Link voltar, link login |
+| `text-[10.5px]` | `text-[10px]` | Kicker footer (excecao valida) |
+| `size-[11px]` | `size-3` | Icone seguranca |
+| `variant="primary"` (CTA) | `variant="solid"` | Botao principal (D.2) |
+
+**ATENCAO:** Checkbox com links de Termos/Politica usa label ReactNode — links preservados corretamente.
+
+**TODO.md (achados):**
+Nenhum achado funcional.
+
+**Status:** MIGRADO em 2026-08-05. Build: PASSOU.
 
 ---
 

@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Container } from '@/components/ui';
 import { GlowOrb } from '@/components/ui/nocturne';
 
 import { registerSchema, RegisterFormData } from '@/lib/validations/auth';
@@ -139,19 +140,19 @@ export default function RegisterPage() {
         className="bottom-[-220px] right-[-140px] opacity-70"
       />
 
-      <div className="w-full max-w-[420px] relative z-10">
+      <Container size="sm" padded={false} className="relative z-10">
         {/* Header */}
-        <div className="flex flex-col gap-[14px] mb-8">
-          <div className="w-[52px] h-[52px] rounded-[14px] border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent flex items-center justify-center text-[20px] font-semibold glow-accent">
+        <div className="flex flex-col gap-3.5 mb-8">
+          <div className="size-14 rounded-lg border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent flex items-center justify-center text-xl font-semibold glow-accent">
             <span>f</span>
             <span className="text-primary">x</span>
           </div>
 
-          <div className="flex flex-col gap-[6px]">
-            <h1 className="text-[28px] font-medium tracking-[-0.02em] leading-[1.15]">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-2xl font-medium tracking-[-0.02em] leading-[1.15]">
               Crie sua conta
             </h1>
-            <p className="text-[13.5px] text-neutral-500 leading-[1.5]">
+            <p className="text-sm text-neutral-500 leading-[1.5]">
               {step === 1 ? 'Preencha seus dados pessoais' : 'Defina sua senha de acesso'}
             </p>
           </div>
@@ -169,7 +170,7 @@ export default function RegisterPage() {
             <>
               {/* Nome */}
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-neutral-500">Nome completo</label>
+                <label className="text-xs text-neutral-500">Nome completo</label>
                 <Input
                   type="text"
                   placeholder="Seu nome completo"
@@ -177,13 +178,13 @@ export default function RegisterPage() {
                   disabled={isLoading}
                 />
                 {errors.name && (
-                  <p className="text-[12px] text-destructive">{errors.name.message}</p>
+                  <p className="text-xs text-destructive">{errors.name.message}</p>
                 )}
               </div>
 
               {/* Email */}
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-neutral-500">Email</label>
+                <label className="text-xs text-neutral-500">Email</label>
                 <Input
                   type="email"
                   placeholder="seu@email.com"
@@ -191,14 +192,14 @@ export default function RegisterPage() {
                   disabled={isLoading}
                 />
                 {errors.email && (
-                  <p className="text-[12px] text-destructive">{errors.email.message}</p>
+                  <p className="text-xs text-destructive">{errors.email.message}</p>
                 )}
               </div>
 
               {/* Tipo de documento e documento */}
               <div className="grid grid-cols-3 gap-3">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[12px] text-neutral-500">Tipo</label>
+                  <label className="text-xs text-neutral-500">Tipo</label>
                   <Select
                     value={documentType}
                     onValueChange={(value) => {
@@ -220,7 +221,7 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="col-span-2 flex flex-col gap-2">
-                  <label className="text-[12px] text-neutral-500">
+                  <label className="text-xs text-neutral-500">
                     {documentType === 'CPF' ? 'CPF' : 'CNPJ'}
                   </label>
                   <Input
@@ -233,12 +234,12 @@ export default function RegisterPage() {
                 </div>
               </div>
               {errors.document && (
-                <p className="text-[12px] text-destructive -mt-2">{errors.document.message}</p>
+                <p className="text-xs text-destructive -mt-2">{errors.document.message}</p>
               )}
 
               {/* Telefone */}
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-neutral-500">Telefone (opcional)</label>
+                <label className="text-xs text-neutral-500">Telefone (opcional)</label>
                 <Input
                   type="tel"
                   placeholder="(00) 00000-0000"
@@ -247,17 +248,17 @@ export default function RegisterPage() {
                   disabled={isLoading}
                 />
                 {errors.phone && (
-                  <p className="text-[12px] text-destructive">{errors.phone.message}</p>
+                  <p className="text-xs text-destructive">{errors.phone.message}</p>
                 )}
               </div>
 
               <Button
                 type="button"
-                variant="primary"
+                variant="solid"
                 size="lg"
                 fullWidth
                 onClick={handleStep1Continue}
-                className="h-12 text-[15px] mt-2"
+                className="h-12 text-base mt-2"
               >
                 Continuar
               </Button>
@@ -270,7 +271,7 @@ export default function RegisterPage() {
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="flex items-center gap-1 text-[13px] text-neutral-500 hover:text-neutral-300 mb-2 w-fit"
+                className="flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-300 mb-2 w-fit"
               >
                 <ChevronLeft className="size-4" />
                 Voltar
@@ -278,7 +279,7 @@ export default function RegisterPage() {
 
               {/* Senha */}
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-neutral-500">Senha</label>
+                <label className="text-xs text-neutral-500">Senha</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? 'text' : 'password'}
@@ -296,13 +297,13 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-[12px] text-destructive">{errors.password.message}</p>
+                  <p className="text-xs text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
               {/* Confirmar Senha */}
               <div className="flex flex-col gap-2">
-                <label className="text-[12px] text-neutral-500">Confirmar senha</label>
+                <label className="text-xs text-neutral-500">Confirmar senha</label>
                 <div className="relative">
                   <Input
                     type={showConfirmPassword ? 'text' : 'password'}
@@ -320,7 +321,7 @@ export default function RegisterPage() {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-[12px] text-destructive">{errors.confirmPassword.message}</p>
+                  <p className="text-xs text-destructive">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
@@ -331,7 +332,7 @@ export default function RegisterPage() {
                 disabled={isLoading}
                 className="mt-2"
                 label={
-                  <span className="text-[12px] text-neutral-400 leading-relaxed">
+                  <span className="text-xs text-neutral-400 leading-relaxed">
                     Li e aceito os{' '}
                     <Link href="/terms" className="text-primary hover:underline">
                       Termos de Uso
@@ -344,16 +345,16 @@ export default function RegisterPage() {
                 }
               />
               {errors.acceptTerms && (
-                <p className="text-[12px] text-destructive">{errors.acceptTerms.message}</p>
+                <p className="text-xs text-destructive">{errors.acceptTerms.message}</p>
               )}
 
               <Button
                 type="submit"
-                variant="primary"
+                variant="solid"
                 size="lg"
                 fullWidth
                 disabled={isLoading}
-                className="h-12 text-[15px] mt-2"
+                className="h-12 text-base mt-2"
               >
                 {isLoading && <Loader2 className="size-4 animate-spin" />}
                 Criar conta
@@ -362,7 +363,7 @@ export default function RegisterPage() {
           )}
 
           {/* Link para login */}
-          <p className="text-[13px] text-center text-neutral-500 mt-2">
+          <p className="text-sm text-center text-neutral-500 mt-2">
             Já tem uma conta?{' '}
             <Link href="/login" className="text-primary hover:underline">
               Entre aqui
@@ -371,11 +372,11 @@ export default function RegisterPage() {
         </form>
 
         {/* Footer de segurança */}
-        <div className="flex items-center justify-center gap-[6px] text-[10.5px] text-neutral-600 mt-8">
-          <Shield className="size-[11px]" />
+        <div className="flex items-center justify-center gap-1.5 text-[10px] text-neutral-600 mt-8">
+          <Shield className="size-3" />
           <span>Seus dados estão protegidos com criptografia</span>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

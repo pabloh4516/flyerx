@@ -10,6 +10,7 @@ import { Eye, EyeOff, Loader2, Fingerprint, Shield } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Container } from '@/components/ui';
 import { Logo, GlowOrb } from '@/components/ui/nocturne';
 
 import { loginSchema, LoginFormData } from '@/lib/validations/auth';
@@ -117,51 +118,48 @@ function LoginForm() {
         className="bottom-[-220px] left-[-140px] opacity-70"
       />
 
-      <div className="w-full max-w-[400px] relative z-10">
+      <Container size="sm" padded={false} className="relative z-10">
         {/* Logo e Título */}
-        <div className="flex flex-col gap-[14px] mb-8">
-          <div className="w-[52px] h-[52px] rounded-[14px] border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent flex items-center justify-center text-[20px] font-semibold glow-accent">
+        <div className="flex flex-col gap-3.5 mb-8">
+          <div className="size-14 rounded-lg border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent flex items-center justify-center text-xl font-semibold glow-accent">
             <span>f</span>
             <span className="text-primary">x</span>
           </div>
 
-          <div className="flex flex-col gap-[6px]">
-            <h1 className="text-[28px] font-medium tracking-[-0.02em] leading-[1.15]">
+          <div className="flex flex-col gap-1.5">
+            <h1 className="text-2xl font-medium tracking-[-0.02em] leading-[1.15]">
               Seu dinheiro,
               <br />
               na velocidade do PIX.
             </h1>
-            <p className="text-[13.5px] text-neutral-500 leading-[1.5]">
+            <p className="text-sm text-neutral-500 leading-[1.5]">
               Carteira digital em reais com depósitos e saques instantâneos.
             </p>
           </div>
         </div>
 
         {/* Formulário */}
-        <div className="flex flex-col gap-[14px]">
+        <div className="flex flex-col gap-4">
           {step === 'email' && (
             <>
-              {/* Campo de Email com estilo glass */}
-              <div className="border border-transparent rounded-[--radius-md] bg-gradient-to-r from-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] to-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] p-[13px_16px] flex flex-col gap-[2px] [background-clip:padding-box] [border-image:linear-gradient(120deg,var(--color-accent-700),var(--color-neutral-800)_60%)_1]" style={{ border: '1px solid transparent', background: 'linear-gradient(var(--color-surface), var(--color-surface)) padding-box, linear-gradient(120deg, var(--color-accent-700), var(--color-neutral-800) 60%) border-box' }}>
-                <span className="text-[10.5px] text-neutral-600 uppercase tracking-[0.08em]">
-                  E-mail
-                </span>
-                <input
+              {/* Campo de Email */}
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-neutral-500">E-mail</label>
+                <Input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="seu@email.com"
-                  className="bg-transparent text-[14.5px] text-foreground outline-none placeholder:text-neutral-600"
                   autoFocus
                 />
               </div>
 
               <Button
-                variant="primary"
+                variant="solid"
                 size="lg"
                 fullWidth
                 onClick={handleEmailContinue}
-                className="h-12 text-[15px]"
+                className="h-12 text-base"
               >
                 Continuar
               </Button>
@@ -170,7 +168,7 @@ function LoginForm() {
                 variant="secondary"
                 size="lg"
                 fullWidth
-                className="h-12 text-[14px] gap-2"
+                className="h-12 text-sm gap-2"
               >
                 <Fingerprint className="size-4" />
                 Entrar com biometria
@@ -179,13 +177,13 @@ function LoginForm() {
               {/* Divider */}
               <div className="flex items-center gap-3 py-1">
                 <span className="flex-1 h-px bg-gradient-to-r from-transparent to-border" />
-                <span className="text-[11px] text-neutral-600">novo por aqui?</span>
+                <span className="text-xs text-neutral-600">novo por aqui?</span>
                 <span className="flex-1 h-px bg-gradient-to-l from-transparent to-border" />
               </div>
 
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center w-full h-9 px-4 text-[14px] font-medium text-primary border border-transparent rounded-[--radius-md] bg-transparent hover:bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)] transition-all"
+                className="inline-flex items-center justify-center w-full h-9 px-4 text-sm font-medium text-primary border border-transparent rounded-md bg-transparent hover:bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)] transition-all"
               >
                 Abrir minha conta em minutos
               </Link>
@@ -193,16 +191,16 @@ function LoginForm() {
           )}
 
           {step === 'password' && (
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-[14px]">
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
               {/* Email (readonly) */}
-              <div
-                className="border rounded-[--radius-md] bg-card p-[13px_16px] flex flex-col gap-[2px] cursor-pointer hover:border-neutral-600 transition-colors"
-                onClick={() => setStep('email')}
-              >
-                <span className="text-[10.5px] text-neutral-600 uppercase tracking-[0.08em]">
-                  E-mail
-                </span>
-                <span className="text-[14.5px]">{email}</span>
+              <div className="flex flex-col gap-2">
+                <label className="text-xs text-neutral-500">E-mail</label>
+                <div
+                  className="flex items-center h-10 px-3 rounded-lg border bg-card cursor-pointer hover:border-neutral-600 transition-colors"
+                  onClick={() => setStep('email')}
+                >
+                  <span className="text-sm">{email}</span>
+                </div>
               </div>
 
               <input type="hidden" {...register('email')} />
@@ -210,10 +208,10 @@ function LoginForm() {
               {/* Senha */}
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[12px] text-neutral-500">Senha</span>
+                  <label className="text-xs text-neutral-500">Senha</label>
                   <Link
                     href="/forgot-password"
-                    className="text-[12px] text-primary hover:underline"
+                    className="text-xs text-primary hover:underline"
                   >
                     Esqueceu?
                   </Link>
@@ -239,17 +237,17 @@ function LoginForm() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-[12px] text-destructive">{errors.password.message}</p>
+                  <p className="text-xs text-destructive">{errors.password.message}</p>
                 )}
               </div>
 
               <Button
                 type="submit"
-                variant="primary"
+                variant="solid"
                 size="lg"
                 fullWidth
                 disabled={isLoading}
-                className="h-12 text-[15px]"
+                className="h-12 text-base"
               >
                 {isLoading && <Loader2 className="size-4 animate-spin" />}
                 Entrar
@@ -267,10 +265,10 @@ function LoginForm() {
           )}
 
           {step === '2fa' && (
-            <div className="flex flex-col gap-[14px]">
+            <div className="flex flex-col gap-4">
               <div className="text-center mb-2">
-                <h2 className="text-[20px] font-medium mb-1">Autenticação em duas etapas</h2>
-                <p className="text-[13px] text-neutral-500">
+                <h2 className="text-xl font-medium mb-1">Autenticação em duas etapas</h2>
+                <p className="text-sm text-neutral-500">
                   Digite o código do seu aplicativo autenticador
                 </p>
               </div>
@@ -283,17 +281,17 @@ function LoginForm() {
                 placeholder="000000"
                 value={twoFactorCode}
                 onChange={(e) => setTwoFactorCode(e.target.value.replace(/\D/g, ''))}
-                className="text-center text-[24px] tracking-[0.3em] font-medium"
+                className="text-center text-2xl tracking-[0.3em] font-medium"
                 autoFocus
               />
 
               <Button
-                variant="primary"
+                variant="solid"
                 size="lg"
                 fullWidth
                 onClick={handleVerify2FA}
                 disabled={isLoading || twoFactorCode.length !== 6}
-                className="h-12 text-[15px]"
+                className="h-12 text-base"
               >
                 {isLoading && <Loader2 className="size-4 animate-spin" />}
                 Verificar
@@ -315,11 +313,11 @@ function LoginForm() {
         </div>
 
         {/* Footer de segurança */}
-        <div className="flex items-center justify-center gap-[6px] text-[10.5px] text-neutral-600 mt-8">
-          <Shield className="size-[11px]" />
+        <div className="flex items-center justify-center gap-1.5 text-[10px] text-neutral-600 mt-8">
+          <Shield className="size-3" />
           <span>Protegido com 2FA e criptografia de ponta a ponta</span>
         </div>
-      </div>
+      </Container>
     </div>
   );
 }

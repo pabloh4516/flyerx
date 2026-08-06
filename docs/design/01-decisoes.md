@@ -577,4 +577,56 @@ focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-
 
 ---
 
+## 15. FORMULÁRIOS — Padrão de campos
+
+### 15.1 Regra de labels
+
+**Padrão oficial:** LABEL EXTERNO — label posicionado acima do campo de input.
+
+| Elemento | Implementação |
+|----------|---------------|
+| Label | `<label className="text-xs text-neutral-500">` acima do input |
+| Input | Componente `Input` padrão da biblioteca, altura uniforme |
+| Erro | `<p className="text-xs text-destructive">` abaixo do input |
+| Gap label→input | `gap-2` (8px) |
+| Gap entre campos | `gap-4` (16px) ou `gap-3.5` (14px) |
+
+**PROIBIDO:** Labels internos/flutuantes (dentro do campo), labels uppercase micro dentro de inputs, altura variável de campos.
+
+### 15.2 Estrutura de campo padrão
+
+```tsx
+<div className="flex flex-col gap-2">
+  <label className="text-xs text-neutral-500">Label do campo</label>
+  <Input type="..." placeholder="..." />
+  {error && <p className="text-xs text-destructive">{error}</p>}
+</div>
+```
+
+### 15.3 Campos com ação secundária
+
+Para campos com link auxiliar (ex: "Esqueceu?" no campo Senha):
+
+```tsx
+<div className="flex flex-col gap-2">
+  <div className="flex items-center justify-between">
+    <label className="text-xs text-neutral-500">Senha</label>
+    <Link href="/forgot-password" className="text-xs text-primary hover:underline">
+      Esqueceu?
+    </Link>
+  </div>
+  <Input type="password" ... />
+</div>
+```
+
+### 15.4 Justificativa
+
+Labels externos garantem:
+- Altura uniforme de todos os campos
+- Alinhamento visual consistente
+- Acessibilidade (labels sempre visíveis)
+- Compatibilidade com validação inline
+
+---
+
 *Documento gerado na sessao de decisoes de 2026-08-05. Fonte de verdade para o retrofit visual do Nocturne Design System.*

@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-05 (sessão 2)
+**Atualizado em:** 2026-08-05 (sessão 3)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -12,10 +12,48 @@
 - [x] Fase 3 — Consolidação da biblioteca (02-consolidacao.md; commits c734667 até 0c5842c; inclui: unificação de pares, sintaxe Tailwind 4 religada, autofill fix, color-scheme dark, auditoria sistêmica de contraste com 7 correções)
 - [ ] Fase 4 — Migração de telas:
   - [x] **Grupo A CONCLUÍDO** (receive, send) — commits `98b6fa1` até `9d0c21b`
-  - [ ] **Grupo B parte 1** (login, register) — PRÓXIMA SESSÃO
-  - [ ] Grupo B parte 2 (forgot-password, verify-email)
+  - [x] **Grupo B parte 1 CONCLUÍDO** (login, register) — sessão 3
+  - [ ] **Grupo B parte 2** (forgot-password, verify-email) — PRÓXIMA SESSÃO
   - [ ] Grupos C+D (history, dashboard, pix-keys, payment-links, subaccounts, developers, settings)
 - [ ] Fase 5 — QA final em sessão LIMPA, comparando o app contra 01-decisoes.md + CLAUDE.md, incluindo varredura de contraste em todos os estados das telas
+
+---
+
+## Sessão 3 (2026-08-05) — Grupo B parte 1
+
+### O que foi feito
+
+1. **login/page.tsx MIGRADO**
+   - Sintaxe `[--` corrigida: `rounded-[--radius-md]` → `rounded-lg/rounded-md`
+   - Tipografia: `text-[28px]` → `text-2xl`, `text-[13.5px]` → `text-sm`, etc.
+   - Spacing: `gap-[14px]` → `gap-3.5`, `gap-[6px]` → `gap-1.5`, `p-[13px_16px]` → `py-3 px-4`
+   - Radius: `rounded-[14px]` → `rounded-lg`
+   - Tamanho: `w-[52px] h-[52px]` → `size-14`, `size-[11px]` → `size-3`
+   - Buttons: `variant="primary"` → `variant="solid"` (D.2)
+   - Container: `<Container size="sm" padded={false}>` aplicado
+
+2. **register/page.tsx MIGRADO**
+   - Tipografia: todos `text-[12px]` → `text-xs`, `text-[15px]` → `text-base`, etc.
+   - Spacing: `gap-[14px]` → `gap-3.5`, `gap-[6px]` → `gap-1.5`
+   - Radius: `rounded-[14px]` → `rounded-lg`
+   - Tamanho: `w-[52px] h-[52px]` → `size-14`, `size-[11px]` → `size-3`
+   - Buttons: `variant="primary"` → `variant="solid"` (D.2)
+   - Container: `<Container size="sm" padded={false}>` aplicado
+   - **Checkbox com links Termos/Política preservados**
+
+3. **Correção pós-verificação visual: padrão de formulários**
+   - **Nova regra 15** criada em 01-decisoes.md: label EXTERNO é padrão oficial
+   - Login: campo E-mail convertido de label interno (glass box) para label externo + Input padrão
+   - Login: email readonly convertido para label externo + div altura uniforme (h-10)
+   - Gap entre campos padronizado: `gap-4` (regra 15.1)
+   - Centralização confirmada: `min-h-screen flex items-center justify-center`
+   - Elemento "N" identificado como overlay DevTools do Next.js (não é código da página)
+
+### Pendente para próxima sessão
+
+- **Grupo B parte 2:** forgot-password/page.tsx + verify-email/page.tsx
+  - Inventário de violações já documentado em 04-migracao-telas.md
+  - Processo: sintaxe `[--` → tipografia → spacing → radius → Container size="sm"
 
 ---
 
@@ -120,4 +158,4 @@ Para cores vibrantes (CTAs, estados checked) usar **PRIMARY**; accent puro só p
 
 ---
 
-*Documento atualizado em 2026-08-05 (sessão 2). Próxima sessão: Grupo B parte 1 (login + register).*
+*Documento atualizado em 2026-08-05 (sessão 3). Próxima sessão: Grupo B parte 2 (forgot-password + verify-email).*
