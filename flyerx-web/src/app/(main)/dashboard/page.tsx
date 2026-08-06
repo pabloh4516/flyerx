@@ -67,10 +67,15 @@ const quickActions: QuickAction[] = [
 const statusBadge: Record<TransactionStatus, { label: string; variant: 'default' | 'accent' | 'outline' }> = {
   COMPLETED: { label: 'Confirmado', variant: 'accent' },
   PENDING: { label: 'Pendente', variant: 'outline' },
+  AWAITING_PAYMENT: { label: 'Aguardando', variant: 'outline' },
   PROCESSING: { label: 'Processando', variant: 'outline' },
+  UNDER_REVIEW: { label: 'Em análise', variant: 'outline' },
+  DELAYED: { label: 'Aguardando', variant: 'outline' },
   FAILED: { label: 'Falhou', variant: 'default' },
   CANCELLED: { label: 'Cancelado', variant: 'default' },
   EXPIRED: { label: 'Expirado', variant: 'default' },
+  REFUNDED: { label: 'Devolvido', variant: 'default' },
+  REJECTED: { label: 'Rejeitado', variant: 'default' },
 };
 
 function getGreeting(): string {

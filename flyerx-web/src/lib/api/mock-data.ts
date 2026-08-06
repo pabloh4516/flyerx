@@ -80,7 +80,26 @@ export const mockBalance: Balance = {
 };
 
 // ===== Mock Transactions =====
-export const mockTransactions: Transaction[] = [
+// Tipagem extendida para incluir campos de Deposit/Withdrawal
+type MockTransaction = Transaction & {
+  // Campos de Deposit
+  payerName?: string;
+  payerTaxNumber?: string;
+  payerEuid?: string;
+  bankTxId?: string;
+  // Campos de Withdrawal
+  pixKeyType?: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'RANDOM';
+  pixKey?: string;
+  recipientName?: string;
+  recipientDocument?: string;
+  endToEndId?: string;
+  receiptUrl?: string;
+  liquidAddress?: string;
+  transferDate?: string;
+};
+
+export const mockTransactions: MockTransaction[] = [
+  // Depósito concluído com dados do pagador
   {
     id: 'txn-001',
     type: 'DEPOSIT',
@@ -88,9 +107,14 @@ export const mockTransactions: Transaction[] = [
     amount: 5000.00,
     fee: 0,
     netAmount: 5000.00,
-    createdAt: '2024-06-01T10:30:00Z',
-    completedAt: '2024-06-01T10:31:00Z',
+    description: 'Depósito PIX',
+    createdAt: '2026-08-05T10:30:00Z',
+    completedAt: '2026-08-05T10:31:00Z',
+    payerName: 'Maria Santos Silva',
+    payerTaxNumber: '***456.789-**',
+    bankTxId: 'E00000000202608051030ABCD1234',
   },
+  // Saque concluído com E2E e comprovante
   {
     id: 'txn-002',
     type: 'WITHDRAWAL',
@@ -98,9 +122,19 @@ export const mockTransactions: Transaction[] = [
     amount: 1500.00,
     fee: 3.50,
     netAmount: 1496.50,
-    createdAt: '2024-05-28T14:00:00Z',
-    completedAt: '2024-05-28T14:05:00Z',
+    description: 'Saque PIX',
+    createdAt: '2026-08-04T14:00:00Z',
+    completedAt: '2026-08-04T14:05:00Z',
+    pixKeyType: 'EMAIL',
+    pixKey: 'joao@email.com',
+    recipientName: 'João Pereira',
+    recipientDocument: '***123.456-**',
+    endToEndId: 'E00000000202608041400XYZ9876',
+    receiptUrl: 'https://pix.bcb.gov.br/receipt/E00000000202608041400XYZ9876',
+    liquidAddress: 'lq1qqw5h7r5c7qfnmjvp4xqrqzqfqg4r6jkchp3tnc6zq123abc',
+    transferDate: '2026-08-04T14:05:00Z',
   },
+  // Depósito concluído
   {
     id: 'txn-003',
     type: 'DEPOSIT',
@@ -108,9 +142,14 @@ export const mockTransactions: Transaction[] = [
     amount: 10000.00,
     fee: 0,
     netAmount: 10000.00,
-    createdAt: '2024-05-25T09:15:00Z',
-    completedAt: '2024-05-25T09:16:00Z',
+    description: 'Depósito PIX',
+    createdAt: '2026-08-03T09:15:00Z',
+    completedAt: '2026-08-03T09:16:00Z',
+    payerName: 'Empresa ABC LTDA',
+    payerTaxNumber: '**.345.678/0001-**',
+    bankTxId: 'E00000000202608030915EFGH5678',
   },
+  // Saque pendente
   {
     id: 'txn-004',
     type: 'WITHDRAWAL',
@@ -118,8 +157,13 @@ export const mockTransactions: Transaction[] = [
     amount: 2000.00,
     fee: 4.00,
     netAmount: 1996.00,
-    createdAt: '2024-06-02T11:00:00Z',
+    description: 'Saque PIX',
+    createdAt: '2026-08-06T11:00:00Z',
+    pixKeyType: 'CPF',
+    pixKey: '12345678901',
+    liquidAddress: 'lq1qqw5h7r5c7qfnmjvp4xqrqzqfqg4r6jkchp3tnc6zq456def',
   },
+  // Depósito expirado
   {
     id: 'txn-005',
     type: 'DEPOSIT',
@@ -127,7 +171,74 @@ export const mockTransactions: Transaction[] = [
     amount: 500.00,
     fee: 0,
     netAmount: 500.00,
-    createdAt: '2024-05-20T16:00:00Z',
+    description: 'QR Code expirado',
+    createdAt: '2026-08-02T16:00:00Z',
+  },
+  // Depósito em análise (under_review)
+  {
+    id: 'txn-006',
+    type: 'DEPOSIT',
+    status: 'UNDER_REVIEW',
+    amount: 25000.00,
+    fee: 0,
+    netAmount: 25000.00,
+    description: 'Depósito em análise',
+    createdAt: '2026-08-06T08:30:00Z',
+    payerName: 'Carlos Mendes',
+    payerTaxNumber: '***789.012-**',
+  },
+  // Depósito devolvido (refunded)
+  {
+    id: 'txn-007',
+    type: 'DEPOSIT',
+    status: 'REFUNDED',
+    amount: 3000.00,
+    fee: 0,
+    netAmount: 3000.00,
+    description: 'Depósito devolvido',
+    createdAt: '2026-08-01T12:00:00Z',
+    payerName: 'Ana Costa',
+    payerTaxNumber: '***234.567-**',
+  },
+  // Saque processando
+  {
+    id: 'txn-008',
+    type: 'WITHDRAWAL',
+    status: 'PROCESSING',
+    amount: 800.00,
+    fee: 2.00,
+    netAmount: 798.00,
+    description: 'Saque em processamento',
+    createdAt: '2026-08-06T09:45:00Z',
+    pixKeyType: 'PHONE',
+    pixKey: '+5511999887766',
+    liquidAddress: 'lq1qqw5h7r5c7qfnmjvp4xqrqzqfqg4r6jkchp3tnc6zq789ghi',
+  },
+  // Saque falhou
+  {
+    id: 'txn-009',
+    type: 'WITHDRAWAL',
+    status: 'FAILED',
+    amount: 1200.00,
+    fee: 0,
+    netAmount: 0,
+    description: 'Chave PIX inválida',
+    createdAt: '2026-08-05T15:20:00Z',
+    pixKeyType: 'RANDOM',
+    pixKey: 'abc123-invalido',
+  },
+  // Depósito com delay (delayed)
+  {
+    id: 'txn-010',
+    type: 'DEPOSIT',
+    status: 'DELAYED',
+    amount: 15000.00,
+    fee: 0,
+    netAmount: 15000.00,
+    description: 'Processamento agendado',
+    createdAt: '2026-08-06T07:00:00Z',
+    payerName: 'Roberto Lima',
+    payerTaxNumber: '***567.890-**',
   },
 ];
 

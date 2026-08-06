@@ -53,13 +53,34 @@ export interface Balance {
 
 // ===== Transaction Types =====
 export type TransactionType = 'DEPOSIT' | 'WITHDRAWAL';
+
+/**
+ * Status de transação — Mapeamento completo
+ *
+ * PENDING: Aguardando processamento inicial
+ * AWAITING_PAYMENT: Depósito aguardando pagamento PIX
+ * PROCESSING: Em processamento
+ * UNDER_REVIEW: Em análise de compliance (Eulen under_review)
+ * DELAYED: Processamento atrasado (Eulen delayed/QR Delay)
+ * COMPLETED: Concluído com sucesso
+ * FAILED: Falhou
+ * CANCELLED: Cancelado
+ * EXPIRED: Expirado (QR Code não pago)
+ * REFUNDED: Devolvido ao pagador/remetente
+ * REJECTED: Rejeitado (compliance/validação)
+ */
 export type TransactionStatus =
   | 'PENDING'
+  | 'AWAITING_PAYMENT'
   | 'PROCESSING'
+  | 'UNDER_REVIEW'
+  | 'DELAYED'
   | 'COMPLETED'
   | 'FAILED'
   | 'CANCELLED'
-  | 'EXPIRED';
+  | 'EXPIRED'
+  | 'REFUNDED'
+  | 'REJECTED';
 
 export interface Transaction {
   id: string;
@@ -80,6 +101,12 @@ export interface Deposit extends Transaction {
   qrCodeBase64?: string;
   qrCodeUrl?: string;
   expiresAt: string;
+  // Dados do pagador (disponíveis após confirmação)
+  payerName?: string;
+  payerTaxNumber?: string;
+  payerEuid?: string;
+  // ID da transação bancária
+  bankTxId?: string;
 }
 
 export interface CreateDepositRequest {
@@ -100,6 +127,11 @@ export interface Withdrawal extends Transaction {
   pixKey: string;
   recipientName?: string;
   recipientDocument?: string;
+  // Campos adicionais da API
+  endToEndId?: string;      // E2E ID do PIX (centralBankId)
+  receiptUrl?: string;       // URL do comprovante bancário
+  liquidAddress?: string;    // Endereço Liquid (para saques DePix)
+  transferDate?: string;     // Data da transferência
 }
 
 export interface CreateWithdrawalRequest {

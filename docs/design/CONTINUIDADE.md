@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 12 — Fase 6, Passo 2 COMPLETO)
+**Atualizado em:** 2026-08-06 (sessão 13 — Fase 6, Passo 3 Grupo 1 COMPLETO)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -29,6 +29,63 @@
   - [x] **Passo 1a COMPLETO** (3 catálogos + documentação Eulen versionada) — sessões 9-10
   - [x] **Passo 1b COMPLETO** (inventário de dados das telas) — sessão 11
   - [x] **Passo 2 COMPLETO** (decisões de integração) — sessão 12
+  - [x] **Passo 3 Grupo 1 COMPLETO** (history religado) — sessão 13
+
+---
+
+## Sessão 13 (2026-08-06) — Fase 6, Passo 3 Grupo 1 COMPLETO (History Religado)
+
+### O que foi feito
+
+1. **History (extrato) conectado a dados reais**
+   - Removido `mockTransactions` inline
+   - Conectado ao hook `useTransactions()` de `@/hooks/use-queries`
+   - Paginação funcional via API
+   - Filtros Todas/Entradas/Saídas funcionais
+
+2. **Tipos atualizados (`src/types/index.ts`)**
+   - 5 novos status: `AWAITING_PAYMENT`, `UNDER_REVIEW`, `DELAYED`, `REFUNDED`, `REJECTED`
+   - Campos de Deposit: `payerName`, `payerTaxNumber`, `payerEuid`, `bankTxId`
+   - Campos de Withdrawal: `endToEndId`, `receiptUrl`, `liquidAddress`, `transferDate`
+
+3. **Mock-data ampliado (`src/lib/api/mock-data.ts`)**
+   - 10 transações de teste com todos os status e campos
+   - Dados de pagador/destinatário populados
+
+4. **Anatomia expandível implementada**
+   - Linha clicável com chevron
+   - Painel expandido com DataRow/DataRowGroup
+   - Valores: Bruto | Taxa | Líquido
+   - IDs copiáveis: ID da transação, Endereço Liquid, E2E ID
+   - Pagador/destinatário exibidos quando disponíveis
+   - Link "Ver comprovante" quando `receiptUrl` disponível
+
+5. **Estados implementados**
+   - Loading: `SkeletonListItem` × 5
+   - Vazio: `EmptyState` com mensagem contextual
+   - Erro: `Alert` error + botão retry
+
+6. **Botões decorativos removidos**
+   - Exportar (pós-v1)
+   - Filtros avançados (pós-v1)
+   - Últimos 30 dias (pós-v1)
+
+7. **Dashboard atualizado por cascata**
+   - `statusBadge` atualizado para incluir novos status (compatibilidade de tipos)
+
+8. **Documentação criada**
+   - `docs/integracao/03-execucao.md` com registro completo do Grupo 1
+
+### Build
+
+- ✅ `pnpm build` passou sem erros
+
+### Próximo passo
+
+**Passo 3 Grupo 2 — Send (saque):**
+- Ajustar fluxo para usar saldo interno (não mais Pix2Depix direto)
+- Conectar ao endpoint de saque do Laravel
+- Implementar estados de loading/erro
 
 ---
 
