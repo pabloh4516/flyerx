@@ -27,6 +27,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AmountInput } from '@/components/ui/amount-input';
 import { Container } from '@/components/ui/container';
 import { Logo } from '@/components/ui/nocturne';
 
@@ -277,25 +278,15 @@ export default function SellerSendPage() {
             </div>
 
             {/* Amount input */}
-            <div className="flex flex-col gap-2">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
-                Valor líquido
-              </span>
-              <div className="flex items-baseline gap-2 border border-accent-800 rounded-lg p-3.5 bg-[color-mix(in_srgb,var(--color-surface)_60%,transparent)] tabular-nums">
-                <span className="text-sm text-neutral-500">R$</span>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min={limits.withdraw.min}
-                  max={limits.withdraw.max}
-                  className="text-2xl font-medium h-auto py-0 px-0 border-0 bg-transparent focus-visible:ring-0 w-32"
-                  {...register('amount', { valueAsNumber: true })}
-                />
-              </div>
-              {errors.amount && (
-                <p className="text-xs text-destructive">{errors.amount.message}</p>
-              )}
-            </div>
+            <AmountInput
+              label="Valor líquido"
+              step={0.01}
+              min={limits.withdraw.min}
+              max={limits.withdraw.max}
+              error={!!errors.amount}
+              errorMessage={errors.amount?.message}
+              {...register('amount', { valueAsNumber: true })}
+            />
 
             <Button
               type="submit"

@@ -25,6 +25,7 @@ export { Heading, Text, LabelText, Kicker, Money } from "./typography"
 // ============================================================================
 export { Button } from "./button"
 export { Input } from "./input"
+export { AmountInput } from "./amount-input"
 export { Textarea } from "./textarea"
 export { SelectNative, SelectOption } from "./select-native"
 export { Checkbox, Radio } from "./checkbox"

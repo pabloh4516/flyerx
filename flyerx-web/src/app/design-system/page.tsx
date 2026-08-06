@@ -35,6 +35,7 @@ import {
 // Design System Components — importação centralizada
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { AmountInput } from '@/components/ui/amount-input'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { StatCard } from '@/components/ui/stat-card'
@@ -432,6 +433,39 @@ export default function DesignSystemPage() {
               </div>
             </Surface>
 
+            <Surface padding="lg">
+              <Heading as="h3" size="sm" className="mb-4">AmountInput</Heading>
+              <Text variant="muted" size="sm" className="mb-4">
+                Input de valor monetario para fluxos de dinheiro.
+              </Text>
+              <div className="space-y-4">
+                <AmountInput
+                  label="Valor padrao"
+                  placeholder="0,00"
+                  defaultValue={100}
+                />
+                <AmountInput
+                  label="Valor grande"
+                  valueSize="lg"
+                  placeholder="0,00"
+                  defaultValue={1500}
+                />
+                <AmountInput
+                  label="Com erro"
+                  error
+                  errorMessage="Valor minimo e R$ 20,00"
+                  defaultValue={5}
+                />
+                <AmountInput
+                  label="Desabilitado"
+                  disabled
+                  defaultValue={50}
+                />
+              </div>
+            </Surface>
+          </div>
+
+          <div className="grid grid-cols-2 gap-6 mt-6">
             <Surface padding="lg">
               <Heading as="h3" size="sm" className="mb-4">Checkbox, Radio & Switch</Heading>
               <div className="space-y-6">

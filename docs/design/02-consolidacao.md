@@ -662,6 +662,28 @@ Descoberta crítica: `bg-accent` e `text-accent` no Tailwind mapeiam para **acce
 
 ---
 
+## COMPONENTES NOVOS POS-CONSOLIDACAO
+
+### AmountInput (2026-08-05)
+
+**Motivo:** Bug de contraste no campo de valor de receive/send — fundo claro destoando do tema escuro, spinners nativos visiveis, prefixo desalinhado.
+
+**Arquivo:** `components/ui/amount-input.tsx`
+
+**Caracteristicas:**
+- Input de valor monetario com prefixo "R$" integrado
+- Fundo escuro via `input-elevated` (coerente com outros inputs)
+- Spinners nativos ocultos (`[appearance:textfield]` + webkit overrides)
+- Tipografia grande (`text-2xl` padrao, `text-3xl` com `valueSize="lg"`)
+- Estados focus/error/disabled conforme regras de contraste secao 14
+- Prop `label` para label acima do input
+- Prop `errorMessage` para mensagem de erro
+- Exportado via `index.ts`, adicionado ao showcase `/design-system`
+
+**Aplicado em:** receive/page.tsx, send/page.tsx
+
+---
+
 ## CONCLUSAO
 
 **Sessao de consolidacao CONCLUIDA com sucesso.**

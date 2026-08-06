@@ -127,6 +127,7 @@ Nenhum achado funcional.
 | De | Para | Motivo |
 |----|------|--------|
 | `<div className="p-7...">` wrapper | `<Container size="lg" padded={false} className="p-7...">` | Regra 8.4: Container limita largura em monitores largos |
+| Input manual de valor (div+span+Input) | `<AmountInput label="..." valueSize="lg" .../>` | Fundo escuro, spinners ocultos, prefixo integrado |
 
 ---
 
@@ -239,6 +240,7 @@ Nenhum achado funcional.
 | De | Para | Motivo |
 |----|------|--------|
 | `<div className="p-7...">` wrapper | `<Container size="lg" padded={false} className="p-7...">` | Regra 8.4: Container limita largura em monitores largos |
+| Input manual de valor (div+span+Input) | `<AmountInput label="..." .../>` | Fundo escuro, spinners ocultos, prefixo integrado |
 
 ---
 

@@ -26,6 +26,7 @@ import {
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { AmountInput } from '@/components/ui/amount-input';
 import { Card } from '@/components/ui/card';
 import { Container } from '@/components/ui/container';
 import { Logo } from '@/components/ui/nocturne';
@@ -271,25 +272,16 @@ export default function SellerReceivePage() {
             </div>
 
             {/* Amount input */}
-            <div className="border border-border rounded-lg p-4 flex flex-col gap-1.5 bg-[color-mix(in_srgb,var(--color-surface)_60%,transparent)]">
-              <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
-                Você deposita
-              </span>
-              <div className="flex items-baseline gap-2 tabular-nums">
-                <span className="text-base text-neutral-500">R$</span>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min={limits.deposit.min}
-                  max={limits.deposit.max}
-                  className="text-3xl font-medium h-auto py-0 px-0 border-0 bg-transparent focus-visible:ring-0 w-32"
-                  {...register('amount', { valueAsNumber: true })}
-                />
-              </div>
-              {errors.amount && (
-                <p className="text-xs text-destructive">{errors.amount.message}</p>
-              )}
-            </div>
+            <AmountInput
+              label="Você deposita"
+              valueSize="lg"
+              step={0.01}
+              min={limits.deposit.min}
+              max={limits.deposit.max}
+              error={!!errors.amount}
+              errorMessage={errors.amount?.message}
+              {...register('amount', { valueAsNumber: true })}
+            />
 
             {/* Quick amounts */}
             <div className="flex gap-2">
