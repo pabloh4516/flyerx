@@ -12,7 +12,7 @@ import {
   Calendar,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { Button, Container, Badge } from '@/components/ui';
 
 type TransactionType = 'all' | 'received' | 'sent';
 type TransactionStatus = 'COMPLETED' | 'PENDING' | 'FAILED';
@@ -115,21 +115,11 @@ function formatDate(dateStr: string) {
   });
 }
 
-function StatusBadge({ status }: { status: TransactionStatus }) {
-  const config = {
-    COMPLETED: { label: 'Concluído', className: 'bg-green-500/20 text-green-400 border-green-500/30' },
-    PENDING: { label: 'Pendente', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' },
-    FAILED: { label: 'Falhou', className: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  };
-
-  const { label, className } = config[status];
-
-  return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] border ${className}`}>
-      {label}
-    </span>
-  );
-}
+const statusConfig: Record<TransactionStatus, { label: string; variant: 'success' | 'warning' | 'error' }> = {
+  COMPLETED: { label: 'Concluído', variant: 'success' },
+  PENDING: { label: 'Pendente', variant: 'warning' },
+  FAILED: { label: 'Falhou', variant: 'error' },
+};
 
 export default function SellerHistoryPage() {
   const [filter, setFilter] = useState<TransactionType>('all');
@@ -159,7 +149,7 @@ export default function SellerHistoryPage() {
   };
 
   return (
-    <div className="p-6 flex flex-col gap-5">
+    <Container size="lg" padded={false} className="p-6 flex flex-col gap-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -183,22 +173,22 @@ export default function SellerHistoryPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="rounded-[--radius-xl] border border-divider bg-surface p-4">
+        <div className="rounded-xl border border-divider bg-surface p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-[--radius-lg] bg-green-500/10 border border-green-500/30 flex items-center justify-center">
+            <div className="size-8 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center justify-center">
               <ArrowDownLeft className="size-4 text-green-400" />
             </div>
-            <span className="text-[12px] text-neutral-500">Total recebido</span>
+            <span className="text-xs text-neutral-500">Total recebido</span>
           </div>
           <p className="text-xl font-semibold text-green-400">{formatCurrency(totals.received)}</p>
         </div>
 
-        <div className="rounded-[--radius-xl] border border-divider bg-surface p-4">
+        <div className="rounded-xl border border-divider bg-surface p-4">
           <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-[--radius-lg] bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+            <div className="size-8 rounded-lg bg-red-500/10 border border-red-500/30 flex items-center justify-center">
               <ArrowUpRight className="size-4 text-red-400" />
             </div>
-            <span className="text-[12px] text-neutral-500">Total enviado</span>
+            <span className="text-xs text-neutral-500">Total enviado</span>
           </div>
           <p className="text-xl font-semibold text-red-400">{formatCurrency(totals.sent)}</p>
         </div>
@@ -206,7 +196,7 @@ export default function SellerHistoryPage() {
 
       {/* Filters */}
       <div className="flex items-center gap-3">
-        <div className="flex items-center gap-2 border border-divider rounded-[--radius-lg] px-3 py-2 flex-1 max-w-[320px]">
+        <div className="flex items-center gap-2 border border-divider rounded-lg px-3 py-2 flex-1 max-w-[320px]">
           <Search className="size-4 text-neutral-500" />
           <input
             type="text"
@@ -217,12 +207,12 @@ export default function SellerHistoryPage() {
           />
         </div>
 
-        <div className="flex items-center gap-1 border border-divider rounded-[--radius-lg] p-0.5">
+        <div className="flex items-center gap-1 border border-divider rounded-lg p-0.5">
           {(['all', 'received', 'sent'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-[--radius-md] text-xs transition-colors ${
+              className={`px-3 py-1.5 rounded-md text-xs transition-colors ${
                 filter === f
                   ? 'bg-accent/20 text-accent-200'
                   : 'text-neutral-500 hover:text-neutral-300'
@@ -242,7 +232,7 @@ export default function SellerHistoryPage() {
       </div>
 
       {/* Table */}
-      <div className="border border-divider rounded-[--radius-lg] overflow-hidden">
+      <div className="border border-divider rounded-lg overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="bg-surface/50 border-b border-divider">
@@ -270,7 +260,7 @@ export default function SellerHistoryPage() {
             {filteredTransactions.map((tx) => (
               <tr key={tx.id} className="hover:bg-neutral-900/30 transition-colors">
                 <td className="px-4 py-3">
-                  <div className={`w-8 h-8 rounded-[--radius-lg] flex items-center justify-center ${
+                  <div className={`size-8 rounded-lg flex items-center justify-center ${
                     tx.type === 'DEPOSIT'
                       ? 'bg-green-500/10 border border-green-500/30'
                       : 'bg-red-500/10 border border-red-500/30'
@@ -284,17 +274,17 @@ export default function SellerHistoryPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div>
-                    <p className="text-[13px]">{tx.description}</p>
+                    <p className="text-sm">{tx.description}</p>
                     <p className="text-[10px] text-neutral-600">#{tx.id}</p>
                   </div>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-[12px] text-neutral-400 font-mono">
+                  <span className="text-xs text-neutral-400 font-mono">
                     {tx.pixKey || '—'}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <span className={`text-[13px] font-medium tabular-nums ${
+                  <span className={`text-sm font-medium tabular-nums ${
                     tx.type === 'DEPOSIT' ? 'text-green-400' : 'text-red-400'
                   }`}>
                     {tx.type === 'DEPOSIT' ? '+' : '-'}{formatCurrency(tx.amount)}
@@ -306,10 +296,12 @@ export default function SellerHistoryPage() {
                   )}
                 </td>
                 <td className="px-4 py-3">
-                  <StatusBadge status={tx.status} />
+                  <Badge variant={statusConfig[tx.status].variant}>
+                    {statusConfig[tx.status].label}
+                  </Badge>
                 </td>
                 <td className="px-4 py-3">
-                  <span className="text-[12px] text-neutral-400 tabular-nums">
+                  <span className="text-xs text-neutral-400 tabular-nums">
                     {formatDate(tx.createdAt)}
                   </span>
                 </td>
@@ -326,17 +318,17 @@ export default function SellerHistoryPage() {
         </span>
 
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1 px-3 py-1.5 border border-divider rounded-[--radius-lg] text-xs text-neutral-400 hover:text-neutral-300 hover:border-neutral-600 transition-colors disabled:opacity-50" disabled>
+          <button className="flex items-center gap-1 px-3 py-1.5 border border-divider rounded-lg text-xs text-neutral-400 hover:text-neutral-300 hover:border-neutral-600 transition-colors disabled:opacity-50" disabled>
             <ChevronLeft className="size-3" />
             Anterior
           </button>
           <span className="text-xs text-neutral-400 px-3">Página 1 de 1</span>
-          <button className="flex items-center gap-1 px-3 py-1.5 border border-divider rounded-[--radius-lg] text-xs text-neutral-400 hover:text-neutral-300 hover:border-neutral-600 transition-colors disabled:opacity-50" disabled>
+          <button className="flex items-center gap-1 px-3 py-1.5 border border-divider rounded-lg text-xs text-neutral-400 hover:text-neutral-300 hover:border-neutral-600 transition-colors disabled:opacity-50" disabled>
             Próxima
             <ChevronRight className="size-3" />
           </button>
         </div>
       </div>
-    </div>
+    </Container>
   );
 }

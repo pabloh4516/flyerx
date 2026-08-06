@@ -545,6 +545,141 @@ Nenhum achado funcional.
 
 ---
 
+## Grupo C — Dashboard e Historico
+
+### history/page.tsx
+
+#### Inventario de violacoes (ANTES)
+
+**Sintaxe invalida `[--`:**
+| Linha | Classe | Conversao |
+|-------|--------|-----------|
+| 176 | `rounded-[--radius-xl]` | `rounded-xl` |
+| 178 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 186 | `rounded-[--radius-xl]` | `rounded-xl` |
+| 188 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 199 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 210 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 215 | `rounded-[--radius-md]` | `rounded-md` |
+| 235 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 263 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 321 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 326 | `rounded-[--radius-lg]` | `rounded-lg` |
+
+**Tipografia fora da hierarquia:**
+| Linha | Valor | Conversao |
+|-------|-------|-----------|
+| 181, 191 | `text-[12px]` | `text-xs` |
+| 277, 287, 297 | `text-[13px]` | `text-sm` |
+| 282, 304 | `text-[12px]` | `text-xs` |
+| Headers tabela | `text-[10px]` | OK (kicker) |
+
+**Tamanhos arbitrarios:**
+| Linha | Valor | Conversao |
+|-------|-------|-----------|
+| 178, 188, 263 | `w-8 h-8` | `size-8` |
+
+**StatusBadge manual -> Badge oficial:**
+| De | Para |
+|----|------|
+| StatusBadge com classes inline | Badge variant="success/warning/error" |
+
+**Conversoes aplicadas:**
+| De | Para | Contexto |
+|----|------|----------|
+| `<div className="p-6...">` | `<Container size="lg" padded={false} className="p-6...">` | Regra 8.4 |
+| `rounded-[--radius-xl]` | `rounded-xl` | Stats cards |
+| `rounded-[--radius-lg]` | `rounded-lg` | Icon boxes, inputs, tabela, paginacao |
+| `rounded-[--radius-md]` | `rounded-md` | Filter tabs |
+| `text-[12px]` | `text-xs` | Labels, timestamps |
+| `text-[13px]` | `text-sm` | Descricoes, valores |
+| `w-8 h-8` | `size-8` | Icon boxes |
+| StatusBadge manual | Badge com statusConfig | Usa variants success/warning/error |
+
+**Excecoes mantidas:**
+| Valor | Motivo |
+|-------|--------|
+| `text-[10px]` | Kickers de tabela (D.3) |
+
+**TODO.md (achados):**
+Nenhum achado funcional.
+
+**Status:** MIGRADO em 2026-08-05. Build: PASSOU.
+
+---
+
+### dashboard/page.tsx
+
+#### Inventario de violacoes (ANTES)
+
+**Sintaxe invalida `[--`:**
+| Linha | Classe | Conversao |
+|-------|--------|-----------|
+| 138 | `rounded-[--radius-lg]` | `rounded-lg` |
+| 269 | `rounded-[--radius-md]` | `rounded-md` |
+
+**Tipografia fora da hierarquia:**
+| Linha | Valor | Conversao |
+|-------|-------|-----------|
+| 119 | `text-[13px]` | `text-sm` |
+| 121 | `text-[22px]` | `text-xl` |
+| 123 | `text-[12px]` | `text-xs` |
+| 130 | `text-[11.5px]` | `text-xs` |
+| 141 | `text-[11.5px]` | `text-xs` |
+| 146 | `text-[17px]` | `text-base` |
+| 147 | `text-[44px]` | `text-5xl` |
+| 149 | `text-[26px]` | `text-2xl` |
+| 154 | `text-[11.5px]` | `text-xs` |
+| 177, 188, 199 | `text-[16px]` | `text-base` |
+| 228 | `text-[12.5px]` | `text-xs` |
+| 231 | `text-[10.5px]` | `text-[10px]` (kicker) |
+| 239, 245 | `text-[11.5px]` | `text-xs` |
+| 254, 255, 302, 361 | `text-[11px]` | `text-xs` |
+| 282, 294, 347 | `text-[13.5px]` | `text-sm` |
+| 213, 282 | `text-[13px]` | `text-sm` |
+| 322, 326 | `text-[13px]`, `text-[11px]` | `text-sm`, `text-xs` |
+
+**Tamanhos arbitrarios:**
+| Linha | Valor | Conversao |
+|-------|-------|-----------|
+| 222 | `w-[74px] h-[74px]` | MANTER (QR code box) |
+| 273 | `w-[38px] h-[38px]` | `size-10` |
+| 222, 273 | `rounded-[10px]` | `rounded-md` |
+
+**Conversoes aplicadas:**
+| De | Para | Contexto |
+|----|------|----------|
+| `<div className="p-7...">` | `<Container size="lg" padded={false} className="p-7...">` | Regra 8.4 |
+| `rounded-[--radius-lg]` | `rounded-lg` | Balance card |
+| `rounded-[--radius-md]` | `rounded-md` | Quick actions |
+| `text-[13px]`, `text-[13.5px]` | `text-sm` | Corpo e titulos de item |
+| `text-[22px]` | `text-xl` | Nome do usuario |
+| `text-[12px]`, `text-[12.5px]` | `text-xs` | Labels e verificacao |
+| `text-[11.5px]`, `text-[11px]` | `text-xs` | Datas e descricoes |
+| `text-[17px]` | `text-base` | Prefixo R$ |
+| `text-[44px]` | `text-5xl` | Balance display |
+| `text-[26px]` | `text-2xl` | Centavos do balance |
+| `text-[16px]` | `text-base` | Valores do resumo |
+| `text-[10.5px]` | `text-[10px]` | Kickers (exceção) |
+| `w-[38px] h-[38px]` | `size-10` | Icon boxes |
+| `rounded-[10px]` | `rounded-md` | Icon boxes |
+
+**Excecoes mantidas:**
+| Valor | Motivo |
+|-------|--------|
+| `text-[10px]` | Kickers (D.3) |
+| `w-[74px] h-[74px]` | QR code box, tamanho especifico |
+| `grid-cols-[1.5fr_1fr]` | Grid proporcional |
+| `bg-[linear-gradient(...)]` | Gradiente complexo |
+| `bg-[color-mix(...)]` | Color-mix para transparencia |
+
+**TODO.md (achados):**
+Nenhum achado funcional.
+
+**Status:** MIGRADO em 2026-08-05. Build: PASSOU.
+
+---
+
 ## Excecoes globais validas
 
 1. **Posicionamento de glow orbs:** `top-[-180px]`, `right-[-60px]`, etc. — posicionamento absoluto de elementos decorativos e excecao valida conforme CLAUDE.md regra 7.
