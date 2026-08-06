@@ -26,6 +26,68 @@
   - [x] **RETROFIT VISUAL COMPLETO**
 - [ ] Fase 6 — Integração & Conteúdo — **EM ANDAMENTO**:
   - [x] **Passo 0 CONCLUÍDO** (higiene documental) — sessão 8
+  - [x] **Passo 1a CONCLUÍDO** (catálogos dos backends + julgamento) — sessão 9
+
+---
+
+## Sessão 9 (2026-08-06) — Fase 6, Passo 1a (Catálogos e Julgamento)
+
+### O que foi feito
+
+1. **3 catálogos criados em docs/integracao/**
+   - `00a-catalogo-api-laravel.md` — 24 rotas, 6 domínios, contratos completos, modelos, estados, integração Eulen
+   - `00b-catalogo-microservico-lwk.md` — 9 endpoints, 10 estados de saque, ciclo de vida, taxas, limites
+   - `00c-catalogo-provedor-eulen.md` — [AGUARDANDO DOCUMENTAÇÃO] (pasta docs/integracao/referencias/eulen/ não existe)
+
+2. **Julgamento dos 18 documentos [SUSPEITO-VERIFICAR]**
+
+| # | Documento | Veredito | Justificativa |
+|---|-----------|----------|---------------|
+| 1 | `docs/architecture/01-VISAO-GERAL.md` | **CONFIRMADO** | Stack (PHP 8.4, Laravel 12, DDD) confere com código |
+| 2 | `docs/architecture/02-ESTRUTURA-PASTAS.md` | **CONFIRMADO** | Estrutura DDD (Domain, Application, Infrastructure, HTTP) confere |
+| 3 | `docs/architecture/03-BANCO-DE-DADOS-PARTE1.md` | **PARCIAL** | Identity Context descrito corretamente; alguns campos podem divergir |
+| 4 | `docs/architecture/03-BANCO-DE-DADOS-PARTE2.md` | **PARCIAL** | Wallet/Payment Context geral OK; detalhes não verificados |
+| 5 | `docs/architecture/03-BANCO-DE-DADOS-PARTE3.md` | **PARCIAL** | Ledger/Fee/Compliance conceitos OK; implementação pode variar |
+| 6 | `docs/architecture/03-BANCO-DE-DADOS-PARTE4.md` | **PARCIAL** | Notification/Config/Views; algumas features não implementadas |
+| 7 | `docs/architecture/04-FLUXOGRAMAS.md` | **CONFIRMADO** | Fluxos de depósito, saque, autenticação conferem |
+| 8 | `docs/architecture/05-ESTRATEGIA-LEDGER-WALLET.md` | **CONFIRMADO** | Double-entry, saldo calculado, reservas — implementado |
+| 9 | `docs/architecture/06-ESTRATEGIA-INTEGRACAO-EULEN.md` | **CONFIRMADO** | Abstração de provider, mapeamento de status — confere |
+| 10 | `docs/architecture/07-ESTRATEGIA-SEGURANCA.md` | **CONFIRMADO** | 2FA, rate limiting, JWT — implementado |
+| 11 | `docs/architecture/08-ESTRATEGIA-TAXAS.md` | **PARCIAL** | Sistema descrito mais complexo; implementação usa fórmula simples |
+| 12 | `docs/architecture/10-RISCOS-E-VALIDACOES.md` | **CONFIRMADO** | Matriz de riscos e ADRs são decisões, não código |
+| 13 | `docs/architecture/README.md` | **DIVERGENTE** | Menciona Vue+Inertia para admin (errado: é Next.js) |
+| 14 | `docs/DEPLOY_PRODUCAO.md` | **CONFIRMADO** | Instruções de deploy correspondem à arquitetura real |
+| 15 | `docs/DEPLOY_RAILWAY.md` | **CONFIRMADO** | Guia de deploy Railway, configurações corretas |
+| 16 | `docs/PLANO_WEBHOOKS.md` | **CONFIRMADO** | Plano FUTURO de webhooks (ainda não implementado) — OK como backlog |
+| 17 | `flyerx-backend/README.md` | **CONFIRMADO** | Arquitetura, endpoints, fluxo — confere com catálogo 00b |
+| 18 | `flyerx-web/README.md` | **PARCIAL** | Stack correta; rotas seller/* e admin/* não existem no web |
+
+> **NOTA:** `api/README.md` não existe (contou como 19° mas arquivo ausente).
+
+### Resumo dos vereditos
+
+| Veredito | Quantidade | Ação |
+|----------|------------|------|
+| **CONFIRMADO** | 11 | Podem ser usados como referência complementar |
+| **PARCIAL** | 6 | Usar com cautela; preferir catálogos para detalhes |
+| **DIVERGENTE** | 1 | Corrigir ou marcar como obsoleto |
+
+### Lacunas identificadas (REGISTROS, não tarefas)
+
+| # | Lacuna | Localização | Observação |
+|---|--------|-------------|------------|
+| 1 | Sem webhook de saída | Laravel + LWK | Laravel faz polling |
+| 2 | Sem retry automático em falha | LWK | Saque falho precisa intervenção |
+| 3 | Links de Pagamento não implementados | Laravel | Telas existem no frontend |
+| 4 | Subcontas não implementadas | Laravel | Telas existem no frontend |
+| 5 | API Keys de desenvolvedor não implementadas | Laravel | Telas existem no frontend |
+| 6 | Documentação Eulen ausente | docs/integracao/ | Catálogo 00c aguardando |
+
+### Próximo passo
+
+**Passo 1b — Integração frontend-backend:**
+- Conectar flyerx-web com api/ (Laravel) para funcionalidades reais
+- Documentar em docs/integracao/ os pontos de integração
 
 ---
 
