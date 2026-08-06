@@ -1,8 +1,47 @@
 # Decisões de Conteúdo e Integração — Flyerx Web v1
 
 **Gerado em:** 2026-08-06
-**Fase:** 6, Passo 2
-**Status:** Decisões aprovadas pelo usuário — pronto para execução
+**Revisado em:** 2026-08-06 (Passo 2.5 — Arquitetura Definitiva)
+**Status:** Arquitetura confirmada — intermediador não-custodial
+
+---
+
+## Sumário Executivo — Arquitetura Definitiva
+
+### Modelo de Negócio
+
+**Flyerx = INTERMEDIADOR NÃO-CUSTODIAL** (gateway Pix↔DePix) sobre a API Eulen.
+
+O Flyerx NÃO mantém saldo BRL custodial. O usuário mantém seu próprio DePix em carteira Liquid externa (Aqua, SideSwap, etc). O Flyerx orquestra conversões Pix↔DePix cobrando taxas na origem.
+
+### Papéis dos Backends
+
+| Backend | Papel | Responsabilidades |
+|---------|-------|-------------------|
+| **Laravel (api/)** | Backend PRINCIPAL | Auth, usuários, wallet (cadastro do endereço Liquid do usuário), DEPÓSITOS (chamada server-side à Eulen com split), LIVRO-RAZÃO (registro de todas operações para extrato/contabilidade/MED) |
+| **Python (flyerx-backend/)** | Microserviço de SAQUES | Processa saques DePix→PIX. Existe porque a Eulen não tem split em saques. Gera endereço HD único por saque, retém taxa Flyerx, repassa à Eulen |
+
+### Fluxo de Valor (Simplificado)
+
+```
+DEPÓSITO (PIX → DePix):
+┌─────────┐   PIX    ┌─────────┐  DePix   ┌─────────────────┐
+│ Pagador │────────▶│  Eulen  │────────▶│ Carteira usuário │
+└─────────┘         └─────────┘ (split)  └─────────────────┘
+                         │
+                         └─────▶ Carteira Flyerx (taxa)
+
+SAQUE (DePix → PIX):
+┌─────────────────┐  DePix   ┌────────────────┐  DePix   ┌─────────┐   PIX
+│ Carteira usuário│────────▶│flyerx-backend  │────────▶│  Eulen  │────────▶│Beneficiário│
+└─────────────────┘ (total)  │  (retém taxa)  │ (líq.)  └─────────┘         └────────────┘
+```
+
+### O que NÃO existe
+
+- **Saldo BRL custodial**: Código legado no Laravel, fora de qualquer fluxo v1
+- **Split em saques via Eulen**: Por isso existe o microserviço Python
+- **Depósito via frontend direto à Eulen**: Deve passar pelo Laravel (auditoria + split)
 
 ---
 
@@ -11,9 +50,11 @@
 - [A. Spec por Tela v1](#a-spec-por-tela-v1)
 - [B. Mapa de Religação](#b-mapa-de-religação)
 - [C. Backend Novo](#c-backend-novo)
-- [D. Navegação v1](#d-navegação-v1)
-- [E. Fila de Execução](#e-fila-de-execução)
-- [F. Registros Pós-v1](#f-registros-pós-v1)
+- [D. Pipeline de Registro](#d-pipeline-de-registro)
+- [E. Navegação v1](#e-navegação-v1)
+- [F. Fila de Execução](#f-fila-de-execução)
+- [G. Pré-Go-Live](#g-pré-go-live)
+- [H. Registros Pós-v1](#h-registros-pós-v1)
 
 ---
 
@@ -27,17 +68,14 @@
 
 | Dado | Fonte | Observação |
 |------|-------|------------|
-| Nome do usuário | `useAuthStore` → `user.name` | ✅ REAL — manter |
-| Nível de verificação | `useAuthStore` → `user.kycLevel` | ✅ REAL — manter |
-| Saldo disponível | `useBalance()` → `/v1/wallet/balance` | ✅ REAL — manter |
-| Transações recentes (3) | `useTransactions()` → `/v1/wallet/history` | ✅ REAL — manter |
-| Entradas/Saídas do dia | **REMOVER** | Mock hardcoded — sem endpoint de agregação |
-| + esta semana | **REMOVER** | Mock hardcoded — sem endpoint |
+| Nome do usuário | `useAuthStore` → `user.name` | REAL — manter |
+| Nível de verificação | `useAuthStore` → `user.kycLevel` | REAL — manter |
+| Saldo disponível | **REMOVER** | Modelo não-custodial não tem saldo BRL |
+| Transações recentes (3) | `useTransactions()` → `/v1/wallet/history` | REAL — manter |
+| Entradas/Saídas do dia | **REMOVER** | Mock hardcoded |
 | Chaves cadastradas | **REMOVER** | Mock — funcionalidade pós-v1 |
-| Pagamentos da semana | **REMOVER** | Mock — sem endpoint |
 | Sparkline (gráfico) | **REMOVER** | Mock — dados fictícios |
-| Saudação (Bom dia) | `Date` local | ✅ DERIVADO — manter |
-| Data atual | `Date` local | ✅ DERIVADO — manter |
+| Saudação (Bom dia) | `Date` local | DERIVADO — manter |
 
 #### Layout v1 Simplificado
 
@@ -45,9 +83,9 @@
 ┌─────────────────────────────────────────────────┐
 │ Saudação + Data                                 │
 ├─────────────────────────────────────────────────┤
-│ Card: Saldo disponível                          │
-│       R$ X.XXX,XX                               │
-│       [Copiar link PIX]                         │
+│ Card: Sua carteira Liquid                       │
+│       lq1qq... [Copiar]                         │
+│       (ou CTA "Cadastrar carteira")             │
 ├─────────────────────────────────────────────────┤
 │ Quick Actions: Receber | Enviar | Extrato | ... │
 ├─────────────────────────────────────────────────┤
@@ -56,163 +94,130 @@
 └─────────────────────────────────────────────────┘
 ```
 
-#### Estados a Tratar
-
-| Estado | Implementação |
-|--------|---------------|
-| Loading | Skeleton para saldo e transações |
-| Vazio (transações) | EmptyState existente — manter |
-| Erro (API) | Card de erro com retry button |
-
-#### Botões/Ações
-
-| Elemento | Destino v1 |
-|----------|------------|
-| Copiar link PIX | ✅ Funcional — manter |
-| Ver extrato | ✅ Link `/history` — manter |
-| Quick Actions | ✅ Links funcionais — manter |
-| Filtros Tudo/Entradas/Saídas | **REMOVER** — decorativo |
-| Botão QR | **REMOVER** — sem onClick |
-
-#### Status de Transação
-
-| Status API | Badge | Cor |
-|------------|-------|-----|
-| `COMPLETED` | Concluído | success (verde) |
-| `PENDING` | Pendente | warning (amarelo) |
-| `PROCESSING` | Processando | warning (amarelo) |
-| `FAILED` | Falhou | error (vermelho) |
-| `CANCELLED` | Cancelado | neutral |
-| `EXPIRED` | Expirado | neutral |
-
-**Oportunidade incorporada:** `payerName` na lista de transações (quando disponível no response).
-
 ---
 
-### A.2 Receive (Receber PIX)
+### A.2 Receive (Receber PIX → DePix)
 
 **Caminho:** `(main)/receive/page.tsx`
 
-#### Correção Arquitetural
+#### Arquitetura v1
 
-**ANTES (problemático):**
-```
-receive/page.tsx
-    └─→ useCreatePix2DepixDeposit()
-        └─→ lib/api/pix2depix.ts
-            └─→ /api/pix2depix/deposit (proxy Next.js)
-                └─→ Eulen /deposit (DIRETO)
-```
-
-**DEPOIS (correto):**
 ```
 receive/page.tsx
     └─→ useCreateDeposit()
         └─→ lib/api/deposits.ts
-            └─→ /v1/deposits (Laravel)
-                └─→ Laravel chama Eulen internamente
-                └─→ Webhook atualiza status
+            └─→ POST /v1/deposits (Laravel)
+                └─→ Laravel chama Eulen /deposit com:
+                    - depixAddress = carteira Liquid do USUÁRIO
+                    - depixSplitAddress = carteira Flyerx
+                    - splitFee = taxa percentual
+                └─→ Webhook atualiza status no Laravel
+                └─→ DePix entregue direto na carteira do usuário
 ```
+
+**DEPENDÊNCIA BLOQUEANTE:** Usuário precisa ter carteira Liquid cadastrada antes de criar depósito.
 
 #### Conteúdo Final
 
 | Dado | Fonte | Observação |
 |------|-------|------------|
-| Limites (min/max) | `useFeesStore` → config local | ✅ Manter (pós-v1: `/user-info`) |
-| Taxas | `useFeesStore` → config local | ✅ Manter |
-| QR Code (imagem) | `useCreateDeposit()` → `qrCodeUrl` | Religação |
+| Endereço Liquid do usuário | `useLiquidAddress()` | **NOVO** — exibir ou CTA |
+| Limites (min/max) | Config local (pós-v1: `/user-info`) | Manter |
+| Taxas | Config local | Manter |
+| QR Code PIX | `useCreateDeposit()` → `qrCodeUrl` | Religação |
 | Código copia e cola | `useCreateDeposit()` → `pixCopyPaste` | Religação |
 | Status do depósito | `useDeposit(id)` → polling | Religação |
-| Countdown expiração | `expiresAt` do response | **REAL** — implementar countdown |
-| Valor líquido | Calculado: `amount - fee` | ✅ DERIVADO |
+| Countdown expiração | `expiresAt` do response | Implementar |
+| Valor líquido | Calculado: `amount - fee` | DERIVADO |
 
-#### Mapeamento de Campos
+#### Estados de Depósito (Eulen → UI)
 
-| Fluxo Atual (Eulen) | Fluxo Novo (Laravel) |
-|---------------------|----------------------|
-| `qrCopyPaste` | `pixCopyPaste` |
-| `qrImageUrl` | `qrCodeUrl` |
-| `status` (Eulen enum) | `status` (Laravel enum) |
-| `expiration` | `expiresAt` |
+| Status Eulen | Status UI | Mensagem |
+|--------------|-----------|----------|
+| `pending` | Aguardando | "Aguardando pagamento PIX" |
+| `under_review` | Processando | "Pagamento recebido, em análise" |
+| `delayed` | Processando | "Processando (delay configurado)" |
+| `approved` | Processando | "Pagamento confirmado, convertendo" |
+| `depix_sent` | Concluído | "DePix enviado para sua carteira!" |
+| `will_refund` | Devolvendo | "Pagamento será devolvido ao pagador" |
+| `refunded` | Devolvido | "Pagamento devolvido" |
+| `expired` | Expirado | "QR Code expirou" |
+| `error` | Erro | "Erro no processamento" |
 
-#### Estados a Tratar
+#### Fluxo Bloqueado (sem carteira)
 
-| Estado | Implementação |
-|--------|---------------|
-| Loading (submit) | Loader no botão — manter |
-| Loading (QR) | Skeleton enquanto gera |
-| Sucesso | Tela com QR + countdown |
-| Expirado | Card "QR expirado" + botão Novo PIX |
-| Erro | Toast + card de erro |
+Se usuário não tem `liquid_address` cadastrado:
 
-#### Status Especiais (Eulen não distinguidos → distinguir)
-
-| Status Eulen | Status Laravel | Mensagem ao Usuário |
-|--------------|----------------|---------------------|
-| `pending` | `PENDING` | "Aguardando pagamento" |
-| `under_review` | `PROCESSING` | "Em análise de segurança" |
-| `delayed` | `PROCESSING` | "Processando (pode levar até X horas)" |
-| `approved` | `PROCESSING` | "Pagamento confirmado, processando" |
-| `depix_sent` | `COMPLETED` | "Depósito concluído!" |
-| `will_refund` | `CANCELLED` | "Pagamento será devolvido" |
-| `refunded` | `CANCELLED` | "Pagamento devolvido ao pagador" |
-| `expired` | `EXPIRED` | "QR Code expirou" |
-| `error` | `FAILED` | "Erro no processamento" |
-
-#### Botões/Ações
-
-| Elemento | Destino v1 |
-|----------|------------|
-| Gerar QR Code | ✅ Religação para Laravel |
-| Copiar código | ✅ Funcional — manter |
-| Novo PIX | ✅ Reset estado — manter |
-| Ver extrato | ✅ Link `/history` — manter |
-| Voltar ao início | ✅ Link `/dashboard` — manter |
-| Atualizar | **REMOVER** — polling automático |
-| Ajuda (?) | **REMOVER** — sem conteúdo |
-| Config (⚙) | **REMOVER** — sem função |
-
-#### Oportunidades Incorporadas
-
-- **Countdown real:** Usar `expiresAt` para countdown decrescente
-- **payerName:** Exibir após confirmação "Pagamento de [Nome]"
-- **payerTaxNumber:** Exibir mascarado após confirmação
+1. Exibir aviso: "Para receber, cadastre sua carteira Liquid"
+2. Botão CTA → `/wallet`
+3. Input de valor e botão "Gerar QR Code" desabilitados
 
 ---
 
-### A.3 Send (Enviar PIX)
+### A.3 Send (Enviar DePix → PIX)
 
 **Caminho:** `(main)/send/page.tsx`
 
-#### Correção Arquitetural — ORQUESTRAÇÃO
+#### Arquitetura v1 (FLUXO PYTHON INTACTO)
 
-> **ERRATA (2026-08-06):** A versão anterior deste documento descrevia incorretamente um "novo paradigma de saldo interno". O modelo de saque v1 é o **fluxo atual**, confirmado no código de `flyerx-backend/withdrawal_service.py`. A correção aqui é de orquestração (tela chama Laravel em vez de proxy direto), não de modelo de negócio.
+O fluxo de saque usa o microserviço Python (`flyerx-backend/`). O usuário AINDA precisa enviar DePix de sua carteira externa para um endereço Liquid gerado pelo sistema.
 
-**FLUXO REAL (confirmado no código):**
-1. Usuário informa chave PIX + valor + CPF/CNPJ do titular
-2. Backend Python calcula taxas (Eulen 1% + Flyerx 1,5%), chama Eulen `/withdraw` obtendo `eulen_deposit_address`, gera `flyerx_address` (LWK) e retorna
-3. Usuário envia DePix (valor + taxas) para o `flyerx_address` **da sua própria carteira Liquid**
-4. LWK detecta recebimento, retém taxa Flyerx na carteira da plataforma e repassa o restante ao `eulen_deposit_address`
-5. Eulen recebe o DePix e dispara o PIX para a chave informada
+```
+send/page.tsx
+    └─→ useCreateWithdrawal()
+        └─→ lib/api/withdrawals.ts
+            └─→ POST /v1/withdrawals (Laravel)
+                └─→ Laravel chama Python /internal/withdrawals
+                    └─→ Python chama Eulen /withdraw (obtém depositAddress)
+                    └─→ Python gera flyerx_address (LWK HD único)
+                    └─→ Python retorna flyerx_address para usuário
+                └─→ Usuário envia DePix (valor + taxas) para flyerx_address
+                └─→ Worker Python detecta, retém taxa, repassa à Eulen
+                └─→ Eulen dispara PIX
+```
 
-**O que muda na v1:**
-- **Antes:** `send/page.tsx` → proxy Next.js → Eulen/LWK direto (fora do ledger)
-- **Depois:** `send/page.tsx` → `/v1/withdrawals` (Laravel) → Laravel chama LWK → registro no ledger
+#### Spec do Contrato UI
 
-**Comportamento do usuário:** Permanece idêntico (enviar DePix para endereço exibido).
+**Request (criar saque):**
+```json
+{
+  "pix_key": "chave_pix",
+  "pix_key_type": "CPF|CNPJ|EMAIL|PHONE|RANDOM",
+  "beneficiary_tax_number": "CPF/CNPJ do dono da chave (obrigatório)",
+  "amount": 100000  // centavos
+}
+```
 
-#### Conteúdo Final
+**Response:**
+```json
+{
+  "id": "uuid",
+  "status": "pending",
+  "flyerx_address": "lq1qq...",
+  "breakdown": {
+    "requested_amount": 1000.00,
+    "partner_fee": 15.00,
+    "eulen_fee": 10.00,
+    "total_fee": 25.00,
+    "total_depix": 1025.00
+  },
+  "expires_at": "ISO8601"
+}
+```
 
-| Dado | Fonte | Observação |
-|------|-------|------------|
-| Saldo disponível | `useBalance()` | Mostrar para referência |
-| Limites (min/max) | `useFeesStore` → config | ✅ Manter |
-| Taxa estimada | `useEstimateFee(amount)` → `/v1/withdrawals/estimate-fee` | Religação |
-| **Endereço Liquid** | `useCreateWithdrawal()` → `depositAddress` | Exibir + QR Code + copiar |
-| Valor total a enviar | `depositAmountInCents` (valor + taxas) | Exibir com destaque |
-| Status do saque | `useWithdrawal(id)` ou polling | Religação |
-| E2E ID | `end_to_end_id` do response | **NOVO** — exibir após conclusão |
-| receiptUrl | `receiptUrl` do response | **NOVO** — link comprovante |
+#### Estados de Saque (9 status internos do Python)
+
+| Status Python | Step UI | Visual | Ação do Usuário |
+|---------------|---------|--------|-----------------|
+| `pending` | 3. Enviar DePix | spinner | Enviar DePix para o endereço |
+| `depix_received` | 4. Processando | spinner | Aguardar |
+| `processing` | 4. Processando | spinner | Aguardar |
+| `sent_to_eulen` | 4. Processando | spinner | Aguardar |
+| `eulen_processing` | 4. Processando | spinner | Aguardar |
+| `completed` | 5. Concluído | check verde | Copiar E2E, ver comprovante |
+| `failed` | Erro | X vermelho | Ver mensagem, tentar novamente |
+| `refunded` | Devolvido | seta | DePix devolvido à carteira |
+| `expired` | Expirado | relógio | Criar novo saque |
 
 #### Anatomia v1 — Steps Verticais
 
@@ -222,87 +227,80 @@ receive/page.tsx
 │ ┌─────────────────────────────────────────────┐ │
 │ │ [Input] Chave PIX                           │ │
 │ │ [Select] Tipo: CPF | CNPJ | Email | ...     │ │
+│ │ [Input] CPF/CNPJ do titular da chave        │ │
+│ │                                             │ │
+│ │ ⚠️ A chave PIX deve pertencer ao CPF/CNPJ   │ │
+│ │    informado. Verifique antes de prosseguir.│ │
 │ └─────────────────────────────────────────────┘ │
 ├─────────────────────────────────────────────────┤
 │ Step 2: Valor                                   │
 │ ┌─────────────────────────────────────────────┐ │
 │ │ [AmountInput] R$ ____                       │ │
-│ │ Saldo disponível: R$ X.XXX,XX               │ │
-│ │ Taxa: R$ X,XX                               │ │
-│ │ Você receberá: R$ X.XXX,XX                  │ │
+│ │                                             │ │
+│ │ Você envia (DePix): R$ 1.025,00             │ │
+│ │ ├─ Valor do PIX:    R$ 1.000,00             │ │
+│ │ ├─ Taxa Eulen (1%): R$    10,00             │ │
+│ │ └─ Taxa Flyerx:     R$    15,00             │ │
+│ │                                             │ │
+│ │ [Continuar]                                 │ │
 │ └─────────────────────────────────────────────┘ │
 ├─────────────────────────────────────────────────┤
 │ Step 3: Enviar DePix                            │
 │ ┌─────────────────────────────────────────────┐ │
-│ │ Envie o valor abaixo para o endereço:       │ │
+│ │ Envie EXATAMENTE o valor abaixo:            │ │
 │ │                                             │ │
+│ │ ╔═════════════════════════════════════════╗ │ │
+│ │ ║  R$ 1.025,00 DePix                      ║ │ │
+│ │ ╚═════════════════════════════════════════╝ │ │
+│ │                                             │ │
+│ │ Para o endereço:                            │ │
 │ │ ┌─────────────────────────────────────────┐ │ │
 │ │ │ [QR Code do endereço Liquid]            │ │ │
 │ │ └─────────────────────────────────────────┘ │ │
-│ │                                             │ │
 │ │ lq1qqw5h7r...abc123  [Copiar]               │ │
 │ │                                             │ │
-│ │ Valor total: R$ 1.025,00                    │ │
-│ │ (R$ 1.000,00 + R$ 25,00 taxas)              │ │
+│ │ ⏱️ Expira em: 23:45:12                      │ │
 │ │                                             │ │
-│ │ ⚠️ Envie o valor EXATO. Valores diferentes  │ │
-│ │    podem causar falha no saque.             │ │
+│ │ ⚠️ ATENÇÃO: Envie o valor EXATO.            │ │
+│ │ Valores diferentes causam perda dos fundos. │ │
+│ │ Nunca envie após a expiração.               │ │
 │ └─────────────────────────────────────────────┘ │
 ├─────────────────────────────────────────────────┤
 │ Step 4: Acompanhamento                          │
 │ ┌─────────────────────────────────────────────┐ │
-│ │ Status: ◐ Aguardando envio DePix...         │ │
-│ │ → ◐ Processando saque...                    │ │
+│ │ ◐ Aguardando envio DePix...                 │ │
+│ │ → ◐ DePix recebido, processando...          │ │
+│ │ → ◐ Enviando PIX...                         │ │
 │ │ → ✓ PIX enviado!                            │ │
 │ │                                             │ │
 │ │ Chave destino: ***email@***                 │ │
 │ │ Valor PIX: R$ 1.000,00                      │ │
-│ │ E2E: XXXXXXXXX  [Copiar]                    │ │
+│ │ E2E: E00000000... [Copiar]                  │ │
 │ │ [Ver comprovante]                           │ │
 │ └─────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────┘
 ```
 
-#### Status do Saque
+#### Avisos Obrigatórios (Requisitos Eulen)
 
-| Status LWK | Status Visual | Ícone |
-|------------|---------------|-------|
-| `unsent` | Aguardando envio DePix | ◐ spinner |
-| `sending` | Processando saque | ◐ spinner |
-| `sent` | PIX enviado | ✓ verde |
-| `error` | Falhou | ✗ vermelho |
-| `canceled` | Cancelado | — |
-| `refunded` | Devolvido | ↩ |
-| `expired` | Expirado | ⏱ |
+**Step 1 (antes de continuar):**
+> A chave PIX deve pertencer ao CPF/CNPJ informado. Verifique com cuidado — após o envio do DePix, a transferência não pode ser cancelada.
 
-#### Avisos Importantes
+**Step 3 (ao exibir endereço):**
+> **ATENÇÃO:**
+> - Envie o valor **EXATO** indicado (R$ X.XXX,XX)
+> - Valores diferentes causam **perda irreversível** dos fundos
+> - **Nunca** envie após a expiração do endereço
 
-**Aviso no Step 2 (antes de gerar endereço):**
-> ⚠️ **Atenção:** Verifique a chave PIX com cuidado. Após o envio do DePix, a transferência não pode ser cancelada.
+#### Campos Disponíveis no Response Final
 
-**Aviso no Step 3 (ao exibir endereço):**
-> ⚠️ **Envie o valor EXATO** indicado. Valores diferentes podem causar falha no processamento.
-
-#### Botões/Ações
-
-| Elemento | Destino v1 |
-|----------|------------|
-| Gerar endereço | ✅ `useCreateWithdrawal()` → cria saque e exibe endereço |
-| Copiar endereço Liquid | ✅ NOVO — copiar `depositAddress` |
-| Copiar valor total | ✅ Copiar `depositAmountInCents` formatado |
-| Copiar E2E | ✅ NOVO — copiar após conclusão |
-| Ver comprovante | ✅ NOVO — `receiptUrl` |
-| Novo saque | ✅ Reset estado |
-| Ver extrato | ✅ Link `/history` |
-| Voltar | ✅ Link `/dashboard` |
-| Atualizar | **REMOVER** — polling automático |
-
-#### Oportunidades Incorporadas
-
-- **receiptUrl:** Link "Ver comprovante" quando disponível
-- **centralBankId (E2E):** Exibir com botão Copiar após conclusão
-- **receiverName:** Exibir na confirmação se retornado pela validação
-- **QR Code do endereço Liquid:** Gerar QR para facilitar envio via apps Liquid
+| Campo | Disponível quando | Uso na UI |
+|-------|-------------------|-----------|
+| `receipt_url` | `status = completed` | Botão "Ver comprovante" |
+| `end_to_end_id` | `status = completed` | Campo copiável |
+| `transfer_date` | `status = completed` | Exibir data/hora |
+| `receiver_name` | `status = completed` | Exibir confirmação |
+| `error_message` | `status = failed` | Exibir motivo |
 
 ---
 
@@ -310,19 +308,22 @@ receive/page.tsx
 
 **Caminho:** `(main)/history/page.tsx`
 
-#### Integração Prioritária
+#### Fonte de Dados
 
-**ANTES:** `mockTransactions` hardcoded
-**DEPOIS:** `useTransactions()` → `/v1/wallet/history`
+**Fonte:** Ledger do Laravel (`GET /v1/wallet/history`)
+
+O ledger registra todas as operações que passam pelos backends:
+- Depósitos (via webhook Eulen → Laravel)
+- Saques (via notificação Python → Laravel)
 
 #### Conteúdo Final
 
 | Dado | Fonte | Observação |
 |------|-------|------------|
-| Lista de transações | `useTransactions(filters)` | Religação |
+| Lista de transações | `useTransactions(filters)` | REAL — já religado |
 | Total recebido | Agregação frontend | Calculado |
 | Total enviado | Agregação frontend | Calculado |
-| Contagem | `meta.total` da resposta | Religação |
+| Contagem | `meta.total` | REAL |
 
 #### Anatomia por Transação
 
@@ -339,8 +340,8 @@ receive/page.tsx
 │ Detalhes da transação                                       │
 ├─────────────────────────────────────────────────────────────┤
 │ Bruto:     R$ 500,00                                        │
-│ Taxa:      R$ 0,00                                          │
-│ Líquido:   R$ 500,00                                        │
+│ Taxa:      R$ 5,00                                          │
+│ Líquido:   R$ 495,00 (depósitos)                            │
 ├─────────────────────────────────────────────────────────────┤
 │ ID: abc123-def456-...  [Copiar]                             │
 │ Endereço Liquid: lq1qq...xyz  [Copiar]  (só saques)         │
@@ -352,43 +353,27 @@ receive/page.tsx
 └─────────────────────────────────────────────────────────────┘
 ```
 
-#### Filtros v1
+#### Status já implementado (sessão 13)
 
-| Filtro | Implementação |
-|--------|---------------|
-| Todas/Entradas/Saídas | ✅ Funcional — `type` filter |
-| Busca (ID/descrição) | ✅ Funcional — filter local |
-| Filtros avançados | **REMOVER** — decorativo |
-| Últimos 30 dias | **REMOVER** — decorativo |
-| Exportar | **REMOVER** — decorativo (pós-v1) |
-| Paginação | ✅ Implementar — `meta.page`, `meta.totalPages` |
-
-#### Estados a Tratar
-
-| Estado | Implementação |
-|--------|---------------|
-| Loading | Skeleton rows (5 linhas) |
-| Vazio | EmptyState: "Nenhuma transação encontrada" |
-| Erro | Card de erro com retry |
-| Filtrando | Debounce na busca (300ms) |
-
-#### Oportunidades Incorporadas
-
-- **receiptUrl:** Botão "Ver comprovante"
-- **centralBankId (E2E):** Campo copiável
-- **payerName/payerTaxNumber:** Exibir em depósitos
+- Lista carrega dados reais da API
+- Filtros Todas/Entradas/Saídas funcionam
+- Paginação funciona
+- Estados loading/vazio/erro implementados
+- Campos expandíveis com E2E, payerName, receiptUrl
 
 ---
 
-### A.5 Carteira (Nova Tela)
+### A.5 Wallet (Carteira Liquid)
 
 **Caminho:** `(main)/wallet/page.tsx` (NOVO)
 
-**Substitui:** `pix-keys/page.tsx` (que vira link para esta)
+**Substitui:** `pix-keys/page.tsx`
 
 #### Propósito
 
-Gestão do endereço Liquid do usuário para recebimento de DePix externos (fora do sistema Flyerx).
+Gestão do endereço Liquid do usuário. Este endereço é usado para:
+1. Receber DePix de depósitos (Eulen envia direto para a carteira do usuário via split)
+2. Identificação para futuras funcionalidades
 
 #### Conteúdo Final
 
@@ -397,6 +382,7 @@ Gestão do endereço Liquid do usuário para recebimento de DePix externos (fora
 | Endereço Liquid atual | `GET /v1/wallet/liquid-address` | **BACKEND NOVO** |
 | Label do endereço | `GET /v1/wallet/liquid-address` | **BACKEND NOVO** |
 | Data de cadastro | `GET /v1/wallet/liquid-address` | **BACKEND NOVO** |
+| Pode alterar? | `can_update` | Trava de 24h |
 
 #### Anatomia
 
@@ -418,8 +404,7 @@ Gestão do endereço Liquid do usuário para recebimento de DePix externos (fora
 │                                                             │
 │ ⚠️ ATENÇÃO: Este é um endereço da rede Liquid.              │
 │ NÃO envie Bitcoin (BTC) para este endereço — os fundos      │
-│ seriam perdidos permanentemente e não podem ser             │
-│ recuperados.                                                │
+│ seriam perdidos permanentemente.                            │
 │                                                             │
 │ ─────────────────────────────────────────────────────────── │
 │                                                             │
@@ -435,32 +420,22 @@ Gestão do endereço Liquid do usuário para recebimento de DePix externos (fora
 
 1. Usuário clica "Alterar endereço"
 2. Modal abre com input para novo endereço
-3. Validação frontend: prefixo `lq1` ou `ex1`, comprimento
-4. Usuário confirma
-5. Sistema envia código de verificação por e-mail
-6. Usuário digita código
-7. Endereço alterado
-8. E-mail de notificação enviado
-9. **Trava de 24h:** Próxima alteração só após 24 horas
+3. Validação frontend: prefixo `lq1` ou `ex1`, comprimento mínimo
+4. Backend envia código de verificação por e-mail
+5. Usuário digita código (6 dígitos, expira em 10 min)
+6. Endereço alterado
+7. E-mail de notificação enviado
+8. **Trava de 24h:** Próxima alteração só após 24 horas
 
 #### Estados
 
 | Estado | Implementação |
 |--------|---------------|
-| Sem endereço | CTA "Cadastrar endereço" |
+| Sem endereço | CTA grande "Cadastrar carteira" + aviso que depósitos exigem carteira |
 | Com endereço | Exibição + botão alterar |
 | Loading | Skeleton |
-| Erro | Card de erro |
-| Trava ativa | Botão desabilitado + texto "Aguarde X horas" |
-
-#### Migração do localStorage
-
-1. Ao carregar a tela, verificar `useFeesStore.wallets`
-2. Se existe carteira local e backend vazio:
-   - Oferecer migração: "Encontramos uma carteira salva localmente. Deseja migrar?"
-   - Se sim: `PUT /v1/wallet/liquid-address` com dados locais
-3. Após migração bem-sucedida: limpar localStorage
-4. `useFeesStore` deixa de ser fonte de verdade para endereço
+| Erro | Card de erro com retry |
+| Trava ativa | Botão "Alterar" desabilitado + texto "Aguarde X horas" |
 
 ---
 
@@ -472,45 +447,14 @@ Gestão do endereço Liquid do usuário para recebimento de DePix externos (fora
 
 | Dado | Fonte | Observação |
 |------|-------|------------|
-| Status 2FA | `useAuthStore` → `user.twoFactorEnabled` | ✅ REAL |
+| Status 2FA | `useAuthStore` → `user.twoFactorEnabled` | REAL |
 | Dados da empresa | **REMOVER** | Mock sem backend |
 | Notificações | **REMOVER** | Mock sem backend |
 | Aparência | **REMOVER** | Mock sem backend |
 
 #### Layout v1 Simplificado
 
-Manter apenas a aba de segurança (2FA):
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│ Ajustes                                                     │
-├─────────────────────────────────────────────────────────────┤
-│ Segurança                                                   │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ Autenticação em dois fatores (2FA)                      │ │
-│ │ Status: ● Ativado / ○ Desativado                        │ │
-│ │ [Gerenciar 2FA →]                                       │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ Dispositivos conectados                                 │ │
-│ │ [Ver dispositivos →]                                    │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ Trocar senha                                            │ │
-│ │ [Alterar senha →]                                       │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
-```
-
-#### Botões/Ações
-
-| Elemento | Destino v1 |
-|----------|------------|
-| Gerenciar 2FA | ✅ Modal com setup/disable |
-| Ver dispositivos | ✅ Modal com lista + logout |
-| Alterar senha | ✅ Modal com form |
-| Tabs (business/notifications/appearance) | **REMOVER** |
-| Salvar alterações | **REMOVER** — ações inline |
+Manter apenas a aba de segurança (2FA, dispositivos, senha).
 
 ---
 
@@ -518,15 +462,9 @@ Manter apenas a aba de segurança (2FA):
 
 **Caminho:** `(auth)/*`
 
-#### Status
-
 Todas as telas de autenticação estão **100% funcionais** e não requerem alterações de integração.
 
-#### Único ajuste: Login
-
-| Elemento | Destino v1 |
-|----------|------------|
-| Entrar com biometria | **REMOVER** — não implementado |
+**Único ajuste:** Remover "Entrar com biometria" do login (não implementado).
 
 ---
 
@@ -543,32 +481,37 @@ Todas as telas de autenticação estão **100% funcionais** e não requerem alte
 └─────────────┘     └───────────────────┘     └─────────┘
                               │
                               │ ❌ PULA O LARAVEL
+                              │ ❌ SEM AUDITORIA
+                              │ ❌ SEM SPLIT
                               ▼
                     ┌───────────────────┐
                     │  api/ (Laravel)   │  ← Ignorado!
-                    │  - Ledger         │
-                    │  - Compliance     │
-                    │  - Webhooks       │
                     └───────────────────┘
 ```
 
-#### Solução
+#### Solução v1
 
 ```
+DEPÓSITO:
 ┌─────────────┐     ┌───────────────────┐     ┌─────────┐
 │ receive.tsx │────▶│   /v1/deposits    │────▶│  Eulen  │
-│  send.tsx   │     │   /v1/withdrawals │     │  (via   │
-└─────────────┘     │   (Laravel API)   │     │ Laravel)│
+└─────────────┘     │   (Laravel)       │     │ (split) │
                     └───────────────────┘     └─────────┘
-                              │
-                              │ ✅ TODO FLUXO AUDITADO
-                              ▼
-                    ┌───────────────────┐
-                    │  api/ (Laravel)   │
-                    │  - Ledger ✓       │
-                    │  - Compliance ✓   │
-                    │  - Webhooks ✓     │
-                    └───────────────────┘
+                              │                    │
+                              │ ✅ REGISTRA LEDGER │
+                              ▼                    ▼
+                    ┌───────────────────┐  ┌─────────────────┐
+                    │    Ledger         │  │ Carteira usuário│
+                    │  (contabilidade)  │  │    (DePix)      │
+                    └───────────────────┘  └─────────────────┘
+
+SAQUE:
+┌─────────────┐     ┌───────────────────┐     ┌────────────────┐     ┌─────────┐
+│  send.tsx   │────▶│  /v1/withdrawals  │────▶│ flyerx-backend │────▶│  Eulen  │
+└─────────────┘     │    (Laravel)      │     │   (Python)     │     │  (PIX)  │
+                    └───────────────────┘     └────────────────┘     └─────────┘
+                              │                      │
+                              │ ✅ REGISTRA LEDGER   │ ✅ RETÉM TAXA
 ```
 
 ### B.2 Plano de Religação — Receive
@@ -576,87 +519,59 @@ Todas as telas de autenticação estão **100% funcionais** e não requerem alte
 | Etapa | Atual | Novo |
 |-------|-------|------|
 | Hook de criação | `useCreatePix2DepixDeposit()` | `useCreateDeposit()` |
-| Função chamada | `createPix2DepixDeposit()` | `createDeposit()` |
 | Endpoint | `/api/pix2depix/deposit` | `/v1/deposits` |
 | Response: QR | `qrCopyPaste`, `qrImageUrl` | `pixCopyPaste`, `qrCodeUrl` |
 | Hook de polling | `usePix2DepixDepositStatus()` | `useDeposit(id)` |
-| Função chamada | `getPix2DepixDepositStatus()` | `getDeposit()` |
-| Endpoint | `/api/pix2depix/deposit-status` | `/v1/deposits/{id}` |
+
+**Pré-requisito:** Usuário deve ter `liquid_address` cadastrado.
 
 ### B.3 Plano de Religação — Send
 
 | Etapa | Atual | Novo |
 |-------|-------|------|
 | Hook de criação | `useCreatePix2DepixWithdraw()` | `useCreateWithdrawal()` |
-| Função chamada | `createPix2DepixWithdraw()` | `createWithdrawal()` |
 | Endpoint | `/api/pix2depix/withdraw` | `/v1/withdrawals` |
-| **Response** | `depositAddress` (Liquid) | **Não retorna** — fluxo diferente |
-| Hook de polling | `usePix2DepixWithdrawStatus()` | `useWithdrawal(id)` (criar) |
-| Função chamada | `getPix2DepixWithdrawStatus()` | `getWithdrawal()` |
-| Endpoint | `/api/pix2depix/withdraw-status` | `/v1/withdrawals/{id}` |
+| Response | `depositAddress` (Eulen) | `flyerx_address` (Python via Laravel) |
+| Hook de polling | Criar `useWithdrawal(id)` | `/v1/withdrawals/{id}` |
 
-**Mudança de paradigma:** O fluxo Laravel debita saldo interno e envia PIX automaticamente. Não há etapa de "enviar DePix".
+**Comportamento do usuário:** Idêntico (enviar DePix para endereço Liquid).
 
 ### B.4 Tabela das 23 Funções Órfãs/Semi-órfãs
 
-| # | Função | Arquivo | Status Atual | Destino v1 |
-|---|--------|---------|--------------|------------|
+| # | Função | Status Atual | Destino v1 |
+|---|--------|--------------|------------|
 | **wallet.ts** |
-| 1 | `getWallet` | wallet.ts | ✅ Usada | Manter |
-| 2 | `getBalance` | wallet.ts | ✅ Usada | Manter |
-| 3 | `listTransactions` | wallet.ts | ✅ Usada | Manter |
-| 4 | `getTransaction` | wallet.ts | ⚠️ Semi-órfã | **RELIGAR** em history (expandir) |
-| 5 | `exportTransactionsCsv` | wallet.ts | ❌ Órfã | Pós-v1 |
-| 6 | `exportTransactionsPdf` | wallet.ts | ❌ Órfã | Pós-v1 |
+| 1 | `getWallet` | Usada | Manter |
+| 2 | `getBalance` | Usada | **REMOVER** (não há saldo BRL) |
+| 3 | `listTransactions` | Usada | Manter |
+| 4 | `getTransaction` | Semi-órfã | **RELIGAR** em history (expandir) |
 | **deposits.ts** |
-| 7 | `createDeposit` | deposits.ts | ⚠️ Semi-órfã | **RELIGAR** em receive |
-| 8 | `getDeposit` | deposits.ts | ⚠️ Semi-órfã | **RELIGAR** em receive (polling) |
-| 9 | `listDeposits` | deposits.ts | ⚠️ Semi-órfã | Pós-v1 (admin) |
-| 10 | `cancelDeposit` | deposits.ts | ❌ Órfã | Pós-v1 |
+| 7 | `createDeposit` | Semi-órfã | **RELIGAR** em receive |
+| 8 | `getDeposit` | Semi-órfã | **RELIGAR** em receive (polling) |
 | **withdrawals.ts** |
-| 11 | `estimateWithdrawalFee` | withdrawals.ts | ⚠️ Semi-órfã | **RELIGAR** em send |
-| 12 | `createWithdrawal` | withdrawals.ts | ⚠️ Semi-órfã | **RELIGAR** em send |
-| 13 | `getWithdrawal` | withdrawals.ts | ❌ Órfã | **CRIAR HOOK** + religar em send |
-| 14 | `listWithdrawals` | withdrawals.ts | ⚠️ Semi-órfã | **RELIGAR** em history |
-| 15 | `cancelWithdrawal` | withdrawals.ts | ❌ Órfã | Pós-v1 |
-| 16 | `validatePixKey` | withdrawals.ts | ❌ Órfã | Avaliar uso em send |
+| 11 | `estimateWithdrawalFee` | Semi-órfã | **RELIGAR** em send |
+| 12 | `createWithdrawal` | Semi-órfã | **RELIGAR** em send |
+| 13 | `getWithdrawal` | Órfã | **CRIAR HOOK** + religar em send |
 | **pix2depix.ts** |
-| 17 | `createPix2DepixDeposit` | pix2depix.ts | ✅ Usada | **DESCONTINUAR** |
-| 18 | `getPix2DepixDepositStatus` | pix2depix.ts | ✅ Usada | **DESCONTINUAR** |
-| 19 | `createPix2DepixWithdraw` | pix2depix.ts | ✅ Usada | **DESCONTINUAR** |
-| 20 | `getPix2DepixWithdrawStatus` | pix2depix.ts | ✅ Usada | **DESCONTINUAR** |
-| 21 | `getPix2DepixUserInfo` | pix2depix.ts | ⚠️ Semi-órfã | Pós-v1 (limites dinâmicos) |
-| 22 | `isValidLiquidAddress` | pix2depix.ts | ✅ Usada | Manter (validação Carteira) |
-| 23 | `isValidEUID` | pix2depix.ts | ⚠️ Semi-órfã | Avaliar |
-
-#### Resumo de Ações
-
-| Ação | Quantidade | Funções |
-|------|------------|---------|
-| **RELIGAR** | 7 | 4, 7, 8, 11, 12, 13, 14 |
-| **DESCONTINUAR** | 4 | 17, 18, 19, 20 |
-| **PÓS-V1** | 6 | 5, 6, 9, 10, 15, 21 |
-| **MANTER** | 4 | 1, 2, 3, 22 |
-| **AVALIAR** | 2 | 16, 23 |
+| 17-20 | `*Pix2Depix*` | Usada | **DESCONTINUAR** (via Laravel) |
+| 22 | `isValidLiquidAddress` | Usada | Manter (validação Wallet) |
 
 ---
 
 ## C. Backend Novo
 
-### C.1 Backend Novo Autorizado — Carteira Liquid
+### C.1 Endpoints de Carteira Liquid
 
-**Escopo fechado:** Apenas o necessário para gestão de endereço Liquid.
+**Escopo fechado:** Apenas o necessário para gestão de endereço Liquid do usuário.
 
 #### Endpoints
 
 | Método | Endpoint | Propósito |
 |--------|----------|-----------|
 | `GET` | `/v1/wallet/liquid-address` | Consultar endereço atual |
-| `PUT` | `/v1/wallet/liquid-address` | Atualizar endereço |
+| `PUT` | `/v1/wallet/liquid-address` | Atualizar/cadastrar endereço |
 
 #### Tabela
-
-**Alteração em `wallets`:**
 
 ```sql
 ALTER TABLE wallets
@@ -665,11 +580,11 @@ ADD COLUMN liquid_address_label VARCHAR(50) NULL,
 ADD COLUMN liquid_address_updated_at TIMESTAMP NULL;
 ```
 
-#### Request/Response
+#### Contratos
 
 **GET /v1/wallet/liquid-address**
 
-Response 200:
+Response 200 (com endereço):
 ```json
 {
   "success": true,
@@ -693,7 +608,7 @@ Response 200 (sem endereço):
 
 **PUT /v1/wallet/liquid-address**
 
-Request (step 1 — solicitar código):
+Step 1 — Solicitar código:
 ```json
 {
   "liquid_address": "lq1qqnewaddress...",
@@ -701,7 +616,7 @@ Request (step 1 — solicitar código):
 }
 ```
 
-Response 200:
+Response:
 ```json
 {
   "success": true,
@@ -712,7 +627,7 @@ Response 200:
 }
 ```
 
-Request (step 2 — confirmar com código):
+Step 2 — Confirmar com código:
 ```json
 {
   "liquid_address": "lq1qqnewaddress...",
@@ -721,7 +636,7 @@ Request (step 2 — confirmar com código):
 }
 ```
 
-Response 200:
+Response:
 ```json
 {
   "success": true,
@@ -744,301 +659,347 @@ Response 200:
 | Trava de 24h | `liquid_address_updated_at + 24h > now()` |
 | Código de e-mail | 6 dígitos, expira em 10 min |
 
-#### E-mails
+### C.2 Ajuste no Endpoint de Depósito
 
-1. **Solicitação de alteração:** "Código de verificação: XXXXXX"
-2. **Confirmação de alteração:** "Seu endereço Liquid foi alterado. Se não foi você, entre em contato."
+O `POST /v1/deposits` deve:
 
-### C.2 Backend Existente Consumido
-
-| Endpoint | Tela | Status |
-|----------|------|--------|
-| `POST /v1/deposits` | receive | Já existe, religar |
-| `GET /v1/deposits/{id}` | receive | Já existe, religar |
-| `POST /v1/withdrawals` | send | Já existe, religar |
-| `GET /v1/withdrawals/{id}` | send | Já existe, criar hook |
-| `POST /v1/withdrawals/estimate-fee` | send | Já existe, religar |
-| `GET /v1/wallet/history` | history, dashboard | Já existe, religar |
-| `GET /v1/wallet/balance` | dashboard | Já usado |
-| `GET /v1/2fa/*` | settings | Já usado |
-
-### C.3 Gaps Identificados
-
-| Gap | Descrição | Ação |
-|-----|-----------|------|
-| Hook `useWithdrawal` | Não existe hook para `getWithdrawal` | Criar em use-queries.ts |
-| Polling de saque | Send precisa polling como receive | Implementar em useWithdrawal |
-| Nenhum gap de endpoint | Laravel cobre todo o fluxo v1 | — |
+1. Verificar se usuário tem `liquid_address` cadastrado
+2. Se não tiver, retornar erro 400: "Cadastre sua carteira Liquid antes de criar depósitos"
+3. Se tiver, chamar Eulen `/deposit` com:
+   - `depixAddress` = `wallet.liquid_address` (carteira do usuário)
+   - `depixSplitAddress` = carteira Flyerx (config)
+   - `splitFee` = taxa percentual Flyerx (config)
 
 ---
 
-## D. Navegação v1
+## D. Pipeline de Registro
 
-### D.1 Menu Sidebar
+### D.1 Como Depósitos Entram no Ledger
 
-| Posição | Item | Ícone | Rota | Observação |
-|---------|------|-------|------|------------|
-| 1 | **Início** | Home | `/dashboard` | Manter |
-| 2 | **Receber** | ArrowDownLeft | `/receive` | Manter |
-| 3 | **Enviar** | ArrowUpRight | `/send` | Manter |
-| 4 | **Extrato** | FileText | `/history` | Manter |
-| 5 | **Carteira** | Wallet | `/wallet` | **NOVO** (substitui Chaves PIX) |
-| 6 | **Ajustes** | Settings | `/settings` | Manter |
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ PIPELINE: DEPÓSITO                                                   │
+└─────────────────────────────────────────────────────────────────────┘
 
-### D.2 Itens Removidos do Menu
+1. POST /v1/deposits (Laravel)
+   └─→ Cria registro em `deposits` com status=PENDING
+   └─→ Chama Eulen /deposit com split
+   └─→ Retorna QR Code para frontend
 
-| Item Anterior | Motivo | Código |
-|---------------|--------|--------|
-| Chaves PIX | Substituído por Carteira | Manter em `(main)/pix-keys/` (redirect) |
-| Links de Pagamento | Sem backend — pós-v1 | **ESCONDER** (código permanece) |
-| Subcontas | Sem backend — pós-v1 | **ESCONDER** (código permanece) |
-| Desenvolvedores | Sem backend — pós-v1 | **ESCONDER** (código permanece) |
+2. Webhook Eulen (POST /webhooks/eulen)
+   └─→ Recebe evento de mudança de status
+   └─→ Atualiza registro em `deposits`
+   └─→ Se status=depix_sent:
+       └─→ Cria entrada no LEDGER:
+           - type: deposit
+           - amount: valor bruto
+           - fee: taxa Flyerx (já retida na origem)
+           - net_amount: valor líquido (entregue ao usuário)
+           - provider_tx_id: blockchainTxID
+           - provider_data: { payerName, payerTaxNumber, ... }
 
-### D.3 Impactos em Links Internos
+3. Frontend (polling)
+   └─→ GET /v1/deposits/{id}
+   └─→ Exibe status atualizado
+```
 
-| Origem | Link Atual | Link v1 |
-|--------|------------|---------|
-| Dashboard quick actions | `/pix-keys` | `/wallet` |
-| Qualquer "Minhas chaves" | `/pix-keys` | `/wallet` |
+### D.2 Como Saques Entram no Ledger
 
-### D.4 Quick Actions do Dashboard
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ PIPELINE: SAQUE                                                      │
+└─────────────────────────────────────────────────────────────────────┘
 
-| Ação | Ícone | Rota | Status |
-|------|-------|------|--------|
-| Receber | ArrowDownLeft | `/receive` | Manter |
-| Enviar | ArrowUpRight | `/send` | Manter |
-| Extrato | FileText | `/history` | Manter |
-| Carteira | Wallet | `/wallet` | **Substituir** (era Chaves PIX) |
+1. POST /v1/withdrawals (Laravel)
+   └─→ Cria registro em `withdrawals` com status=PENDING
+   └─→ Chama Python /internal/withdrawals
+   └─→ Retorna flyerx_address para frontend
 
----
+2. Worker Python (a cada 30s)
+   └─→ Detecta DePix recebido
+   └─→ Processa envio para Eulen
+   └─→ Atualiza status interno
 
-## E. Fila de Execução
+3. Polling Laravel → Python (a cada 5 min)
+   └─→ GET /internal/withdrawals/{id}/status
+   └─→ Atualiza registro em `withdrawals`
+   └─→ Se status=completed:
+       └─→ Cria entrada no LEDGER:
+           - type: withdrawal
+           - amount: valor solicitado (PIX)
+           - fee: taxas totais (Eulen + Flyerx)
+           - gross_amount: total DePix enviado pelo usuário
+           - provider_tx_id: blockchainTxID
+           - end_to_end_id: E2E do PIX
+           - receipt_url: comprovante
 
-### E.1 Grupo 1: History (Religação Pura)
+4. Frontend (polling)
+   └─→ GET /v1/withdrawals/{id}
+   └─→ Exibe status atualizado
+```
 
-**Prioridade:** 1 (primeiro a executar)
-**Tipo:** Religação — sem backend novo
+### D.3 Mecanismo de Sincronização
 
-#### Escopo
+**Opção escolhida:** Laravel faz polling do Python (mais simples dado o código existente).
 
-1. Substituir `mockTransactions` por `useTransactions()`
-2. Implementar filtro `type` (Todas/Entradas/Saídas)
-3. Implementar busca local (ID/descrição)
-4. Implementar paginação com `meta`
-5. Adicionar estados: loading (skeleton), vazio (empty state), erro (retry)
-6. Adicionar campos expandíveis: Bruto|Taxa|Líquido, ID copiável, E2E copiável, payerName
-7. Adicionar botão "Ver comprovante" quando `receiptUrl` disponível
-8. Remover botões decorativos: Exportar, Filtros avançados, Últimos 30 dias
+O Laravel já tem scheduler (`flyerx:sync-withdrawals`) que roda a cada 5 minutos. Ajustar para:
 
-#### Dependências
-
-- Nenhuma — usa endpoints existentes
-
-#### Critério de Aprovação
-
-- [ ] Lista carrega dados reais da API
-- [ ] Filtros Todas/Entradas/Saídas funcionam
-- [ ] Busca por ID funciona
-- [ ] Paginação funciona
-- [ ] Loading state visível
-- [ ] Empty state visível quando sem transações
-- [ ] Erro state com retry funciona
-- [ ] Campos expandíveis exibem informações corretas
-- [ ] Botão comprovante funciona (abre URL)
-
----
-
-### E.2 Grupo 2: Receive + Send (Correção Arquitetural)
-
-**Prioridade:** 2
-**Tipo:** Religação + anatomia nova
-
-#### Escopo — Receive
-
-1. Trocar `useCreatePix2DepixDeposit` por `useCreateDeposit`
-2. Ajustar mapeamento de campos (qrCopyPaste → pixCopyPaste)
-3. Trocar `usePix2DepixDepositStatus` por `useDeposit` (polling)
-4. Implementar countdown real com `expiresAt`
-5. Distinguir status: under_review, delayed com mensagens próprias
-6. Adicionar payerName após confirmação
-7. Estados: loading, sucesso, expirado, erro
-8. Remover botões decorativos: Atualizar, Ajuda, Config
-
-#### Escopo — Send
-
-> **ERRATA (2026-08-06):** O fluxo de saque permanece inalterado (usuário envia DePix para endereço Liquid). A mudança é de orquestração: tela chama Laravel em vez de proxy direto.
-
-1. Trocar `useCreatePix2DepixWithdraw` por `useCreateWithdrawal` (via Laravel)
-2. Criar hook `useWithdrawal` para polling de status
-3. **Manter** etapa de "enviar DePix" — exibir endereço Liquid + QR Code
-4. Implementar anatomia de steps verticais com Step 3 (Enviar DePix)
-5. Adicionar avisos de atenção (verificar chave PIX, valor exato)
-6. Adicionar E2E ID copiável após conclusão
-7. Adicionar botão "Ver comprovante" com `receiptUrl`
-8. Usar `useEstimateFee` para taxa real
-9. Estados: loading (gerar endereço), aguardando envio, processando, sucesso, erro
-10. Remover botões decorativos: Atualizar
-
-#### Dependências
-
-- Criar hook `useWithdrawal` em use-queries.ts
-
-#### Critério de Aprovação
-
-**Receive:**
-- [ ] QR Code gerado via Laravel
-- [ ] Polling funciona via Laravel
-- [ ] Countdown decrementa em tempo real
-- [ ] Status under_review mostra "Em análise"
-- [ ] Status expirado tratado corretamente
-
-**Send:**
-- [ ] Saque criado via Laravel (`useCreateWithdrawal`)
-- [ ] Endereço Liquid exibido com QR Code + botão Copiar
-- [ ] Valor total (com taxas) exibido com destaque
-- [ ] Polling de status funciona (`useWithdrawal`)
-- [ ] E2E ID exibido e copiável após conclusão
-- [ ] Comprovante abre quando disponível
-- [ ] Taxa calculada via endpoint (`useEstimateFee`)
+1. Buscar saques com status não-terminal
+2. Para cada um, chamar Python `GET /internal/withdrawals/{id}/status`
+3. Atualizar status local
+4. Se status mudou para terminal, registrar no ledger
 
 ---
 
-### E.3 Grupo 3: Dashboard (Resumos + Navegação)
+## E. Navegação v1
 
-**Prioridade:** 3
-**Tipo:** Simplificação + navegação
+### E.1 Menu Sidebar
 
-#### Escopo
+| Posição | Item | Ícone | Rota |
+|---------|------|-------|------|
+| 1 | **Início** | Home | `/dashboard` |
+| 2 | **Receber** | ArrowDownLeft | `/receive` |
+| 3 | **Enviar** | ArrowUpRight | `/send` |
+| 4 | **Extrato** | FileText | `/history` |
+| 5 | **Carteira** | Wallet | `/wallet` |
+| 6 | **Ajustes** | Settings | `/settings` |
 
-1. Remover dados mock: entradas/saídas do dia, sparkline, chaves cadastradas
-2. Manter: saldo real, transações recentes reais, quick actions
-3. Atualizar quick action "Chaves PIX" → "Carteira" (`/wallet`)
-4. Implementar estados: loading (skeleton), erro
-5. Remover filtros decorativos
-6. Remover botão QR sem função
+### E.2 Itens Removidos do Menu
 
-#### Dependências
-
-- Tela Carteira criada (para link funcionar)
-
-#### Critério de Aprovação
-
-- [ ] Dashboard mostra apenas dados reais
-- [ ] Loading skeleton visível
-- [ ] Quick action Carteira funciona
-- [ ] Nenhum dado mock exibido
+| Item | Motivo |
+|------|--------|
+| Chaves PIX | Substituído por Carteira |
+| Links de Pagamento | Sem backend — pós-v1 |
+| Subcontas | Sem backend — pós-v1 |
+| Desenvolvedores | Sem backend — pós-v1 |
 
 ---
 
-### E.4 Grupo 4: Carteira (Backend Novo + Tela + Migração)
+## F. Fila de Execução
 
-**Prioridade:** 4
-**Tipo:** Backend novo + tela nova + migração
+### Ordem por Dependências
 
-#### Escopo — Backend (api/)
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ GRUPO 1: Carteira (DESBLOQUEIA tudo)                                 │
+│ ├─→ Backend: endpoints /v1/wallet/liquid-address                     │
+│ └─→ Frontend: tela /wallet                                           │
+│                                                                      │
+│ CRITÉRIO: Usuário consegue cadastrar/alterar endereço Liquid         │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ GRUPO 2: Depósito (DEPENDE de Carteira)                              │
+│ ├─→ Backend: ajustar /v1/deposits para usar split + liquid_address   │
+│ └─→ Frontend: religar receive.tsx                                    │
+│                                                                      │
+│ CRITÉRIO: Depósito real com dinheiro mínimo, DePix chega na carteira │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ GRUPO 3: Saque (backend INTACTO, só frontend)                        │
+│ └─→ Frontend: religar send.tsx com steps, avisos, breakdown          │
+│                                                                      │
+│ CRITÉRIO: Saque real com dinheiro mínimo, PIX chega no beneficiário  │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ GRUPO 4: Pipeline de Registro + History                              │
+│ ├─→ Backend: garantir ledger recebe depósitos e saques               │
+│ └─→ Frontend: ajustar fonte do history se necessário                 │
+│                                                                      │
+│ CRITÉRIO: History mostra depósito e saque do teste anterior          │
+└─────────────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│ GRUPO 5: Dashboard + Settings + Polish                               │
+│ ├─→ Dashboard: remover saldo, exibir carteira, quick actions         │
+│ ├─→ Settings: remover abas mock                                      │
+│ └─→ Estados globais: loading, erro em todas as telas                 │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
-1. Migration: adicionar campos `liquid_address`, `liquid_address_label`, `liquid_address_updated_at` em `wallets`
-2. Endpoints: `GET /v1/wallet/liquid-address`, `PUT /v1/wallet/liquid-address`
-3. Validação de endereço Liquid (prefixo, comprimento)
-4. Código de verificação por e-mail
-5. Trava de 24h
-6. E-mail de notificação após alteração
+### Detalhamento por Grupo
 
-#### Escopo — Frontend (flyerx-web/)
+#### Grupo 1: Carteira
 
-1. Criar `(main)/wallet/page.tsx`
-2. Criar hooks: `useLiquidAddress`, `useUpdateLiquidAddress`
-3. Implementar fluxo de alteração com código de e-mail
-4. Exibir aviso "NÃO envie Bitcoin"
-5. Migração do localStorage (`useFeesStore.wallets`)
-6. Redirect de `/pix-keys` para `/wallet`
+**Tipo:** Backend novo + tela nova
+**Bloqueador:** Sim (desbloqueia depósito)
 
-#### Escopo — Sidebar
+| Item | Responsável | Escopo |
+|------|-------------|--------|
+| Migration | Backend | Adicionar campos `liquid_address*` em `wallets` |
+| GET endpoint | Backend | Consultar endereço atual |
+| PUT endpoint | Backend | Atualizar com verificação por e-mail |
+| Tela wallet | Frontend | Nova página com cadastro/alteração |
+| Hook useLiquidAddress | Frontend | Criar em use-queries.ts |
 
-1. Renomear "Chaves PIX" para "Carteira"
-2. Atualizar ícone e rota
-
-#### Dependências
-
-- Backend deve ser implementado antes do frontend
-
-#### Critério de Aprovação
-
-- [ ] Endpoint GET retorna endereço ou null
-- [ ] Endpoint PUT exige código de e-mail
-- [ ] Endpoint PUT aplica trava de 24h
+**Critério de aprovação:**
+- [ ] GET retorna endereço ou null
+- [ ] PUT exige código de e-mail
+- [ ] PUT aplica trava de 24h
 - [ ] Tela exibe endereço cadastrado
 - [ ] Tela permite alteração com verificação
 - [ ] Aviso de Bitcoin visível
-- [ ] Migração do localStorage funciona
-- [ ] Sidebar atualizada
+
+#### Grupo 2: Depósito
+
+**Tipo:** Ajuste backend + religação frontend
+**Depende de:** Grupo 1
+
+| Item | Responsável | Escopo |
+|------|-------------|--------|
+| Ajustar /v1/deposits | Backend | Verificar liquid_address, chamar Eulen com split |
+| Religar receive | Frontend | Trocar hooks, mapear campos |
+| Bloqueio UX | Frontend | Se sem carteira, bloquear e direcionar para /wallet |
+
+**Critério de aprovação:**
+- [ ] Depósito com dinheiro real mínimo
+- [ ] DePix chega na carteira do usuário (não na Flyerx)
+- [ ] Taxa chega na carteira Flyerx
+- [ ] Webhook registra no ledger
+
+#### Grupo 3: Saque
+
+**Tipo:** Religação frontend (backend Python intacto)
+
+| Item | Responsável | Escopo |
+|------|-------------|--------|
+| Hook useCreateWithdrawal | Frontend | Religar para /v1/withdrawals |
+| Hook useWithdrawal | Frontend | Criar para polling |
+| Tela send | Frontend | Steps, avisos, breakdown |
+
+**Critério de aprovação:**
+- [ ] Saque com dinheiro real mínimo
+- [ ] Endereço Liquid exibido com QR
+- [ ] Valor total (com taxas) destacado
+- [ ] Avisos de valor exato e expiração visíveis
+- [ ] PIX chega no beneficiário
+- [ ] E2E e comprovante exibidos
+
+#### Grupo 4: Pipeline de Registro
+
+**Tipo:** Verificação + ajuste
+
+| Item | Responsável | Escopo |
+|------|-------------|--------|
+| Verificar webhook depósito | Backend | Confirmar que ledger recebe entry |
+| Verificar sync saque | Backend | Confirmar polling Python → ledger |
+| Ajustar fonte history | Frontend | Se necessário |
+
+**Critério de aprovação:**
+- [ ] History mostra depósito do Grupo 2
+- [ ] History mostra saque do Grupo 3
+- [ ] Valores bruto/taxa/líquido corretos
+
+#### Grupo 5: Polish
+
+**Tipo:** Simplificação + estados
+
+| Item | Responsável | Escopo |
+|------|-------------|--------|
+| Dashboard | Frontend | Remover saldo, exibir carteira |
+| Settings | Frontend | Remover abas mock |
+| Estados | Frontend | Loading/erro em todas as telas |
+| Sidebar | Frontend | Atualizar menu |
 
 ---
 
-### E.5 Grupo 5: Settings + Estados Globais
+## G. Pré-Go-Live
 
-**Prioridade:** 5
-**Tipo:** Simplificação + polish
+### G.1 Checklist Obrigatório
 
-#### Escopo — Settings
+Estes itens são **BLOQUEADORES** para produção com dinheiro real:
 
-1. Remover abas: business, notifications, appearance
-2. Manter apenas: segurança (2FA, dispositivos, senha)
-3. Implementar modais funcionais para cada ação
-4. Remover botão "Entrar com biometria" do login
+| # | Item | Risco se Ausente | Status |
+|---|------|------------------|--------|
+| 1 | **MED Handler** | Saldo negativo, prejuízo | Pendente |
+| 2 | **Assinatura de Webhook** | Webhooks forjados | Pendente |
+| 3 | **LWK_MNEMONIC no vault** | Exposição de chave privada | Pendente |
+| 4 | **Retry/alertas do plano LWK** | Saque falho sem aviso | Verificar |
+| 5 | **Smoke test com dinheiro real** | Fluxo quebrado em prod | Por fazer |
 
-#### Escopo — Estados Globais (9 telas)
+### G.2 MED Handler
 
-| Tela | Loading | Vazio | Erro |
-|------|---------|-------|------|
-| dashboard | Implementar | OK | Implementar |
-| receive | OK | N/A | Melhorar |
-| send | OK | N/A | Melhorar |
-| history | Implementar | Implementar | Implementar |
-| wallet | Implementar | Implementar | Implementar |
-| settings | OK | N/A | Implementar |
-| pix-keys | Redirect | N/A | N/A |
-| payment-links | Esconder | N/A | N/A |
-| subaccounts | Esconder | N/A | N/A |
-| developers | Esconder | N/A | N/A |
+O webhook MED (Mecanismo Especial de Devolução) da Eulen **NÃO é tratado** atualmente.
 
-#### Critério de Aprovação
+**Risco:**
+1. Depósito confirmado, DePix entregue ao usuário
+2. Usuário pode ter convertido/sacado
+3. 30-90 dias depois: MED acionado (fraude no PIX original)
+4. Eulen estorna da conta Flyerx
+5. Flyerx assume prejuízo
 
-- [ ] Settings mostra apenas segurança
-- [ ] Modais de 2FA/dispositivos/senha funcionam
-- [ ] Todas as telas v1 têm loading state
-- [ ] Todas as telas v1 têm erro state com retry
-- [ ] 3 telas escondidas do menu
+**Implementação mínima:**
+```php
+// WebhookController.php
+case 'med':
+    // 1. Localizar depósito pelo bankTxId
+    // 2. Registrar evento MED no ledger
+    // 3. Enviar alerta para admin
+    // 4. Bloquear usuário para análise
+    break;
+```
+
+### G.3 Assinatura de Webhook
+
+Em `config/eulen.php`:
+```php
+'validate_signature' => env('EULEN_VALIDATE_WEBHOOK_SIGNATURE', false),
+```
+
+**Para produção:** Definir `EULEN_VALIDATE_WEBHOOK_SIGNATURE=true` e configurar secret.
+
+### G.4 LWK_MNEMONIC
+
+Atualmente em `.env`:
+```
+LWK_MNEMONIC=your mnemonic words here
+```
+
+**Para produção:** Migrar para vault seguro (AWS Secrets Manager, HashiCorp Vault, etc).
+
+### G.5 Smoke Test
+
+Antes de abrir para usuários:
+
+1. **Depósito mínimo (R$ 10)**
+   - Criar QR Code
+   - Pagar via PIX real
+   - Verificar DePix na carteira de teste
+   - Verificar taxa na carteira Flyerx
+
+2. **Saque mínimo (R$ 10)**
+   - Criar saque
+   - Enviar DePix do valor exato
+   - Verificar PIX na conta destino
+   - Verificar E2E e comprovante
+
+3. **History**
+   - Verificar ambas operações no extrato
+   - Verificar valores bruto/taxa/líquido
 
 ---
 
-## F. Registros Pós-v1
+## H. Registros Pós-v1
 
-### F.1 PRÉ-REQUISITOS DE GO-LIVE
-
-> ⚠️ **CRÍTICO:** Estes itens são obrigatórios antes de produção com dinheiro real.
-
-| Item | Descrição | Risco se Ausente |
-|------|-----------|------------------|
-| **MED Handler** | Implementar tratamento do webhook MED da Eulen | Saldo negativo, prejuízo financeiro |
-| **Assinatura de Webhook** | Habilitar `validate_signature = true` | Webhooks forjados, créditos indevidos |
-
-### F.2 Funcionalidades Adiadas
+### H.1 Funcionalidades Adiadas
 
 | Item | Descrição | Impacto |
 |------|-----------|---------|
-| Limites dinâmicos | Chamar `/user-info` da Eulen em vez de hardcode | UX — limites mais precisos |
-| Exportar CSV/PDF | Implementar `exportTransactionsCsv/Pdf` | UX — auditoria do usuário |
+| Limites dinâmicos | Chamar `/user-info` da Eulen | UX — limites mais precisos |
+| Exportar CSV/PDF | Implementar export | UX — auditoria do usuário |
 | Múltiplas carteiras | Array de endereços Liquid | UX — flexibilidade |
-| Links de Pagamento | Backend + tela funcional | Negócio — nova feature |
-| Subcontas | Backend + tela funcional | Negócio — nova feature |
-| Desenvolvedores | API keys + webhooks de saída | Negócio — integrações |
-| Status de serviços | Dashboard de health da Eulen | UX — transparência |
-| Repassar taxas | Opção de cobrar taxa do pagador | Negócio — flexibilidade |
-| Cancelar depósito | Botão cancelar antes de pagar | UX — controle |
-| Cancelar saque | Botão cancelar se ainda pendente | UX — controle |
+| Links de Pagamento | Backend + tela | Negócio — nova feature |
+| Subcontas | Backend + tela | Negócio — nova feature |
+| Desenvolvedores | API keys + webhooks | Negócio — integrações |
+| QR Delay | Usar `delayDepixInHours` | Segurança — janela MED |
 
-### F.3 Telas Escondidas v1
+### H.2 Telas Escondidas v1
 
 | Tela | Rota | Ação |
 |------|------|------|
@@ -1053,7 +1014,8 @@ Response 200:
 | Data | Autor | Descrição |
 |------|-------|-----------|
 | 2026-08-06 | Claude | Documento inicial — Passo 2 Fase 6 |
+| 2026-08-06 | Claude | **Passo 2.5** — Correção arquitetural: modelo não-custodial, spec send com 9 status Python, spec receive com split, pipeline de registro, pré-go-live consolidado |
 
 ---
 
-*Documento gerado como parte do Passo 2 da Fase 6 — Decisões de Conteúdo e Integração.*
+*Documento gerado como parte do Passo 2.5 da Fase 6 — Arquitetura Definitiva de Integração.*

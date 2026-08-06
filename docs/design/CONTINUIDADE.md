@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 13 — Fase 6, Passo 3 Grupo 1 COMPLETO)
+**Atualizado em:** 2026-08-06 (sessão 14 — Fase 6, Passo 2.5 COMPLETO — Arquitetura Definitiva)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -29,7 +29,64 @@
   - [x] **Passo 1a COMPLETO** (3 catálogos + documentação Eulen versionada) — sessões 9-10
   - [x] **Passo 1b COMPLETO** (inventário de dados das telas) — sessão 11
   - [x] **Passo 2 COMPLETO** (decisões de integração) — sessão 12
+  - [x] **Passo 2.5 COMPLETO** (arquitetura definitiva — intermediador não-custodial) — sessão 14
   - [x] **Passo 3 Grupo 1 COMPLETO** (history religado) — sessão 13
+
+---
+
+## Sessão 14 (2026-08-06) — Fase 6, Passo 2.5 COMPLETO (Arquitetura Definitiva)
+
+### O que foi feito
+
+1. **Arquitetura definitiva confirmada e documentada**
+   - Flyerx = INTERMEDIADOR NÃO-CUSTODIAL (gateway Pix↔DePix) sobre API Eulen
+   - Laravel (api/) = backend PRINCIPAL: auth, usuários, wallet, DEPÓSITOS (server-side com split), LIVRO-RAZÃO
+   - Python (flyerx-backend/) = MICROSERVIÇO de SAQUES DePix→PIX (existe porque Eulen não tem split em saques)
+
+2. **02-decisoes-integracao.md completamente reescrito**
+   - Sumário executivo com modelo de negócio e papéis dos backends
+   - Spec do send CORRIGIDA: fluxo Python com 9 status internos (pending→completed), avisos obrigatórios Eulen
+   - Spec do receive CORRIGIDA: depósito server-side via Laravel com split (depixAddress=usuário, depixSplitAddress=Flyerx)
+   - DEPENDÊNCIA documentada: usuário precisa ter carteira Liquid cadastrada antes de criar depósitos
+   - Saldo BRL custodial marcado como código LEGADO DESCONTINUADO
+
+3. **Pipeline de registro especificado**
+   - Depósitos: webhook Eulen → Laravel registra no ledger (sem creditar saldo interno)
+   - Saques: Laravel faz polling do Python → registra no ledger quando completed
+   - Mecanismo de sincronização: scheduler existente `flyerx:sync-withdrawals`
+
+4. **Fila de execução reordenada por dependências**
+   - Grupo 1: Carteira (backend+tela) — DESBLOQUEIA depósito
+   - Grupo 2: Depósito (split + tela receive)
+   - Grupo 3: Saque (tela send com steps/avisos — backend intacto)
+   - Grupo 4: Pipeline de registro + ajuste do history
+   - Grupo 5: Dashboard + Settings + polish
+
+5. **PRÉ-GO-LIVE consolidado**
+   - MED Handler: webhook não tratado, risco de saldo negativo
+   - Assinatura de webhook: `validate_signature = false` por padrão
+   - LWK_MNEMONIC: migrar para vault em produção
+   - Smoke test: depósito e saque mínimo com dinheiro real
+
+6. **plano-backend-lwk.md promovido**
+   - De `docs/_arquivo/` para `docs/integracao/referencias/`
+   - Nota adicionada: "arquitetura vigente do saque; conferir implementação no 00b"
+
+### Premissas CORRIGIDAS do Passo 2
+
+| Premissa Anterior (ERRADA) | Correção (DEFINITIVA) |
+|---------------------------|----------------------|
+| "Fluxo de saldo interno" no send | Usuário AINDA envia DePix para endereço Liquid |
+| "Não precisa enviar DePix" | Fluxo Python intacto: gera flyerx_address, usuário envia, worker processa |
+| Saldo BRL custodial ativo | Código legado DESCONTINUADO, fora de qualquer fluxo v1 |
+| Depósito sem split | Depósito usa split: DePix vai para carteira do USUÁRIO, taxa para Flyerx |
+
+### Próximo passo
+
+**Passo 3 Grupo 1 já concluído (sessão 13) — continuar para Grupo 2 (Carteira):**
+- Backend: endpoints /v1/wallet/liquid-address
+- Frontend: tela /wallet com cadastro/alteração
+- Critério: usuário consegue cadastrar endereço Liquid
 
 ---
 
