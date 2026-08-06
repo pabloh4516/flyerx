@@ -184,31 +184,34 @@ receive/page.tsx
 
 **Caminho:** `(main)/send/page.tsx`
 
-#### Correção Arquitetural — MUDANÇA DE PARADIGMA
+#### Correção Arquitetural — ORQUESTRAÇÃO
 
-**ANTES (fluxo Eulen direto):**
-1. Usuário informa chave PIX e valor
-2. Sistema gera endereço Liquid
-3. Usuário envia DePix de sua carteira externa
-4. Eulen detecta DePix e envia PIX
+> **ERRATA (2026-08-06):** A versão anterior deste documento descrevia incorretamente um "novo paradigma de saldo interno". O modelo de saque v1 é o **fluxo atual**, confirmado no código de `flyerx-backend/withdrawal_service.py`. A correção aqui é de orquestração (tela chama Laravel em vez de proxy direto), não de modelo de negócio.
 
-**DEPOIS (fluxo Laravel):**
-1. Usuário informa chave PIX e valor
-2. Sistema debita saldo interno da carteira
-3. Laravel/LWK envia PIX automaticamente
-4. Usuário acompanha status
+**FLUXO REAL (confirmado no código):**
+1. Usuário informa chave PIX + valor + CPF/CNPJ do titular
+2. Backend Python calcula taxas (Eulen 1% + Flyerx 1,5%), chama Eulen `/withdraw` obtendo `eulen_deposit_address`, gera `flyerx_address` (LWK) e retorna
+3. Usuário envia DePix (valor + taxas) para o `flyerx_address` **da sua própria carteira Liquid**
+4. LWK detecta recebimento, retém taxa Flyerx na carteira da plataforma e repassa o restante ao `eulen_deposit_address`
+5. Eulen recebe o DePix e dispara o PIX para a chave informada
 
-**Implicação:** A tela send v1 **não precisa** de endereço Liquid. O saque é feito do saldo interno.
+**O que muda na v1:**
+- **Antes:** `send/page.tsx` → proxy Next.js → Eulen/LWK direto (fora do ledger)
+- **Depois:** `send/page.tsx` → `/v1/withdrawals` (Laravel) → Laravel chama LWK → registro no ledger
+
+**Comportamento do usuário:** Permanece idêntico (enviar DePix para endereço exibido).
 
 #### Conteúdo Final
 
 | Dado | Fonte | Observação |
 |------|-------|------------|
-| Saldo disponível | `useBalance()` | Mostrar para validação |
+| Saldo disponível | `useBalance()` | Mostrar para referência |
 | Limites (min/max) | `useFeesStore` → config | ✅ Manter |
 | Taxa estimada | `useEstimateFee(amount)` → `/v1/withdrawals/estimate-fee` | Religação |
+| **Endereço Liquid** | `useCreateWithdrawal()` → `depositAddress` | Exibir + QR Code + copiar |
+| Valor total a enviar | `depositAmountInCents` (valor + taxas) | Exibir com destaque |
 | Status do saque | `useWithdrawal(id)` ou polling | Religação |
-| E2E ID | `end_to_end_id` do response | **NOVO** — exibir |
+| E2E ID | `end_to_end_id` do response | **NOVO** — exibir após conclusão |
 | receiptUrl | `receiptUrl` do response | **NOVO** — link comprovante |
 
 #### Anatomia v1 — Steps Verticais
@@ -229,26 +232,31 @@ receive/page.tsx
 │ │ Você receberá: R$ X.XXX,XX                  │ │
 │ └─────────────────────────────────────────────┘ │
 ├─────────────────────────────────────────────────┤
-│ Step 3: Confirmação                             │
+│ Step 3: Enviar DePix                            │
 │ ┌─────────────────────────────────────────────┐ │
-│ │ ⚠️ AVISO: Verifique a chave PIX!            │ │
-│ │ Transferências para chaves erradas são      │ │
-│ │ irreversíveis. Fundos não podem ser         │ │
-│ │ recuperados.                                │ │
+│ │ Envie o valor abaixo para o endereço:       │ │
 │ │                                             │ │
-│ │ [ ] Confirmo que a chave PIX está correta   │ │
+│ │ ┌─────────────────────────────────────────┐ │ │
+│ │ │ [QR Code do endereço Liquid]            │ │ │
+│ │ └─────────────────────────────────────────┘ │ │
 │ │                                             │ │
-│ │ [Confirmar e Enviar]                        │ │
+│ │ lq1qqw5h7r...abc123  [Copiar]               │ │
+│ │                                             │ │
+│ │ Valor total: R$ 1.025,00                    │ │
+│ │ (R$ 1.000,00 + R$ 25,00 taxas)              │ │
+│ │                                             │ │
+│ │ ⚠️ Envie o valor EXATO. Valores diferentes  │ │
+│ │    podem causar falha no saque.             │ │
 │ └─────────────────────────────────────────────┘ │
 ├─────────────────────────────────────────────────┤
 │ Step 4: Acompanhamento                          │
 │ ┌─────────────────────────────────────────────┐ │
-│ │ Status: ● Enviando PIX...                   │ │
-│ │ Valor: R$ X.XXX,XX  [Copiar]                │ │
-│ │ Chave: ***email@***                         │ │
-│ │ Taxa: R$ X,XX                               │ │
+│ │ Status: ◐ Aguardando envio DePix...         │ │
+│ │ → ◐ Processando saque...                    │ │
+│ │ → ✓ PIX enviado!                            │ │
 │ │                                             │ │
-│ │ ✓ Concluído!                                │ │
+│ │ Chave destino: ***email@***                 │ │
+│ │ Valor PIX: R$ 1.000,00                      │ │
 │ │ E2E: XXXXXXXXX  [Copiar]                    │ │
 │ │ [Ver comprovante]                           │ │
 │ └─────────────────────────────────────────────┘ │
@@ -257,50 +265,34 @@ receive/page.tsx
 
 #### Status do Saque
 
-| Status Laravel | Status Visual | Ícone |
-|----------------|---------------|-------|
-| `pending` | Aguardando | ◐ spinner |
-| `approved` | Aprovado | ✓ |
-| `processing` | Enviando PIX | ◐ spinner |
-| `completed` | Concluído | ✓ verde |
-| `failed` | Falhou | ✗ vermelho |
-| `cancelled` | Cancelado | — |
-| `rejected` | Rejeitado | ✗ vermelho |
+| Status LWK | Status Visual | Ícone |
+|------------|---------------|-------|
+| `unsent` | Aguardando envio DePix | ◐ spinner |
+| `sending` | Processando saque | ◐ spinner |
+| `sent` | PIX enviado | ✓ verde |
+| `error` | Falhou | ✗ vermelho |
+| `canceled` | Cancelado | — |
 | `refunded` | Devolvido | ↩ |
+| `expired` | Expirado | ⏱ |
 
-#### Avisos de Perda Irreversível
+#### Avisos Importantes
 
-**Aviso inline (antes do botão):**
-> ⚠️ **Atenção:** Transferências PIX são instantâneas e irreversíveis. Verifique a chave de destino com cuidado.
+**Aviso no Step 2 (antes de gerar endereço):**
+> ⚠️ **Atenção:** Verifique a chave PIX com cuidado. Após o envio do DePix, a transferência não pode ser cancelada.
 
-**Modal de confirmação (ao clicar Confirmar):**
-```
-┌─────────────────────────────────────────────────┐
-│ ⚠️ Confirmar Transferência                      │
-├─────────────────────────────────────────────────┤
-│ Você está enviando:                             │
-│                                                 │
-│ R$ 1.000,00                                     │
-│ Para: email@exemplo.com (EMAIL)                 │
-│ Taxa: R$ 10,00                                  │
-│                                                 │
-│ [ ] Confirmo que a chave PIX está correta e    │
-│     entendo que não posso reverter esta        │
-│     transferência.                              │
-│                                                 │
-│ [Cancelar]              [Confirmar Envio]       │
-└─────────────────────────────────────────────────┘
-```
+**Aviso no Step 3 (ao exibir endereço):**
+> ⚠️ **Envie o valor EXATO** indicado. Valores diferentes podem causar falha no processamento.
 
 #### Botões/Ações
 
 | Elemento | Destino v1 |
 |----------|------------|
-| Confirmar e Enviar | ✅ Religação para Laravel |
-| Copiar valor | ✅ Funcional |
-| Copiar E2E | ✅ NOVO — adicionar |
+| Gerar endereço | ✅ `useCreateWithdrawal()` → cria saque e exibe endereço |
+| Copiar endereço Liquid | ✅ NOVO — copiar `depositAddress` |
+| Copiar valor total | ✅ Copiar `depositAmountInCents` formatado |
+| Copiar E2E | ✅ NOVO — copiar após conclusão |
 | Ver comprovante | ✅ NOVO — `receiptUrl` |
-| Novo PIX | ✅ Reset estado |
+| Novo saque | ✅ Reset estado |
 | Ver extrato | ✅ Link `/history` |
 | Voltar | ✅ Link `/dashboard` |
 | Atualizar | **REMOVER** — polling automático |
@@ -308,8 +300,9 @@ receive/page.tsx
 #### Oportunidades Incorporadas
 
 - **receiptUrl:** Link "Ver comprovante" quando disponível
-- **centralBankId (E2E):** Exibir com botão Copiar
+- **centralBankId (E2E):** Exibir com botão Copiar após conclusão
 - **receiverName:** Exibir na confirmação se retornado pela validação
+- **QR Code do endereço Liquid:** Gerar QR para facilitar envio via apps Liquid
 
 ---
 
@@ -873,15 +866,17 @@ Response 200:
 
 #### Escopo — Send
 
-1. Trocar `useCreatePix2DepixWithdraw` por `useCreateWithdrawal`
-2. Criar hook `useWithdrawal` para polling
-3. **Remover** etapa de "enviar DePix" — fluxo é saldo interno
-4. Implementar anatomia de steps verticais
-5. Adicionar avisos de perda irreversível (inline + modal com checkbox)
-6. Adicionar E2E ID copiável
+> **ERRATA (2026-08-06):** O fluxo de saque permanece inalterado (usuário envia DePix para endereço Liquid). A mudança é de orquestração: tela chama Laravel em vez de proxy direto.
+
+1. Trocar `useCreatePix2DepixWithdraw` por `useCreateWithdrawal` (via Laravel)
+2. Criar hook `useWithdrawal` para polling de status
+3. **Manter** etapa de "enviar DePix" — exibir endereço Liquid + QR Code
+4. Implementar anatomia de steps verticais com Step 3 (Enviar DePix)
+5. Adicionar avisos de atenção (verificar chave PIX, valor exato)
+6. Adicionar E2E ID copiável após conclusão
 7. Adicionar botão "Ver comprovante" com `receiptUrl`
 8. Usar `useEstimateFee` para taxa real
-9. Estados: loading, sucesso, erro
+9. Estados: loading (gerar endereço), aguardando envio, processando, sucesso, erro
 10. Remover botões decorativos: Atualizar
 
 #### Dependências
@@ -898,12 +893,13 @@ Response 200:
 - [ ] Status expirado tratado corretamente
 
 **Send:**
-- [ ] Saque criado via Laravel
-- [ ] Polling de status funciona
-- [ ] Modal de confirmação com checkbox obrigatório
-- [ ] E2E ID exibido e copiável quando disponível
+- [ ] Saque criado via Laravel (`useCreateWithdrawal`)
+- [ ] Endereço Liquid exibido com QR Code + botão Copiar
+- [ ] Valor total (com taxas) exibido com destaque
+- [ ] Polling de status funciona (`useWithdrawal`)
+- [ ] E2E ID exibido e copiável após conclusão
 - [ ] Comprovante abre quando disponível
-- [ ] Taxa calculada via endpoint
+- [ ] Taxa calculada via endpoint (`useEstimateFee`)
 
 ---
 
