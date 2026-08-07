@@ -17,19 +17,20 @@ from src.config.settings import settings
 
 
 # Configuração do engine baseada no tipo de banco
-is_sqlite = settings.database_url.startswith("sqlite")
+db_url = settings.async_database_url
+is_sqlite = db_url.startswith("sqlite")
 
 if is_sqlite:
     # SQLite - configuração simplificada
     engine = create_async_engine(
-        settings.database_url,
+        db_url,
         echo=settings.app_debug,
         connect_args={"check_same_thread": False},
     )
 else:
-    # PostgreSQL - configuração completa
+    # PostgreSQL - configuração completa (usa async_database_url para asyncpg)
     engine = create_async_engine(
-        settings.database_url,
+        db_url,
         echo=settings.app_debug,
         pool_pre_ping=True,
         pool_size=10,
