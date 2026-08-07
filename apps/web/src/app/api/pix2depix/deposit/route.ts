@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PIX2DEPIX_BASE_URL = process.env.NEXT_PUBLIC_PIX2DEPIX_API_URL || 'https://depix.eulen.app/api';
-const PIX2DEPIX_TOKEN = process.env.NEXT_PUBLIC_PIX2DEPIX_TOKEN || '';
+// Variáveis server-side (sem NEXT_PUBLIC_ = não expostas no browser)
+const PIX2DEPIX_BASE_URL = process.env.EULEN_API_URL || 'https://depix.eulen.app/api';
+const PIX2DEPIX_TOKEN = process.env.EULEN_API_TOKEN || '';
 
 export async function POST(request: NextRequest) {
   try {

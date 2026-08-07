@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const PIX2DEPIX_BASE_URL = process.env.NEXT_PUBLIC_PIX2DEPIX_API_URL || 'https://depix.eulen.app/api';
-const PIX2DEPIX_TOKEN = process.env.NEXT_PUBLIC_PIX2DEPIX_TOKEN || '';
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-const USE_BACKEND_LWK = process.env.NEXT_PUBLIC_USE_BACKEND_LWK === 'true';
-const BACKEND_API_KEY = process.env.LWK_MICROSERVICE_API_KEY || 'flyerx-internal-api-key-dev-2024';
+// Variáveis server-side (sem NEXT_PUBLIC_ = não expostas no browser)
+const PIX2DEPIX_BASE_URL = process.env.EULEN_API_URL || 'https://depix.eulen.app/api';
+const PIX2DEPIX_TOKEN = process.env.EULEN_API_TOKEN || '';
+const BACKEND_URL = process.env.LWK_SERVICE_URL || 'http://localhost:8000';
+const USE_BACKEND_LWK = process.env.USE_BACKEND_LWK === 'true';
+const BACKEND_API_KEY = process.env.INTERNAL_API_KEY || '';
 
 // Detectar tipo de chave PIX
 function detectPixKeyType(pixKey: string): string {
