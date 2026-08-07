@@ -6,29 +6,58 @@ Plataforma financeira digital (fintech) que oferece carteira digital em BRL com 
 
 ## Mapa do repositório
 
+```
+Flyerx/
+├── api/                          # Backend principal (Laravel)
+├── services/
+│   └── withdrawal-service/       # Microserviço de saques (Python)
+├── apps/
+│   ├── web/                      # Frontend web (Next.js)
+│   ├── admin/                    # Painel administrativo (Next.js)
+│   └── mobile/                   # App mobile (Expo)
+├── docs/                         # Documentação
+├── docker/                       # Infraestrutura Docker
+└── mockups/                      # Protótipos visuais
+```
+
 | Pasta | Stack | Propósito |
 |-------|-------|-----------|
-| `api/` | PHP 8.4, Laravel 12, PostgreSQL, Redis | **API principal** — toda lógica de negócio, autenticação, wallet, ledger, compliance. Arquitetura DDD/Clean Architecture. |
-| `flyerx-backend/` | Python 3.11+, FastAPI, SQLAlchemy | Microserviço LWK (Liquid Wallet Kit) — processa saques DePix→PIX. Chamado **somente pelo Laravel**, nunca pelo frontend. |
-| `flyerx-web/` | Next.js 16.3, React 19, Tailwind 4, shadcn, pnpm | Frontend web do cliente |
-| `flyerx-admin/` | Next.js 16.3, React 19, Tailwind 4, shadcn, recharts, pnpm | Painel administrativo |
-| `flyerx-mobile/` | Expo 57, React Native 0.86, NativeWind | App mobile (iOS/Android) |
+| `api/` | PHP 8.4, Laravel 12, PostgreSQL, Redis | **Backend principal** — autenticação, wallet, ledger, compliance. Arquitetura DDD/Clean Architecture. |
+| `services/withdrawal-service/` | Python 3.11+, FastAPI, SQLAlchemy, LWK | Microserviço de saques DePix→PIX. Chamado **somente pelo Laravel**, nunca pelo frontend. |
+| `apps/web/` | Next.js 15, React 19, Tailwind 4, shadcn, pnpm | Frontend web do cliente |
+| `apps/admin/` | Next.js 15, React 19, Tailwind 4, shadcn, recharts, pnpm | Painel administrativo |
+| `apps/mobile/` | Expo 57, React Native 0.86, NativeWind | App mobile (iOS/Android) |
 | `docker/` | Dockerfiles, nginx, PHP-FPM, PostgreSQL configs | Infraestrutura de containers |
 | `docs/` | Markdown | Documentação de arquitetura, planos, integração |
-| `mockups/` | HTML/CSS estáticos | Protótipos visuais das telas |
 
-> **Backend principal = `api/`** (Laravel). O `flyerx-backend/` é um microserviço auxiliar interno.
+> **Backend principal = `api/`** (Laravel). O `services/withdrawal-service/` é um microserviço auxiliar interno.
+
+## Arquitetura de segurança
+
+```
+Usuário → Cloudflare (Pages/Workers) → Railway (api/ + services/)
+                                              │
+                    ┌─────────────────────────┴─────────────────────────┐
+                    │                                                   │
+                    ▼                                                   ▼
+            Laravel (api/)                                    Python (withdrawal-service/)
+            - Token Eulen                                     - LWK Mnemonic
+            - Carteira Split                                  - Rede interna apenas
+            - Gateway único
+```
+
+**Segredos NUNCA no frontend.** Tokens e credenciais ficam apenas no Railway.
 
 ## Estado atual
 
-- **Backend (`api/` + `flyerx-backend/`)**: COMPLETO, FUNCIONAL e estável em uso. Não deve ser modificado.
-- **flyerx-web**: Em retrofit visual (design system Nocturne) — em andamento — documentos do retrofit em `docs/design/`.
-- **flyerx-admin**: Estrutura e páginas criadas no início do projeto, funcional mas DESATUALIZADO em relação ao padrão visual atual. Não passou pelo retrofit do design system Nocturne. Retrofit será feito depois do flyerx-web.
-- **flyerx-mobile**: Mesma situação — páginas criadas no início do projeto, não passou pelo retrofit visual. Será atualizado depois do flyerx-web e flyerx-admin.
+- **Backend (`api/` + `services/withdrawal-service/`)**: COMPLETO e FUNCIONAL. Modificar apenas quando necessário para integração.
+- **apps/web**: Retrofit visual COMPLETO (design system Nocturne). Em fase de integração.
+- **apps/admin**: Funcional mas DESATUALIZADO visualmente. Retrofit após apps/web.
+- **apps/mobile**: Estrutura criada, não passou pelo retrofit visual. Atualizar após apps/admin.
 
 ## Regras para qualquer sessão neste repositório
 
-1. **O backend está pronto.** NUNCA modificar arquivos de `api/` ou `flyerx-backend/` em tarefas de frontend. Se uma mudança de API parecer necessária, PARAR e perguntar ao usuário antes de qualquer alteração.
+1. **Backend com cuidado.** Modificações em `api/` ou `services/` devem ser discutidas antes. Para tarefas de frontend, o backend é considerado pronto.
 
 2. **Uma tarefa = uma aplicação.** Nunca misturar mudanças de duas aplicações (web, admin, mobile, backend) na mesma tarefa.
 
@@ -40,15 +69,15 @@ Plataforma financeira digital (fintech) que oferece carteira digital em BRL com 
 
 6. **Verificar antes de criar.** Antes de criar qualquer arquivo ou componente novo, verificar se já existe algo equivalente.
 
-7. **Respeitar CLAUDE.md locais.** `flyerx-web` possui (ou possuirá) um CLAUDE.md próprio com regras específicas do design system Nocturne. Sessões dentro de `flyerx-web` devem respeitar ambos os arquivos.
+7. **Respeitar CLAUDE.md locais.** `apps/web` possui CLAUDE.md próprio com regras específicas do design system Nocturne. Sessões dentro de `apps/web` devem respeitar ambos os arquivos.
 
 8. **Fontes de verdade documentais.** As únicas fontes de verdade são:
    - `docs/design/` — Design system Nocturne, decisões, templates
    - `docs/integracao/` — Catálogos dos backends (gerados a partir do código)
-   - `CONTINUIDADE.md` — Handoff entre sessões
-   - `CLAUDE.md` (raiz e flyerx-web) — Regras do repositório
+   - `docs/design/CONTINUIDADE.md` — Handoff entre sessões
+   - `CLAUDE.md` (raiz e apps/web) — Regras do repositório
 
-   Documentos em `docs/_arquivo/` estão **obsoletos** — nunca usar. Qualquer documento fora dessas fontes deve ser tratado com desconfiança e confirmado com o usuário antes de embasar decisões. A documentação atualizada dos backends são os catálogos em `docs/integracao/` (gerados a partir do código) — READMEs antigos de `api/` e `flyerx-backend/` não são fonte de verdade.
+   Documentos em `docs/_arquivo/` estão **obsoletos** — nunca usar.
 
 ## Comandos úteis
 
@@ -72,33 +101,48 @@ make shell
 
 # Rodar testes
 make test
-
-# Gerar documentação Swagger
-make docs
 ```
 
 A API fica disponível em `http://localhost:8000`.
 
-### flyerx-web
+### apps/web (frontend)
 
 ```bash
-cd flyerx-web
+cd apps/web
 pnpm install
 pnpm dev
 ```
 
-### flyerx-admin
+### apps/admin (painel)
 
 ```bash
-cd flyerx-admin
+cd apps/admin
 pnpm install
 pnpm dev
 ```
 
-### flyerx-mobile
+### apps/mobile (app)
 
 ```bash
-cd flyerx-mobile
+cd apps/mobile
 npm install
 npx expo start
 ```
+
+### services/withdrawal-service (microserviço)
+
+```bash
+cd services/withdrawal-service
+pip install -r requirements.txt
+uvicorn src.main:app --reload
+```
+
+## Deploy
+
+| Componente | Plataforma | URL |
+|------------|------------|-----|
+| `apps/web` | Cloudflare Pages | app.flyerx.com |
+| `api/` | Railway | (interno via Cloudflare Worker) |
+| `services/withdrawal-service` | Railway | (rede interna, sem URL pública) |
+
+**Cloudflare na frente para:** DDoS protection, WAF, Rate Limiting, CDN, SSL automático.

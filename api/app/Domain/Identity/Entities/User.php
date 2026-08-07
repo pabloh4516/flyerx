@@ -240,6 +240,15 @@ class User extends AggregateRoot
         return $this->metadata;
     }
 
+    /**
+     * Verifica se o usuário usa saque direto via Eulen (sem taxa de parceiro).
+     * Essa flag é configurada pelo admin para sellers especiais.
+     */
+    public function useDirectEulen(): bool
+    {
+        return ($this->metadata['use_direct_eulen'] ?? false) === true;
+    }
+
     public function getCreatedAt(): DateTimeImmutable
     {
         return $this->createdAt;

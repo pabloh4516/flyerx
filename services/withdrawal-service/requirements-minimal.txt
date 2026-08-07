@@ -1,0 +1,23 @@
+# Dependências mínimas para rodar sem Docker
+
+# FastAPI e servidor
+fastapi==0.115.6
+uvicorn==0.34.0
+
+# Banco de dados SQLite
+sqlalchemy==2.0.36
+aiosqlite==0.20.0
+
+# Validação
+pydantic==2.10.4
+pydantic-settings==2.7.0
+
+# HTTP client
+httpx==0.28.1
+
+# Autenticação JWT
+python-jose[cryptography]==3.3.0
+
+# Utilitários
+python-dotenv==1.0.1
+tenacity==9.0.0

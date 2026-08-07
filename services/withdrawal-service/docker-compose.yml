@@ -1,0 +1,120 @@
+version: '3.8'
+
+services:
+  # ===== API Backend =====
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://flyerx:flyerx@db:5432/flyerx
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./src:/app/src
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - flyerx-network
+
+  # ===== Worker de Processamento =====
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://flyerx:flyerx@db:5432/flyerx
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./src:/app/src
+    command: python -m src.workers.withdrawal_processor
+    networks:
+      - flyerx-network
+
+  # ===== Celery Worker (alternativo) =====
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://flyerx:flyerx@db:5432/flyerx
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./src:/app/src
+    command: celery -A src.workers.celery_app worker --loglevel=info
+    networks:
+      - flyerx-network
+    profiles:
+      - celery
+
+  # ===== PostgreSQL =====
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: flyerx
+      POSTGRES_PASSWORD: flyerx
+      POSTGRES_DB: flyerx
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flyerx -d flyerx"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flyerx-network
+
+  # ===== Redis =====
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - flyerx-network
+
+  # ===== Adminer (visualização do banco) =====
+  adminer:
+    image: adminer:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - flyerx-network
+    profiles:
+      - dev
+
+networks:
+  flyerx-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

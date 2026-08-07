@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-07 (sessão 16 — Arqueologia e Sincronização Documental)
+**Atualizado em:** 2026-08-07 (sessão 17 — Implementação flag useDirectEulen)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -32,6 +32,59 @@
   - [x] **Passo 2.5 COMPLETO** (arquitetura definitiva — intermediador não-custodial) — sessão 14
   - [x] **Passo 3 Grupo 1 COMPLETO** (history religado) — sessão 13
   - [⚠️] **Passo 3 Grupos 2-5 DIVERGENTES** — sessão 15 fez UI mas não integração; sessão 16 arqueologia revelou problemas críticos
+
+---
+
+## Sessão 17 (2026-08-07) — Implementação flag useDirectEulen
+
+### O que foi feito
+
+1. **Análise da arquitetura de saque Laravel vs Python**
+   - `WithdrawalService.php` usa `PaymentProviderFactory::default()` (EulenProvider direto)
+   - `LwkService.php` já existe e funciona para chamar o microserviço Python
+   - Interfaces incompatíveis: PaymentProviderInterface vs LwkServiceInterface
+
+2. **Flag `useDirectEulen` implementada no Laravel**
+   - Entidade `User.php`: método `useDirectEulen()` adicionado (lê de `metadata['use_direct_eulen']`)
+   - DTO `UserDTO.php`: campo `useDirectEulen` adicionado
+   - API `/v1/auth/me` agora retorna `use_direct_eulen` no JSON
+
+3. **Frontend já preparado**
+   - Tipo `User` em `types/index.ts` já tinha `useDirectEulen?: boolean` (linha 21)
+   - `send/page.tsx` já consome `user?.useDirectEulen` para escolher o fluxo correto
+
+### Arquivos modificados
+
+```
+api/app/Domain/Identity/Entities/User.php
+  └── +8 linhas: método useDirectEulen()
+
+api/app/Application/Identity/DTOs/UserDTO.php
+  └── +3 linhas: campo useDirectEulen no construtor, fromEntity, toArray
+```
+
+### Decisão arquitetural registrada
+
+| Cenário | Fluxo | Taxa de parceiro |
+|---------|-------|------------------|
+| Usuário normal (`useDirectEulen=false`) | Frontend → Proxy → Python/LWK → Eulen | ✅ SIM (retida no microserviço) |
+| Seller especial (`useDirectEulen=true`) | Frontend → Proxy → Eulen direto | ❌ NÃO (saque sem taxa) |
+
+**Como ativar para um usuário:** Admin define `metadata['use_direct_eulen'] = true` no registro do usuário (via SQL ou painel admin futuro).
+
+### Próximo passo
+
+O fluxo atual funciona assim:
+- Frontend chama proxies Next.js (`/api/pix2depix/*`)
+- Proxies chamam Eulen ou Python diretamente
+- Laravel não é usado para operações (apenas para auth/user)
+
+Para arquitetura completa (Frontend → Laravel → Provider), seria necessário:
+1. Modificar `WithdrawalService.php` para verificar `useDirectEulen` do usuário
+2. Rotear para `LwkService` (normal) ou `EulenProvider` (direto)
+3. Frontend chamar endpoints Laravel em vez de proxies
+
+Essa refatoração fica documentada como **melhoria futura** — o fluxo atual atende MVP.
 
 ---
 

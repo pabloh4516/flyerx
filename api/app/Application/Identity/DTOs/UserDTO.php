@@ -22,6 +22,7 @@ final readonly class UserDTO
         public int $kycLevel,
         public string $kycStatus,
         public bool $twoFactorEnabled,
+        public bool $useDirectEulen,
         public string $createdAt,
     ) {}
 
@@ -41,6 +42,7 @@ final readonly class UserDTO
             kycLevel: $user->getKycLevel(),
             kycStatus: $user->getKycStatus()->value,
             twoFactorEnabled: $user->isTwoFactorEnabled(),
+            useDirectEulen: $user->useDirectEulen(),
             createdAt: $user->getCreatedAt()->format('c'),
         );
     }
@@ -61,6 +63,7 @@ final readonly class UserDTO
             'kyc_level' => $this->kycLevel,
             'kyc_status' => $this->kycStatus,
             'two_factor_enabled' => $this->twoFactorEnabled,
+            'use_direct_eulen' => $this->useDirectEulen,
             'created_at' => $this->createdAt,
         ];
     }
