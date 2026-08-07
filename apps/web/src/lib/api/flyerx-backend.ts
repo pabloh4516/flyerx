@@ -3,23 +3,28 @@
  *
  * Este cliente comunica com o backend Python que processa saques
  * com cobrança de taxa de parceiro via LWK (Liquid Wallet Kit).
+ *
+ * IMPORTANTE: Todas as chamadas passam pelo proxy /api/backend/*
+ * que adiciona a INTERNAL_API_KEY server-side. A chave NUNCA
+ * é exposta ao browser.
  */
 
 import axios, { AxiosError } from 'axios';
 
-// URL do backend
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
-
-// Chave de API interna para comunicação com backend Python
-// Em produção, isso deve passar por um proxy no Next.js API Routes
-const INTERNAL_API_KEY = process.env.NEXT_PUBLIC_INTERNAL_API_KEY || 'flyerx-internal-api-key-dev-2024';
+/**
+ * URL do backend
+ *
+ * Em produção: usa /api/backend (proxy local que adiciona API Key)
+ * Em desenvolvimento: também usa proxy para consistência
+ */
+const BACKEND_URL = '/api/backend';
 
 // Cliente Axios configurado
+// NOTA: X-API-Key é adicionado pelo proxy server-side
 const backendApi = axios.create({
   baseURL: BACKEND_URL,
   headers: {
     'Content-Type': 'application/json',
-    'X-API-Key': INTERNAL_API_KEY, // Header de autenticação interna
   },
   timeout: 30000,
 });

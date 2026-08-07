@@ -253,6 +253,36 @@ GATEWAY_API_KEY=<mesma chave do Railway>
 
 ---
 
+---
+
+## Correção Adicional: API Key do Python
+
+### Problema
+
+O arquivo `flyerx-backend.ts` usava:
+```typescript
+const INTERNAL_API_KEY = process.env.NEXT_PUBLIC_INTERNAL_API_KEY || '...';
+```
+
+Isso expunha a API Key no browser.
+
+### Solução
+
+1. Criado proxy `/api/backend/[...path]` que adiciona `X-API-Key` server-side
+2. Modificado `flyerx-backend.ts` para usar `/api/backend` como URL base
+3. Removido `NEXT_PUBLIC_INTERNAL_API_KEY` do código
+
+### Arquitetura Final
+
+```
+Browser → /api/backend/* → Python (com X-API-Key) → OK
+Browser → /api/v1/*      → Laravel (com X-Gateway-Key) → OK
+```
+
+Nenhuma chave secreta é exposta ao browser.
+
+---
+
 ## Autor
 
 Implementação: Claude Opus 4.5
