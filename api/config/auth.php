@@ -67,4 +67,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Gateway Key (API Security)
+    |--------------------------------------------------------------------------
+    |
+    | Chave secreta que o frontend/gateway deve enviar em todas as requisições.
+    | Isso garante que apenas fontes autorizadas (Vercel, Cloudflare) possam
+    | acessar a API, mesmo que a URL do Railway seja descoberta.
+    |
+    */
+
+    'gateway_key' => env('GATEWAY_API_KEY'),
+
 ];

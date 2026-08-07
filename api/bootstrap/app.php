@@ -33,10 +33,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'wallet.active' => \App\Http\Middleware\EnsureWalletActive::class,
             '2fa.verified' => \App\Http\Middleware\EnsureTwoFactorVerified::class,
             'webhook.signature' => \App\Http\Middleware\ValidateWebhookSignature::class,
+            'gateway.key' => \App\Http\Middleware\ValidateGatewayKey::class,
         ]);
 
-        // Global middleware
+        // Global middleware (ordem importa!)
         $middleware->append([
+            \Illuminate\Http\Middleware\HandleCors::class,      // CORS primeiro
+            \App\Http\Middleware\ValidateGatewayKey::class,     // Gateway key
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\LogRequestResponse::class,
         ]);
