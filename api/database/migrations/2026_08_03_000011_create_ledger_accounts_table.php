@@ -44,12 +44,7 @@ return new class extends Migration
 
             $table->timestamps();
 
-            // Foreign keys
-            $table->foreign('parent_id')
-                ->references('id')
-                ->on('ledger_accounts')
-                ->onDelete('set null');
-
+            // Foreign key to wallets (external table)
             $table->foreign('wallet_id')
                 ->references('id')
                 ->on('wallets')
@@ -59,6 +54,14 @@ return new class extends Migration
             $table->index('type');
             $table->index('category');
             $table->index('wallet_id');
+        });
+
+        // Self-referencing FK must be added AFTER table creation (PostgreSQL requirement)
+        Schema::table('ledger_accounts', function (Blueprint $table) {
+            $table->foreign('parent_id')
+                ->references('id')
+                ->on('ledger_accounts')
+                ->onDelete('set null');
         });
     }
 
