@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+[build.nixpacks]
+aptPkgs = ["php8.3", "php8.3-pgsql", "php8.3-redis", "php8.3-mbstring", "php8.3-xml", "php8.3-curl", "php8.3-zip"]
+
+[deploy]
+startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
