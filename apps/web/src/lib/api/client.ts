@@ -11,11 +11,12 @@ let refreshToken: string | null = null;
 export const setTokens = (access: string, refresh: string) => {
   accessToken = access;
   refreshToken = refresh;
-  // Persistir refresh token em cookie httpOnly seria feito pelo backend
-  // Aqui salvamos em sessionStorage como fallback
   if (typeof window !== 'undefined') {
+    // Salvar em sessionStorage (para o client)
     sessionStorage.setItem('accessToken', access);
     sessionStorage.setItem('refreshToken', refresh);
+    // Salvar em cookie (para o middleware verificar)
+    document.cookie = `accessToken=${access}; path=/; max-age=86400; SameSite=Strict`;
   }
 };
 
@@ -41,6 +42,8 @@ export const clearTokens = () => {
   if (typeof window !== 'undefined') {
     sessionStorage.removeItem('accessToken');
     sessionStorage.removeItem('refreshToken');
+    // Limpar cookie
+    document.cookie = 'accessToken=; path=/; max-age=0';
   }
 };
 
@@ -144,9 +147,8 @@ export const generateIdempotencyKey = () => {
   return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 };
 
-// Sempre instalar mock para o client interno (auth, wallet, etc.)
-// O Pix2Depix tem seu próprio client que decide se usa mock ou API real
-if (typeof window !== 'undefined') {
+// Instalar mock SOMENTE se NEXT_PUBLIC_MOCK_API=true
+if (typeof window !== 'undefined' && isMockEnabled()) {
   installMockInterceptor(api);
 }
 

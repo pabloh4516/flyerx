@@ -66,7 +66,7 @@ export const loginSchema = z.object({
 
 export type LoginFormData = z.infer<typeof loginSchema>;
 
-// Schema de Registro
+// Schema de Registro (sem CPF - será pedido depois no KYC)
 export const registerSchema = z
   .object({
     name: z
@@ -82,10 +82,6 @@ export const registerSchema = z
       .regex(/[0-9]/, 'Senha deve conter pelo menos um número')
       .regex(/[^A-Za-z0-9]/, 'Senha deve conter pelo menos um caractere especial'),
     confirmPassword: z.string().min(1, 'Confirmação de senha é obrigatória'),
-    documentType: z.enum(['CPF', 'CNPJ'], {
-      message: 'Tipo de documento é obrigatório',
-    }),
-    document: z.string().min(1, 'Documento é obrigatório'),
     phone: z
       .string()
       .optional()
@@ -95,19 +91,7 @@ export const registerSchema = z
   .refine((data) => data.password === data.confirmPassword, {
     message: 'As senhas não coincidem',
     path: ['confirmPassword'],
-  })
-  .refine(
-    (data) => {
-      if (data.documentType === 'CPF') {
-        return cpfRegex.test(data.document) && isValidCPF(data.document);
-      }
-      return cnpjRegex.test(data.document) && isValidCNPJ(data.document);
-    },
-    {
-      message: 'Documento inválido',
-      path: ['document'],
-    }
-  );
+  });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;
 

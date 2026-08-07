@@ -11,8 +11,6 @@ export interface RegisterRequest {
   email: string;
   password: string;
   name: string;
-  document: string;
-  documentType: 'CPF' | 'CNPJ';
   phone?: string;
 }
 
