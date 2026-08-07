@@ -2,7 +2,28 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { ApiError } from '@/types';
 import { installMockInterceptor, isMockEnabled } from './mock-api';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+/**
+ * URL base da API
+ *
+ * Em produção: usa '/api' (proxy local que adiciona Gateway Key)
+ * Em desenvolvimento com mock: usa '/api' (interceptado pelo mock)
+ * Em desenvolvimento sem mock: usa NEXT_PUBLIC_API_URL direto (para debug)
+ */
+const API_BASE_URL = (() => {
+  // Se mock está habilitado, usar /api (será interceptado)
+  if (typeof window !== 'undefined' && isMockEnabled()) {
+    return '/api';
+  }
+
+  // Em produção, SEMPRE usar proxy local
+  if (process.env.NODE_ENV === 'production') {
+    return '/api';
+  }
+
+  // Em dev sem mock, pode usar Laravel direto (se quiser debug)
+  // Mas o padrão é usar proxy também
+  return process.env.NEXT_PUBLIC_API_URL || '/api';
+})();
 
 // Tokens em memória (mais seguro que localStorage)
 let accessToken: string | null = null;
