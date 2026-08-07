@@ -1,28 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { QRCodeSVG } from 'qrcode.react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import {
+  ArrowDownLeft,
+  HelpCircle,
+  Settings,
+  CreditCard,
   QrCode,
   Check,
   Clock,
+  Zap,
+  Shield,
   Copy,
   RefreshCw,
   ExternalLink,
   Home,
   Loader2,
-  Wallet,
-  AlertTriangle,
-  Plus,
 } from 'lucide-react';
 
-import { Button, Input, Container, Switch, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { AmountInput } from '@/components/ui/amount-input';
+import { Card } from '@/components/ui/card';
+import { Container } from '@/components/ui/container';
+import { StepsGuide } from '@/components/ui/steps-guide';
 import { Logo } from '@/components/ui/nocturne';
 
 import { useCreatePix2DepixDeposit, usePix2DepixDepositStatus, useInvalidateWalletData } from '@/hooks/use-queries';
@@ -56,6 +63,12 @@ interface DepositState {
 
 const QUICK_AMOUNTS = [50, 100, 200, 500];
 
+const steps = [
+  { id: 1, label: 'Valor', icon: CreditCard },
+  { id: 2, label: 'Pagar PIX', icon: QrCode },
+  { id: 3, label: 'Confirmado', icon: Check },
+];
+
 const formatDocument = (value: string) => {
   const digits = value.replace(/\D/g, '');
   if (digits.length <= 11) {
@@ -73,96 +86,15 @@ const formatDocument = (value: string) => {
     .replace(/(-\d{2})\d+?$/, '$1');
 };
 
-// Validação de CPF
-const isValidCPF = (cpf: string): boolean => {
-  const digits = cpf.replace(/\D/g, '');
-  if (digits.length !== 11 || /^(\d)\1+$/.test(digits)) return false;
-
-  let sum = 0;
-  for (let i = 0; i < 9; i++) sum += parseInt(digits[i]) * (10 - i);
-  let remainder = (sum * 10) % 11;
-  if (remainder === 10 || remainder === 11) remainder = 0;
-  if (remainder !== parseInt(digits[9])) return false;
-
-  sum = 0;
-  for (let i = 0; i < 10; i++) sum += parseInt(digits[i]) * (11 - i);
-  remainder = (sum * 10) % 11;
-  if (remainder === 10 || remainder === 11) remainder = 0;
-  return remainder === parseInt(digits[10]);
-};
-
-// Validação de CNPJ
-const isValidCNPJ = (cnpj: string): boolean => {
-  const digits = cnpj.replace(/\D/g, '');
-  if (digits.length !== 14 || /^(\d)\1+$/.test(digits)) return false;
-
-  const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-  const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
-
-  let sum = 0;
-  for (let i = 0; i < 12; i++) sum += parseInt(digits[i]) * weights1[i];
-  let remainder = sum % 11;
-  if (remainder < 2) remainder = 0; else remainder = 11 - remainder;
-  if (remainder !== parseInt(digits[12])) return false;
-
-  sum = 0;
-  for (let i = 0; i < 13; i++) sum += parseInt(digits[i]) * weights2[i];
-  remainder = sum % 11;
-  if (remainder < 2) remainder = 0; else remainder = 11 - remainder;
-  return remainder === parseInt(digits[13]);
-};
-
-// Valida CPF ou CNPJ
-const isValidDocument = (doc: string): boolean => {
-  const digits = doc.replace(/\D/g, '');
-  if (digits.length === 11) return isValidCPF(doc);
-  if (digits.length === 14) return isValidCNPJ(doc);
-  return false;
-};
-
 export default function SellerReceivePage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-  const { feeConfig, limits, wallets, getDefaultWallet, addWallet } = useFeesStore();
+  const { feeConfig, limits, getDefaultWallet } = useFeesStore();
 
   const [step, setStep] = useState(1);
   const [deposit, setDeposit] = useState<DepositState | null>(null);
   const [copied, setCopied] = useState(false);
-  const [timeLeft, setTimeLeft] = useState<number>(0);
-  const [passFeeToCustomer, setPassFeeToCustomer] = useState(false);
-  const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null);
-  const [showDocumentModal, setShowDocumentModal] = useState(false);
-  const [documentConfirmed, setDocumentConfirmed] = useState(false);
-  const [pendingDocument, setPendingDocument] = useState('');
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [newWalletLabel, setNewWalletLabel] = useState('');
-  const [newWalletAddress, setNewWalletAddress] = useState('');
-
-  // Carteira selecionada ou padrão
-  const selectedWallet = wallets.find(w => w.id === selectedWalletId) || getDefaultWallet();
-
-  // Countdown timer
-  useEffect(() => {
-    if (!deposit?.expiration) return;
-
-    const updateTimer = () => {
-      const now = Date.now();
-      const expiry = new Date(deposit.expiration).getTime();
-      const remaining = Math.max(0, Math.floor((expiry - now) / 1000));
-      setTimeLeft(remaining);
-    };
-
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [deposit?.expiration]);
-
-  const formatTimeLeft = (seconds: number) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   const invalidateWalletData = useInvalidateWalletData();
   const createDeposit = useCreatePix2DepixDeposit();
@@ -179,33 +111,14 @@ export default function SellerReceivePage() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amount: 0,
+      amount: 20,
       payerDocument: '',
     },
   });
 
-  const amount = watch('amount') || 0;
-  const payerDocument = watch('payerDocument') || '';
-  const isDocumentValid = isValidDocument(payerDocument);
-
-  // Cálculo de taxas
-  const fixedFee = feeConfig.deposit.eulenFixedFee + feeConfig.deposit.partnerFixedFee;
-  const percentRate = feeConfig.deposit.partnerPercentFee;
-
-  // Se repassar taxa: cliente paga mais, usuário recebe o valor cheio
-  // Se absorver taxa: cliente paga o valor digitado, usuário recebe menos
-  const { pixAmount, netAmount, totalFee } = passFeeToCustomer
-    ? {
-        // Fórmula: pixAmount = (amount + fixedFee) / (1 - percentRate)
-        pixAmount: amount > 0 ? (amount + fixedFee) / (1 - percentRate) : 0,
-        netAmount: amount,
-        totalFee: amount > 0 ? ((amount + fixedFee) / (1 - percentRate)) - amount : 0,
-      }
-    : {
-        pixAmount: amount,
-        netAmount: amount > (fixedFee + amount * percentRate) ? amount - fixedFee - amount * percentRate : 0,
-        totalFee: fixedFee + amount * percentRate,
-      };
+  const amount = watch('amount');
+  const fee = feeConfig.deposit.eulenFixedFee + feeConfig.deposit.partnerFixedFee;
+  const netAmount = amount > fee ? amount - fee : 0;
 
   // Update status from polling
   if (depositStatus && deposit) {
@@ -226,61 +139,6 @@ export default function SellerReceivePage() {
   const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatDocument(e.target.value);
     setValue('payerDocument', formatted, { shouldValidate: true });
-
-    // Se documento válido e ainda não confirmado, mostrar modal
-    if (isValidDocument(formatted) && !documentConfirmed) {
-      setPendingDocument(formatted);
-      setShowDocumentModal(true);
-    }
-
-    // Se documento mudou, resetar confirmação
-    if (documentConfirmed && formatted !== pendingDocument) {
-      setDocumentConfirmed(false);
-    }
-  };
-
-  const handleConfirmDocument = () => {
-    setDocumentConfirmed(true);
-    setShowDocumentModal(false);
-    toast.success('CPF/CNPJ confirmado!');
-  };
-
-  const handleCancelDocument = () => {
-    setShowDocumentModal(false);
-    setValue('payerDocument', '');
-    setPendingDocument('');
-  };
-
-  const handleAddWallet = () => {
-    if (!newWalletLabel.trim() || !newWalletAddress.trim()) {
-      toast.error('Preencha todos os campos');
-      return;
-    }
-
-    // Validação básica de endereço Liquid
-    if (!newWalletAddress.startsWith('lq1') && !newWalletAddress.startsWith('ex1')) {
-      toast.error('Endereço Liquid inválido');
-      return;
-    }
-
-    addWallet({
-      label: newWalletLabel.trim(),
-      address: newWalletAddress.trim(),
-      isDefault: wallets.length === 0,
-    });
-
-    toast.success('Carteira adicionada!');
-    setShowWalletModal(false);
-    setNewWalletLabel('');
-    setNewWalletAddress('');
-  };
-
-  const handleAmountFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Remove zero inicial quando foca no input
-    if (e.target.value === '0') {
-      e.target.value = '';
-      setValue('amount', 0);
-    }
   };
 
   const handleCopy = async () => {
@@ -296,34 +154,23 @@ export default function SellerReceivePage() {
   };
 
   const onSubmit = async (data: FormData) => {
-    if (!selectedWallet) {
+    if (!defaultWallet) {
       toast.error('Configure uma carteira primeiro');
       return;
     }
 
     try {
-      // Converte taxa percentual para formato da API (0.02 -> "2%")
-      const splitFeeFormatted = `${feeConfig.deposit.partnerPercentFee * 100}%`;
-
-      // Calcula o valor do PIX (considera se está repassando taxa)
-      const amountForPix = passFeeToCustomer
-        ? (data.amount + fixedFee) / (1 - percentRate)
-        : data.amount;
-
       const result = await createDeposit.mutateAsync({
-        amountReais: Math.round(amountForPix * 100) / 100, // Arredonda para 2 casas
+        amountReais: data.amount,
         endUserTaxNumber: data.payerDocument.replace(/\D/g, ''),
-        depixAddress: selectedWallet.address,
-        // Parâmetros de split para comissão do parceiro
-        depixSplitAddress: feeConfig.deposit.partnerDepixAddress,
-        splitFee: splitFeeFormatted,
+        depixAddress: defaultWallet.address,
       });
 
       setDeposit({
         id: result.id,
         qrCopyPaste: result.qrCopyPaste,
         qrImageUrl: result.qrImageUrl,
-        valueInCents: Math.round(amountForPix * 100),
+        valueInCents: Math.round(data.amount * 100),
         expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         status: 'pending',
       });
@@ -339,189 +186,180 @@ export default function SellerReceivePage() {
   const handleNewDeposit = () => {
     setDeposit(null);
     setStep(1);
-    setValue('amount', 0);
+    setValue('amount', 20);
     setValue('payerDocument', '');
   };
 
-  // Formatar taxa para exibição
-  const feeDisplay = `${(percentRate * 100).toFixed(0)}% + R$ ${fixedFee.toFixed(2).replace('.', ',')}`;
-
   return (
-    <Container size="lg" padded={false} className="p-6 flex flex-col gap-6 min-h-full">
-      {/* Step 1: Amount - CENTERED HERO LAYOUT */}
+    <Container size="lg" padded={false} className="p-7 flex flex-col gap-6 min-h-full">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="size-12 rounded-lg border border-accent-700 bg-gradient-to-br from-accent-900 to-transparent text-accent-300 flex items-center justify-center">
+          <ArrowDownLeft className="size-5" />
+        </div>
+        <div className="flex-1 flex flex-col gap-0.5">
+          <span className="text-xl font-medium">Receber PIX</span>
+          <span className="text-xs text-neutral-500">
+            Receba em DePix instantaneamente
+          </span>
+        </div>
+        <button className="size-9 rounded-md border border-border flex items-center justify-center text-neutral-400 hover:text-neutral-300 hover:border-neutral-700 transition-colors">
+          <HelpCircle className="size-4" />
+        </button>
+        <button className="size-9 rounded-md border border-border flex items-center justify-center text-neutral-400 hover:text-neutral-300 hover:border-neutral-700 transition-colors">
+          <Settings className="size-4" />
+        </button>
+      </div>
+
+      {/* Steps */}
+      <div className="flex items-center justify-center gap-0">
+        {steps.map((s, i) => (
+          <div key={s.id} className="flex items-center">
+            <span
+              className={cn(
+                'inline-flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-xs border transition-colors',
+                step === s.id
+                  ? 'border-accent bg-[color-mix(in_srgb,var(--color-accent)_12%,transparent)] text-accent-200 font-medium'
+                  : step > s.id
+                  ? 'border-accent-700 text-accent-300'
+                  : 'border-border text-neutral-500'
+              )}
+            >
+              {step > s.id ? (
+                <Check className="size-3.5" />
+              ) : (
+                <s.icon className="size-3.5" />
+              )}
+              {s.label}
+            </span>
+            {i < steps.length - 1 && (
+              <span
+                className={cn(
+                  'w-14 h-px',
+                  step > s.id
+                    ? 'bg-accent-700'
+                    : 'bg-border'
+                )}
+              />
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Step 1: Amount */}
       {step === 1 && (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col items-center gap-8">
-          {/* Header Card */}
-          <div className="w-full max-w-xl p-4 rounded-xl bg-surface border border-border">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="size-10 rounded-full bg-accent-900/30 border border-accent-700/50 flex items-center justify-center">
-                  <QrCode className="size-5 text-accent-300" />
-                </div>
-                <div>
-                  <h1 className="text-lg font-semibold">Receber PIX</h1>
-                  <p className="text-xs text-neutral-500">Gere um QR Code para receber</p>
-                </div>
+        <div className="grid grid-cols-[1fr_0.85fr] gap-11 items-start">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-md border border-border text-neutral-300 flex items-center justify-center">
+                <CreditCard className="size-4" />
               </div>
-              <div className="text-right">
-                <p className="text-xs text-neutral-500">Taxa</p>
-                <p className="text-sm font-medium text-primary">{feeDisplay}</p>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium">Valor do depósito</span>
+                <span className="text-xs text-neutral-600">
+                  Mín: R$ {limits.deposit.min.toFixed(2).replace('.', ',')} | Máx: R$ {limits.deposit.max.toLocaleString('pt-BR')}
+                </span>
               </div>
             </div>
-          </div>
 
-          {/* HERO: Amount display */}
-          <div className="flex flex-col items-center gap-4 py-6">
-            <span className="text-sm text-neutral-500">Você vai receber</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-neutral-500 text-2xl">R$</span>
-              <span className="text-6xl font-bold tabular-nums text-accent-200">
-                {netAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {/* Security notice */}
+            <div className="border border-amber-800 rounded-md p-3 flex gap-2.5 items-start bg-amber-900/30">
+              <Shield className="size-3.5 shrink-0 mt-0.5 text-amber-300" />
+              <span className="text-xs text-neutral-400 leading-relaxed">
+                Seu primeiro depósito é limitado a{' '}
+                <span className="text-white font-medium">R$ 20,00</span> por
+                segurança. A partir do segundo, o limite normal será aplicado.
               </span>
             </div>
-            {amount > 0 && (
-              <p className="text-sm text-neutral-600">
-                {passFeeToCustomer
-                  ? `Taxa de ${formatCurrency(totalFee)} (paga pelo pagador)`
-                  : `Taxa de ${formatCurrency(totalFee)}`
-                }
-              </p>
-            )}
-          </div>
 
-          {/* Amount input */}
-          <div className="w-full max-w-xl flex flex-col gap-1.5">
-            <label className="text-xs text-neutral-500 uppercase tracking-wide">Valor</label>
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-border focus-within:border-primary transition-colors">
-              <span className="text-neutral-500 text-lg">R$</span>
-              <input
-                type="number"
-                step={0.01}
-                min={limits.deposit.min}
-                max={limits.deposit.max}
-                placeholder="0,00"
-                className="flex-1 bg-transparent text-2xl font-semibold outline-none tabular-nums placeholder:text-neutral-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                {...register('amount', { valueAsNumber: true })}
-                onFocus={handleAmountFocus}
-              />
-            </div>
-            {errors.amount && (
-              <p className="text-xs text-destructive text-center">{errors.amount.message}</p>
-            )}
+            {/* Amount input */}
+            <AmountInput
+              label="Você deposita"
+              valueSize="lg"
+              step={0.01}
+              min={limits.deposit.min}
+              max={limits.deposit.max}
+              error={!!errors.amount}
+              errorMessage={errors.amount?.message}
+              {...register('amount', { valueAsNumber: true })}
+            />
 
-            {/* Quick amounts - pills */}
-            <div className="flex justify-center gap-2 flex-wrap">
+            {/* Quick amounts */}
+            <div className="flex gap-2">
               {QUICK_AMOUNTS.map((value) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() => setValue('amount', value, { shouldValidate: true })}
                   className={cn(
-                    'px-4 py-1.5 text-sm rounded-full transition-all',
-                    amount === value
-                      ? 'bg-accent-800 text-accent-200 font-medium'
-                      : 'bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-300'
+                    'tag whitespace-nowrap px-4 py-2 text-xs',
+                    amount === value ? 'tag-accent' : 'tag-outline'
                   )}
                 >
-                  {value}
+                  R$ {value.toLocaleString('pt-BR')},00
                 </button>
               ))}
             </div>
-          </div>
 
-          {/* CPF/CNPJ - inline */}
-          <div className="w-full max-w-xl flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-neutral-400">CPF/CNPJ do pagador</span>
-              {isDocumentValid && documentConfirmed && (
-                <span className="flex items-center gap-1 text-xs text-green-400">
-                  <Check className="size-3" />
-                  Confirmado
-                </span>
-              )}
-            </div>
-            <Input
-              type="text"
-              placeholder="000.000.000-00"
-              className={cn(
-                "text-center text-lg",
-                documentConfirmed && "border-green-600"
-              )}
-              {...register('payerDocument')}
-              onChange={handleDocumentChange}
-            />
-            {!documentConfirmed && (
-              <div className="flex items-center gap-2 justify-center text-xs text-amber-400">
-                <AlertTriangle className="size-3" />
-                <span>A conta PIX precisa ser do mesmo CPF/CNPJ</span>
-              </div>
-            )}
-            {errors.payerDocument && (
-              <p className="text-xs text-destructive text-center">{errors.payerDocument.message}</p>
-            )}
-          </div>
-
-          {/* Options row */}
-          <div className="w-full max-w-xl flex items-center justify-between gap-4 py-3 border-y border-border">
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={passFeeToCustomer}
-                onChange={(e) => setPassFeeToCustomer(e.target.checked)}
+            {/* Payer document */}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] text-neutral-500 uppercase tracking-wider">
+                CPF/CNPJ de quem vai pagar
+              </span>
+              <Input
+                type="text"
+                placeholder="000.000.000-00 ou 00.000.000/0000-00"
+                {...register('payerDocument')}
+                onChange={handleDocumentChange}
               />
-              <span className="text-sm text-neutral-400">Repassar taxa ao pagador</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Wallet className="size-4 text-neutral-500" />
-              {wallets.length === 0 ? (
-                <button
-                  type="button"
-                  onClick={() => setShowWalletModal(true)}
-                  className="text-sm text-accent-400 hover:underline"
-                >
-                  Adicionar carteira
-                </button>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={selectedWallet?.id ?? ''}
-                    onValueChange={(value) => setSelectedWalletId(value)}
-                  >
-                    <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto text-sm text-neutral-300 gap-1">
-                      <SelectValue>{selectedWallet?.label}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      {wallets.map((wallet) => (
-                        <SelectItem key={wallet.id} value={wallet.id}>
-                          {wallet.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <button
-                    type="button"
-                    onClick={() => setShowWalletModal(true)}
-                    className="size-6 rounded-md bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-neutral-400 hover:text-neutral-200 transition-colors"
-                  >
-                    <Plus className="size-3.5" />
-                  </button>
-                </div>
+              <span className="text-xs text-neutral-600 leading-relaxed">
+                O provedor exige o CPF/CNPJ do pagador para gerar o QR. Informe os
+                dados de quem fará o PIX.
+              </span>
+              {errors.payerDocument && (
+                <p className="text-xs text-destructive">{errors.payerDocument.message}</p>
               )}
             </div>
-          </div>
 
-          {/* CTA */}
-          <Button
-            type="submit"
-            variant="solid"
-            size="lg"
-            className="w-full max-w-xl"
-            disabled={createDeposit.isPending || !selectedWallet || !amount || !documentConfirmed}
-          >
-            {createDeposit.isPending && <Loader2 className="size-4 animate-spin" />}
-            <QrCode className="size-4" />
-            Gerar QR Code
-          </Button>
-        </form>
+            {/* Net amount preview */}
+            <div className="border border-transparent rounded-lg bg-[linear-gradient(color-mix(in_srgb,var(--color-section)_60%,var(--color-bg)),color-mix(in_srgb,var(--color-section)_60%,var(--color-bg)))_padding-box,linear-gradient(120deg,var(--color-accent-600),var(--color-accent-900))_border-box] p-4 flex flex-col gap-1">
+              <span className="text-[10px] text-accent-300 uppercase tracking-wider flex items-center gap-2">
+                <Zap className="size-3" />
+                Você recebe em DePix
+              </span>
+              <span className="text-2xl font-medium tabular-nums">
+                {formatCurrency(netAmount)}
+              </span>
+              <span className="text-xs text-neutral-500">
+                Taxa fixa − {formatCurrency(fee)}
+              </span>
+            </div>
+
+            <Button
+              type="submit"
+              variant="solid"
+              size="lg"
+              fullWidth
+              disabled={createDeposit.isPending || !defaultWallet}
+            >
+              {createDeposit.isPending && <Loader2 className="size-4 animate-spin" />}
+              <QrCode className="size-4" />
+              Gerar QR Code PIX
+            </Button>
+          </form>
+
+          {/* How it works */}
+          <StepsGuide
+            headerIcon={Zap}
+            title="Como funciona"
+            subtitle="Passo a passo simples"
+            steps={[
+              { icon: CreditCard, title: 'Digite o valor', description: 'Informe quanto deseja depositar em Reais' },
+              { icon: QrCode, title: 'Pague o PIX', description: 'Use seu app do banco para escanear ou colar' },
+              { icon: Check, title: 'Receba em DePix', description: 'Creditado automaticamente na sua carteira' },
+            ]}
+          />
+        </div>
       )}
 
       {/* Step 2: QR Code */}
@@ -537,7 +375,7 @@ export default function SellerReceivePage() {
                 Aguardando pagamento
               </span>
               <span className="text-xs text-neutral-500">
-                Expira em <span className="text-white font-medium tabular-nums">{formatTimeLeft(timeLeft)}</span>
+                Expira em <span className="text-white font-medium tabular-nums">24:00:00</span>
               </span>
             </div>
             <Button variant="secondary" size="sm" className="gap-2" onClick={() => {}}>
@@ -565,16 +403,11 @@ export default function SellerReceivePage() {
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-4 shadow-md">
-                {deposit.qrCopyPaste ? (
-                  <QRCodeSVG
-                    value={deposit.qrCopyPaste}
-                    size={210}
-                    level="M"
-                    marginSize={0}
-                  />
+              <div className="bg-neutral-100 rounded-lg p-5 shadow-md">
+                {deposit.qrImageUrl ? (
+                  <img src={deposit.qrImageUrl} alt="QR Code PIX" className="w-[210px] h-[210px]" />
                 ) : (
-                  <div className="w-[210px] h-[210px] flex items-center justify-center bg-neutral-100 rounded">
+                  <div className="w-[210px] h-[210px] flex items-center justify-center">
                     <Logo size="lg" className="opacity-50" />
                   </div>
                 )}
@@ -584,11 +417,11 @@ export default function SellerReceivePage() {
               <div className="flex gap-2.5 justify-center">
                 <div className="border border-border rounded-md px-4 py-2.5 flex flex-col gap-0.5 items-center">
                   <span className="text-[10px] text-neutral-600 uppercase tracking-wider">Bruto</span>
-                  <span className="text-sm font-medium tabular-nums">{formatCurrency(pixAmount)}</span>
+                  <span className="text-sm font-medium tabular-nums">{formatCurrency(amount)}</span>
                 </div>
                 <div className="border border-border rounded-md px-4 py-2.5 flex flex-col gap-0.5 items-center">
                   <span className="text-[10px] text-neutral-600 uppercase tracking-wider">Taxa</span>
-                  <span className="text-sm font-medium text-neutral-400 tabular-nums">− {formatCurrency(totalFee)}</span>
+                  <span className="text-sm font-medium text-neutral-400 tabular-nums">− {formatCurrency(fee)}</span>
                 </div>
                 <div className="border border-accent rounded-md px-4 py-2.5 flex flex-col gap-0.5 items-center bg-[color-mix(in_srgb,var(--color-accent)_10%,transparent)]">
                   <span className="text-[10px] text-accent-300 uppercase tracking-wider">Líquido</span>
@@ -686,110 +519,6 @@ export default function SellerReceivePage() {
           </Link>
         </div>
       </div>
-
-      {/* Modal de confirmação CPF/CNPJ */}
-      {showDocumentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-          {/* Overlay mais leve */}
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-            onClick={handleCancelDocument}
-          />
-
-          {/* Modal */}
-          <div className="relative w-full max-w-md rounded-2xl bg-surface border border-border shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200">
-            {/* Header com ícone */}
-            <div className="flex flex-col items-center pt-8 pb-4 px-6">
-              <div className="size-14 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mb-4">
-                <AlertTriangle className="size-7 text-amber-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-center">Confirme o documento</h2>
-            </div>
-
-            {/* Content */}
-            <div className="px-6 pb-6">
-              {/* Documento */}
-              <div className="text-center py-4 mb-4 rounded-xl bg-neutral-800/50 border border-neutral-700">
-                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">CPF/CNPJ informado</p>
-                <p className="text-2xl font-mono font-semibold tracking-wide">{pendingDocument}</p>
-              </div>
-
-              {/* Aviso */}
-              <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
-                <p className="text-sm text-center text-neutral-300 leading-relaxed">
-                  O pagamento <strong className="text-amber-300">precisa vir de uma conta PIX</strong> com este mesmo CPF/CNPJ.
-                  Caso contrário, o valor será devolvido.
-                </p>
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="flex gap-3 p-4 border-t border-border">
-              <Button variant="ghost" className="flex-1" onClick={handleCancelDocument}>
-                Corrigir
-              </Button>
-              <Button variant="solid" className="flex-1" onClick={handleConfirmDocument}>
-                <Check className="size-4" />
-                Confirmar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de nova carteira */}
-      {showWalletModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-          <div
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
-            onClick={() => setShowWalletModal(false)}
-          />
-
-          <div className="relative w-full max-w-md rounded-2xl bg-surface border border-border shadow-2xl animate-in fade-in-0 zoom-in-95 duration-200">
-            <div className="flex flex-col items-center pt-8 pb-4 px-6">
-              <div className="size-14 rounded-full bg-accent-500/10 border border-accent-500/30 flex items-center justify-center mb-4">
-                <Wallet className="size-7 text-accent-400" />
-              </div>
-              <h2 className="text-xl font-semibold text-center">Nova carteira</h2>
-              <p className="text-sm text-neutral-500 mt-1">Adicione um endereço Liquid/DePix</p>
-            </div>
-
-            <div className="px-6 pb-6 flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-500 uppercase tracking-wide">Nome</label>
-                <Input
-                  type="text"
-                  placeholder="Ex: Minha carteira principal"
-                  value={newWalletLabel}
-                  onChange={(e) => setNewWalletLabel(e.target.value)}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-neutral-500 uppercase tracking-wide">Endereço Liquid</label>
-                <Input
-                  type="text"
-                  placeholder="lq1..."
-                  className="font-mono text-sm"
-                  value={newWalletAddress}
-                  onChange={(e) => setNewWalletAddress(e.target.value)}
-                />
-                <p className="text-xs text-neutral-600">Começa com lq1 ou ex1</p>
-              </div>
-            </div>
-
-            <div className="flex gap-3 p-4 border-t border-border">
-              <Button variant="ghost" className="flex-1" onClick={() => setShowWalletModal(false)}>
-                Cancelar
-              </Button>
-              <Button variant="solid" className="flex-1" onClick={handleAddWallet}>
-                <Plus className="size-4" />
-                Adicionar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </Container>
   );
 }

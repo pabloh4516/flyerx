@@ -1009,13 +1009,59 @@ Antes de abrir para usuários:
 
 ---
 
+## I. Estado Real vs. Planejado (Arqueologia 2026-08-07)
+
+> **NOTA:** Esta seção foi adicionada após verificação do código real. O planejado acima permanece como **meta**, esta seção documenta o **estado atual**.
+
+### I.1 Discrepâncias Críticas
+
+| Item Planejado | Estado Real | Gap |
+|----------------|-------------|-----|
+| Depósito via Laravel com split | Depósito via Eulen direto SEM split | 🔴 Taxa Flyerx não cobrada |
+| Carteira no backend | Carteira em localStorage | 🔴 Perda de dados ao trocar device |
+| Saque via Laravel → Python | Saque via Python direto | 🟡 Funciona mas sem auditoria |
+| Ledger registra operações | Nada registrado no ledger | 🔴 History vazio |
+| Credenciais server-side | Tokens em NEXT_PUBLIC | 🔴 Exposição de credenciais |
+
+### I.2 O Que Funciona
+
+- ✅ History religado à API Laravel (sessão 13)
+- ✅ UI de receive/send redesenhada (sessão 15)
+- ✅ Saque cobra taxa de parceiro via Python/LWK
+- ✅ Limite diário consultado do Python
+- ✅ Polling de status funciona
+
+### I.3 Fila Recalculada
+
+A fila original (seção F) permanece como **meta**. O progresso real é:
+
+| Grupo Original | Status Real | Próxima Ação |
+|----------------|-------------|--------------|
+| 1. Carteira | ❌ Não iniciado | **BLOQUEADOR** — criar endpoints no Laravel |
+| 2. Depósito | ❌ Não iniciado | Aguarda Carteira |
+| 3. Saque | ⚠️ Parcial (usa Python direto) | Rotear via Laravel |
+| 4. Pipeline | ❌ Não iniciado | Aguarda 2 e 3 |
+| 5. Polish | ❌ Bloqueado | Aguarda 4 |
+
+### I.4 Riscos Imediatos
+
+| Risco | Impacto | Mitigação Sugerida |
+|-------|---------|-------------------|
+| Taxa não cobrada em depósitos | Receita zero | Priorizar split no receive |
+| Tokens expostos | Segurança comprometida | Mover para API routes server-only |
+| History vazio | UX quebrada | Acelerar pipeline de registro |
+
+---
+
 ## Changelog
 
 | Data | Autor | Descrição |
 |------|-------|-----------|
 | 2026-08-06 | Claude | Documento inicial — Passo 2 Fase 6 |
 | 2026-08-06 | Claude | **Passo 2.5** — Correção arquitetural: modelo não-custodial, spec send com 9 status Python, spec receive com split, pipeline de registro, pré-go-live consolidado |
+| 2026-08-07 | Claude | **Seção I** — Arqueologia: estado real vs. planejado, discrepâncias críticas, fila recalculada |
 
 ---
 
 *Documento gerado como parte do Passo 2.5 da Fase 6 — Arquitetura Definitiva de Integração.*
+*Atualizado em 2026-08-07 com seção I (Arqueologia).*

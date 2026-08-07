@@ -1,6 +1,6 @@
 # CONTINUIDADE — Retrofit Visual Flyerx Web
 
-**Atualizado em:** 2026-08-06 (sessão 14 — Fase 6, Passo 2.5 COMPLETO — Arquitetura Definitiva)
+**Atualizado em:** 2026-08-07 (sessão 16 — Arqueologia e Sincronização Documental)
 **Regra:** Este documento é atualizado ao FIM de cada sessão de trabalho e ao fechar cada grupo/fase. Qualquer sessão ou conversa nova começa lendo: este arquivo → CLAUDE.md (raiz e flyerx-web) → 01-decisoes.md.
 
 ---
@@ -24,13 +24,185 @@
   - [x] Regra de imports atualizada (ambos formatos válidos)
   - [x] Documentação corrigida (CLAUDE.md, 06-qa-final.md)
   - [x] **RETROFIT VISUAL COMPLETO**
-- [ ] Fase 6 — Integração & Conteúdo — **EM ANDAMENTO**:
+- [ ] Fase 6 — Integração & Conteúdo — **EM ANDAMENTO (BLOQUEADO)**:
   - [x] **Passo 0 CONCLUÍDO** (higiene documental) — sessão 8
   - [x] **Passo 1a COMPLETO** (3 catálogos + documentação Eulen versionada) — sessões 9-10
   - [x] **Passo 1b COMPLETO** (inventário de dados das telas) — sessão 11
   - [x] **Passo 2 COMPLETO** (decisões de integração) — sessão 12
   - [x] **Passo 2.5 COMPLETO** (arquitetura definitiva — intermediador não-custodial) — sessão 14
   - [x] **Passo 3 Grupo 1 COMPLETO** (history religado) — sessão 13
+  - [⚠️] **Passo 3 Grupos 2-5 DIVERGENTES** — sessão 15 fez UI mas não integração; sessão 16 arqueologia revelou problemas críticos
+
+---
+
+## Sessão 16 (2026-08-07) — Arqueologia e Sincronização Documental
+
+### O que foi feito
+
+1. **Análise do código real vs. documentação planejada**
+   - Git log analisado: commits `158ff7c` (layout hero) e `7245544` (arquitetura definitiva)
+   - receive/page.tsx e send/page.tsx lidos completamente
+   - Hooks e endpoints usados mapeados
+
+2. **5 Pontos Críticos Verificados**
+
+| # | Pergunta | Resposta | Status |
+|---|----------|----------|--------|
+| 1 | Depósito usa split (depixAddress + splitFee)? | ❌ NÃO — taxa Flyerx não é cobrada | 🔴 |
+| 2 | Carteira vem do backend? | ❌ NÃO — localStorage via Zustand | 🔴 |
+| 3 | Saque usa Python/LWK com status reais? | ✅ SIM — mas pula Laravel | 🟡 |
+| 4 | Operações registradas no ledger? | ❌ NÃO — history vazio | 🔴 |
+| 5 | Credenciais protegidas server-side? | ❌ NÃO — NEXT_PUBLIC expõe tokens | 🔴 |
+
+3. **Discrepâncias Críticas Documentadas**
+
+| Item Planejado | Estado Real | Gap |
+|----------------|-------------|-----|
+| Depósito via Laravel com split | Depósito via Eulen direto SEM split | 🔴 Receita zero |
+| Carteira no backend | Carteira em localStorage | 🔴 Perda de dados |
+| Saque via Laravel → Python | Saque via Python direto | 🟡 Sem auditoria |
+| Ledger registra operações | Nada registrado | 🔴 History vazio |
+| Credenciais server-side | Tokens em NEXT_PUBLIC | 🔴 Exposição |
+
+4. **Documentos Atualizados**
+   - `docs/integracao/03-execucao.md`: Seção "Arqueologia das Integrações Receive/Send" adicionada
+   - `docs/integracao/02-decisoes-integracao.md`: Seção I "Estado Real vs. Planejado" adicionada
+   - `docs/design/CONTINUIDADE.md`: Este registro
+
+### Arquivos NÃO modificados (somente leitura)
+
+Esta sessão foi SOMENTE documental. Nenhum código foi alterado.
+
+### Fila Recalculada
+
+O progresso real é diferente do planejado:
+
+| Grupo Original | Status Planejado | Status Real | Próxima Ação |
+|----------------|------------------|-------------|--------------|
+| 1. History | Religação | ✅ CONCLUÍDO | — |
+| 2. Carteira | Backend+tela | ❌ NÃO INICIADO | **BLOQUEADOR** — criar endpoints no Laravel |
+| 3. Depósito | Split+receive | ❌ NÃO INICIADO | Aguarda Carteira |
+| 4. Saque | Laravel→Python | ⚠️ PARCIAL | Rotear via Laravel |
+| 5. Pipeline | Ledger | ❌ NÃO INICIADO | Aguarda 3 e 4 |
+| 6. Polish | Dashboard+Settings | ❌ BLOQUEADO | Aguarda 5 |
+
+### Riscos Imediatos
+
+| Risco | Impacto | Mitigação Sugerida |
+|-------|---------|-------------------|
+| Taxa não cobrada em depósitos | Receita zero | Priorizar split no receive |
+| Tokens expostos | Segurança comprometida | Mover para API routes server-only |
+| History vazio | UX quebrada | Acelerar pipeline de registro |
+
+### Próximo passo
+
+**DECISÃO NECESSÁRIA:** A próxima sessão deve resolver o BLOQUEADOR:
+
+1. **Opção A (Backend-first):** Criar endpoints `/v1/wallet/liquid-address` no Laravel
+   - Permite integração completa conforme arquitetura
+   - Requer modificar `api/` (contraria regra de backend intocável?)
+
+2. **Opção B (Workaround frontend):** Adicionar split no proxy Next.js
+   - Mantém backend intocável
+   - Taxa Flyerx passa a ser cobrada
+   - Carteira permanece em localStorage (risco de perda)
+
+3. **Opção C (Aceitar estado atual para v1):**
+   - Documentar como limitação conhecida
+   - Taxa de depósito = 0% (sem receita)
+   - History fica vazio para operações reais
+   - Corrigir pós-v1
+
+---
+
+## Sessão 15 (2026-08-06) — Melhorias UI Receive/Send + TransactionReceipt
+
+### O que foi feito
+
+1. **Header minimalista nas páginas receive/send**
+   - Removido card wrapper do header
+   - Taxa movida para subtítulo: "Taxa 2% + R$ 0,99"
+   - Layout mais limpo e direto
+
+2. **Barra de limite diário sempre visível**
+   - Exibe "R$ usado / R$ 5.000" por CPF/CNPJ
+   - Usa hook `useDailyLimit(taxNumber)` para consultar backend
+   - Mostra R$ 5.000 como default quando sem dados
+   - Alerta vermelho quando valor excede limite disponível
+   - Botão desabilitado quando limite esgotado
+
+3. **Modal de confirmação de CPF melhorado**
+   - Abre automaticamente quando CPF/CNPJ completo (11 ou 14 dígitos)
+   - Design com header, documento destacado, e aviso de responsabilidade
+   - Botões "Corrigir" e "Está correto"
+   - Indicador visual de CPF confirmado no formulário
+
+4. **Correção da fórmula de taxas (BUG CRÍTICO)**
+   - **Antes:** Taxa calculada sobre o valor do PIX (incorreto)
+   - **Depois:** Taxa calculada sobre o valor original
+   - Exemplo: R$ 100 + 2% + R$ 0,99 = R$ 102,99 (não R$ 103,05)
+   - Arquivo: `src/types/fees.ts` função `calculateDepositFee`
+
+5. **Correção do valor enviado à API**
+   - Quando `passToCustomer=true`, agora envia `amountToCharge` (valor com taxa)
+   - **Antes:** Sempre enviava `data.amount` (valor base)
+   - **Depois:** `const pixAmount = passToCustomer ? amountToCharge : data.amount`
+
+6. **Steps 2 e 3 melhorados**
+   - Step 2 (Pagar PIX): ID da transação visível na barra de status
+   - Step 3 (Confirmado): ID copiável, botão de comprovante, layout aprimorado
+
+7. **Componente TransactionReceipt criado**
+   - Novo arquivo: `src/components/ui/transaction-receipt.tsx`
+   - Props: type (deposit/withdraw), status, id, valores, taxas, documento, carteira, TX blockchain
+   - Status suportados: pending, processing, completed, failed, expired
+   - Funcionalidades: Copiar ID, Baixar comprovante (PNG via html2canvas)
+   - Exportado via `src/components/ui/index.ts`
+   - Adicionado ao Design System (`/design-system`)
+
+8. **Dependência html2canvas instalada**
+   - Usado para gerar imagem PNG do comprovante
+
+### Arquivos modificados
+
+```
+flyerx-web/src/
+├── components/ui/
+│   ├── transaction-receipt.tsx  # NOVO
+│   └── index.ts                 # Export adicionado
+├── types/
+│   └── fees.ts                  # Fórmula corrigida
+├── app/
+│   ├── (main)/receive/page.tsx  # Redesenhado
+│   ├── (main)/send/page.tsx     # Redesenhado
+│   └── design-system/page.tsx   # TransactionReceipt showcase
+└── package.json                 # html2canvas adicionado
+```
+
+### Bugs corrigidos
+
+| Bug | Causa | Correção |
+|-----|-------|----------|
+| Taxa R$ 103,05 em vez de R$ 102,99 | Fórmula inversa complexa | Taxa sobre valor original |
+| Paguei R$ 10 mesmo com "repassar taxa" | API recebia `data.amount` | API recebe `amountToCharge` |
+| `watch` before initialization | Hook antes de `useForm` | Movido para após `useForm` |
+| Modal usando variáveis inexistentes | `pendingFormData` não existia | Usar `watch('payerDocument')` |
+
+### Pendências identificadas (para próxima sessão)
+
+| Pendência | Descrição | Solução proposta |
+|-----------|-----------|------------------|
+| DailyDepositLimit não existe | Só temos `DailyWithdrawLimit` no backend | Criar modelo no backend Python |
+| Depósitos não são salvos | Vão direto para Eulen, sem persistência | Criar modelo `Deposit` no backend |
+| Comprovante PDF | Apenas PNG funciona | Implementar com jspdf |
+| Limite não atualiza após pagamento | `useDailyLimit` consulta saques, não depósitos | Criar endpoint de limite de depósitos |
+
+### Próximo passo
+
+**Testar fluxo de saque (send) end-to-end:**
+- Verificar se UI está consistente com receive
+- Testar criação de saque via backend Python
+- Validar status e comprovante
 
 ---
 
