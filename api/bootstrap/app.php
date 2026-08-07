@@ -38,7 +38,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Global middleware (ordem importa!)
         $middleware->append([
-            \Illuminate\Http\Middleware\HandleCors::class,      // CORS primeiro
+            // HandleCors temporariamente removido para debug
             \App\Http\Middleware\ValidateGatewayKey::class,     // Gateway key
             \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\LogRequestResponse::class,
