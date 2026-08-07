@@ -44,7 +44,9 @@ next-env.d.ts
 api/vendor/
 api/storage/*.key
 api/storage/logs/*
+!api/storage/logs/.gitkeep
 api/bootstrap/cache/*
+!api/bootstrap/cache/.gitkeep
 api/.phpunit.result.cache
 
 # ─────────────────────────────────────────────────────────────────────────────

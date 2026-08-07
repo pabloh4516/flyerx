@@ -3,9 +3,10 @@ builder = "nixpacks"
 
 [build.nixpacks]
 aptPkgs = ["php8.3", "php8.3-pgsql", "php8.3-redis", "php8.3-mbstring", "php8.3-xml", "php8.3-curl", "php8.3-zip"]
+setupPhase = ["mkdir -p bootstrap/cache storage/framework/cache storage/framework/sessions storage/framework/views storage/logs", "chmod -R 775 bootstrap/cache storage"]
 
 [deploy]
-startCommand = "php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
+startCommand = "php artisan config:cache && php artisan route:cache && php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT"
 healthcheckPath = "/api/health"
 healthcheckTimeout = 300
 restartPolicyType = "on_failure"
