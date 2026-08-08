@@ -10,7 +10,7 @@ final readonly class RegisterUserDTO
         public string $email,
         public string $password,
         public string $fullName,
-        public string $taxNumber,
+        public ?string $taxNumber = null,
         public ?string $phone = null,
         public ?string $birthDate = null,
     ) {}
@@ -21,7 +21,7 @@ final readonly class RegisterUserDTO
             email: $data['email'],
             password: $data['password'],
             fullName: $data['full_name'],
-            taxNumber: $data['tax_number'],
+            taxNumber: $data['tax_number'] ?? null,
             phone: $data['phone'] ?? null,
             birthDate: $data['birth_date'] ?? null,
         );

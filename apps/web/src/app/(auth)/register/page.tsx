@@ -58,7 +58,7 @@ export default function RegisterPage() {
       await apiRegister({
         email: data.email,
         password: data.password,
-        name: data.name,
+        full_name: data.name,
         phone: data.phone?.replace(/\D/g, ''),
       });
 

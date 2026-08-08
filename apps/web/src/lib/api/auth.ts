@@ -10,7 +10,7 @@ import type {
 export interface RegisterRequest {
   email: string;
   password: string;
-  name: string;
+  full_name: string;
   phone?: string;
 }
 

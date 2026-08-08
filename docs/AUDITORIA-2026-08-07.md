@@ -410,4 +410,78 @@ GATEWAY_API_KEY=<mesma chave do Railway>
 
 ---
 
-*Documento gerado em 2026-08-07. Atualizado após commit 3173d48.*
+## 16. Correção do Registro Simplificado (Sessão 2)
+
+**Status:** ✅ IMPLEMENTADO
+
+### Problema Identificado
+
+Ao tentar criar usuário, erro 422 (Unprocessable Content):
+- Frontend enviava `name`, backend esperava `full_name`
+- Backend exigia `tax_number` (CPF/CNPJ), `password_confirmation`, `accept_terms`
+- Páginas `/terms` e `/privacy` não existiam (404)
+
+### Solução Implementada
+
+**Decisão:** Registro simplificado — CPF/CNPJ será solicitado durante KYC, não no cadastro inicial.
+
+#### Arquivos Modificados no Backend
+
+| Arquivo | Mudança |
+|---------|---------|
+| `Http/Requests/Auth/RegisterRequest.php` | `tax_number` → nullable, removeu `confirmed` da senha, `accept_terms` → nullable |
+| `Application/Identity/DTOs/RegisterUserDTO.php` | `taxNumber` → `?string = null` |
+| `Application/Identity/Services/AuthenticationService.php` | Trata `taxNumber` como opcional |
+| `Domain/Identity/Entities/User.php` | `TaxNumber` → `?TaxNumber`, getters ajustados |
+| `Infrastructure/Persistence/Mappers/UserMapper.php` | Safe null access (`?->`) |
+| `Application/Identity/DTOs/UserDTO.php` | `taxNumber`, `taxNumberType` → nullable |
+
+#### Migration Criada
+
+```
+database/migrations/2026_08_07_210916_make_tax_number_nullable.php
+```
+
+Torna `tax_number` e `tax_number_type` nullable no PostgreSQL.
+
+#### Arquivos Modificados no Frontend
+
+| Arquivo | Mudança |
+|---------|---------|
+| `lib/api/auth.ts` | Interface `RegisterRequest`: `name` → `full_name` |
+| `(auth)/register/page.tsx` | Envia `full_name` em vez de `name` |
+
+#### Páginas Criadas
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `(auth)/terms/page.tsx` | Placeholder para Termos de Uso |
+| `(auth)/privacy/page.tsx` | Placeholder para Política de Privacidade |
+
+### Deploy Necessário
+
+1. **Railway (backend):** Rodar migration
+   ```bash
+   php artisan migrate
+   ```
+
+2. **Vercel (frontend):** Redeploy automático ao push
+
+---
+
+## 17. Estado Atual Atualizado
+
+| Item | Status | Ação |
+|------|--------|------|
+| Gateway Key | ✅ Resolvido | Proxy implementado |
+| Registro Simplificado | ✅ Resolvido | CPF não obrigatório |
+| Páginas /terms e /privacy | ✅ Criadas | Placeholders |
+| Variáveis Vercel | ⏳ Pendente | Configurar no dashboard |
+| Token Eulen | ⏳ Pendente | Configurar EULEN_API_TOKEN |
+| Migration tax_number | ⏳ Pendente | Rodar no Railway |
+| NEXT_PUBLIC_INTERNAL_API_KEY | ⚠️ Ainda existe | Remover em fase futura |
+| Admin | ⏳ Pendente | Retrofit visual + integração |
+
+---
+
+*Documento gerado em 2026-08-07. Atualizado após correção do registro simplificado.*

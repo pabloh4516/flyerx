@@ -46,14 +46,14 @@ class AuthenticationService
     {
         return DB::transaction(function () use ($dto, $ipAddress) {
             $email = Email::fromString($dto->email);
-            $taxNumber = TaxNumber::fromString($dto->taxNumber);
+            $taxNumber = $dto->taxNumber ? TaxNumber::fromString($dto->taxNumber) : null;
 
             // Check for existing users
             if ($this->userRepository->existsByEmail($email)) {
                 throw new \DomainException('Email already registered');
             }
 
-            if ($this->userRepository->existsByTaxNumber($taxNumber)) {
+            if ($taxNumber !== null && $this->userRepository->existsByTaxNumber($taxNumber)) {
                 throw new \DomainException('Tax number already registered');
             }
 

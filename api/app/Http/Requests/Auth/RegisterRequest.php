@@ -31,7 +31,6 @@ class RegisterRequest extends FormRequest
                     ->mixedCase()
                     ->numbers()
                     ->symbols(),
-                'confirmed',
             ],
             'full_name' => [
                 'required',
@@ -40,7 +39,7 @@ class RegisterRequest extends FormRequest
                 'max:255',
             ],
             'tax_number' => [
-                'required',
+                'nullable',
                 'string',
                 'regex:/^(\d{11}|\d{14}|\d{3}\.\d{3}\.\d{3}-\d{2}|\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})$/',
             ],
@@ -56,7 +55,7 @@ class RegisterRequest extends FormRequest
                 'after:1900-01-01',
             ],
             'accept_terms' => [
-                'required',
+                'nullable',
                 'accepted',
             ],
         ];

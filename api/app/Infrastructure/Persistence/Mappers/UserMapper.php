@@ -29,7 +29,7 @@ final class UserMapper
                 : null,
             password: Password::fromHash($model->password_hash),
             fullName: $model->full_name,
-            taxNumber: TaxNumber::fromString($model->tax_number),
+            taxNumber: $model->tax_number ? TaxNumber::fromString($model->tax_number) : null,
             phoneNumber: $model->phone ? PhoneNumber::fromString($model->phone) : null,
             phoneVerifiedAt: $model->phone_verified_at
                 ? DateTimeImmutable::createFromMutable($model->phone_verified_at->toDateTime())
@@ -68,8 +68,8 @@ final class UserMapper
             'email' => $entity->getEmail()->toString(),
             'password_hash' => $entity->getPasswordHash(),
             'full_name' => $entity->getFullName(),
-            'tax_number' => $entity->getTaxNumber()->getValue(),
-            'tax_number_type' => $entity->getTaxNumber()->getType(),
+            'tax_number' => $entity->getTaxNumber()?->getValue(),
+            'tax_number_type' => $entity->getTaxNumber()?->getType(),
             'phone' => $entity->getPhoneNumber()?->toString(),
             'birth_date' => $entity->getBirthDate()?->format('Y-m-d'),
             'status' => $entity->getStatus()->value,

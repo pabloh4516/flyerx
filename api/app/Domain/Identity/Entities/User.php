@@ -28,7 +28,7 @@ class User extends AggregateRoot
     private ?DateTimeImmutable $emailVerifiedAt;
     private Password $password;
     private string $fullName;
-    private TaxNumber $taxNumber;
+    private ?TaxNumber $taxNumber;
     private ?PhoneNumber $phoneNumber;
     private ?DateTimeImmutable $phoneVerifiedAt;
     private ?DateTimeImmutable $birthDate;
@@ -50,7 +50,7 @@ class User extends AggregateRoot
         Email $email,
         Password $password,
         string $fullName,
-        TaxNumber $taxNumber,
+        ?TaxNumber $taxNumber = null,
         ?PhoneNumber $phoneNumber = null,
         ?DateTimeImmutable $birthDate = null
     ) {
@@ -82,7 +82,7 @@ class User extends AggregateRoot
         Email $email,
         Password $password,
         string $fullName,
-        TaxNumber $taxNumber,
+        ?TaxNumber $taxNumber = null,
         ?PhoneNumber $phoneNumber = null,
         ?DateTimeImmutable $birthDate = null
     ): self {
@@ -91,7 +91,7 @@ class User extends AggregateRoot
         $user->recordDomainEvent(new UserRegistered($id, [
             'email' => $email->toString(),
             'full_name' => $fullName,
-            'tax_number_type' => $taxNumber->getType(),
+            'tax_number_type' => $taxNumber?->getType(),
         ]));
 
         return $user;
@@ -103,7 +103,7 @@ class User extends AggregateRoot
         ?DateTimeImmutable $emailVerifiedAt,
         Password $password,
         string $fullName,
-        TaxNumber $taxNumber,
+        ?TaxNumber $taxNumber,
         ?PhoneNumber $phoneNumber,
         ?DateTimeImmutable $phoneVerifiedAt,
         ?DateTimeImmutable $birthDate,
@@ -170,7 +170,7 @@ class User extends AggregateRoot
         return $this->fullName;
     }
 
-    public function getTaxNumber(): TaxNumber
+    public function getTaxNumber(): ?TaxNumber
     {
         return $this->taxNumber;
     }
