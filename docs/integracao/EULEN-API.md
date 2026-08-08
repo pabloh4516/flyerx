@@ -72,7 +72,7 @@
   "euid": "EU123456789012345",       // Opcional - ID do usuário na Eulen
   "endUserFullName": "Nome",         // Opcional - nome do pagador
   "depixSplitAddress": "lq1...",     // Opcional - endereço para split
-  "splitFee": "0.02",                // Opcional - % do split (2%)
+  "splitFee": "2%",                   // Opcional - % do split (formato: "2%", "2.5%")
   "delayDepixInHours": 24            // Opcional - delay 1-720 horas
 }
 ```

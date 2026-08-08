@@ -125,10 +125,14 @@ export async function proxyToLaravel(
 export function createProxyHandlers(prefix: string) {
   const handler = async (
     request: NextRequest,
-    context: { params: Promise<{ path?: string[] }> }
+    context?: { params?: Promise<{ path?: string[] }> }
   ) => {
-    const params = await context.params;
-    const path = params.path || [];
+    // Lidar com rotas base (sem [...path]) e rotas com path param
+    let path: string[] = [];
+    if (context?.params) {
+      const params = await context.params;
+      path = params?.path || [];
+    }
     return proxyToLaravel(request, { prefix, path });
   };
 
