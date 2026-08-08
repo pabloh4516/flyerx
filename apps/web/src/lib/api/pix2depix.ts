@@ -1,6 +1,4 @@
 import axios from 'axios';
-import api from './client';
-import type { ApiResponse } from '@/types';
 import type {
   Pix2DepixDepositRequest,
   Pix2DepixDepositResponse,
@@ -10,33 +8,19 @@ import type {
   Pix2DepixWithdrawStatusResponse,
   Pix2DepixUserInfo,
 } from '@/types/pix2depix';
-import { isMockEnabled } from './mock-api';
 
 // ===== Pix2Depix API Client =====
 // Integração com API Pix2Depix da Eulen para conversão BRL ↔ DePix (Liquid Network)
 // Usa API routes internas do Next.js para evitar CORS
 
 // Cliente para API routes internas (proxy para Pix2Depix)
-const pix2depixApi = axios.create({
+const client = axios.create({
   baseURL: '/api/pix2depix',
   headers: {
     'Content-Type': 'application/json',
   },
   timeout: 30000,
 });
-
-// Determina qual cliente usar (mock interno ou API proxy)
-const getClient = () => {
-  if (isMockEnabled()) {
-    return api; // Usa o client interno com mocks
-  }
-  return pix2depixApi; // Usa API route interna (proxy)
-};
-
-// Rotas diferentes para mock vs API real
-const getRoute = (mockRoute: string, realRoute: string) => {
-  return isMockEnabled() ? mockRoute : realRoute;
-};
 
 // ===== Depósito (PIX → DePix) =====
 
@@ -76,16 +60,7 @@ export const createPix2DepixDeposit = async (
     ...(splitFee && { splitFee }),
   };
 
-  const client = getClient();
-  const route = getRoute('/pix2depix/deposit', '/deposit');
-
-  if (isMockEnabled()) {
-    const response = await client.post<ApiResponse<Pix2DepixDepositResponse>>(route, request);
-    return response.data.data;
-  }
-
-  // API proxy retorna diretamente o objeto
-  const response = await client.post<Pix2DepixDepositResponse | { error: string }>(route, request);
+  const response = await client.post<Pix2DepixDepositResponse | { error: string }>('/deposit', request);
 
   // Verificar se houve erro
   if ('error' in response.data) {
@@ -102,15 +77,7 @@ export const createPix2DepixDeposit = async (
 export const getPix2DepixDepositStatus = async (
   id: string
 ): Promise<Pix2DepixDepositStatusResponse> => {
-  const client = getClient();
-  const route = getRoute(`/pix2depix/deposit-status?id=${id}`, `/deposit-status?id=${id}`);
-
-  if (isMockEnabled()) {
-    const response = await client.get<ApiResponse<Pix2DepixDepositStatusResponse>>(route);
-    return response.data.data;
-  }
-
-  const response = await client.get<Pix2DepixDepositStatusResponse | { error: string }>(route);
+  const response = await client.get<Pix2DepixDepositStatusResponse | { error: string }>(`/deposit-status?id=${id}`);
 
   // Verificar se houve erro
   if ('error' in response.data) {
@@ -151,15 +118,7 @@ export const createPix2DepixWithdraw = async (
       : { depositAmountInCents: amountInCents }),
   };
 
-  const client = getClient();
-  const route = getRoute('/pix2depix/withdraw', '/withdraw');
-
-  if (isMockEnabled()) {
-    const response = await client.post<ApiResponse<Pix2DepixWithdrawResponse>>(route, request);
-    return response.data.data;
-  }
-
-  const response = await client.post<Pix2DepixWithdrawResponse>(route, request);
+  const response = await client.post<Pix2DepixWithdrawResponse>('/withdraw', request);
   return response.data;
 };
 
@@ -170,15 +129,7 @@ export const createPix2DepixWithdraw = async (
 export const getPix2DepixWithdrawStatus = async (
   id: string
 ): Promise<Pix2DepixWithdrawStatusResponse> => {
-  const client = getClient();
-  const route = getRoute(`/pix2depix/withdraw-status?id=${id}`, `/withdraw-status?id=${id}`);
-
-  if (isMockEnabled()) {
-    const response = await client.get<ApiResponse<Pix2DepixWithdrawStatusResponse>>(route);
-    return response.data.data;
-  }
-
-  const response = await client.get<Pix2DepixWithdrawStatusResponse>(route);
+  const response = await client.get<Pix2DepixWithdrawStatusResponse>(`/withdraw-status?id=${id}`);
   return response.data;
 };
 
@@ -191,15 +142,7 @@ export const getPix2DepixWithdrawStatus = async (
 export const getPix2DepixUserInfo = async (
   euid: string
 ): Promise<Pix2DepixUserInfo> => {
-  const client = getClient();
-  const route = getRoute(`/pix2depix/user-info?euid=${euid}`, `/user-info?euid=${euid}`);
-
-  if (isMockEnabled()) {
-    const response = await client.get<ApiResponse<Pix2DepixUserInfo>>(route);
-    return response.data.data;
-  }
-
-  const response = await client.get<Pix2DepixUserInfo>(route);
+  const response = await client.get<Pix2DepixUserInfo>(`/user-info?euid=${euid}`);
   return response.data;
 };
 
