@@ -165,13 +165,10 @@ class WithdrawalService
             // Call payment provider
             $provider = PaymentProviderFactory::default();
             $response = $provider->createWithdrawal(new CreateWithdrawalRequest(
-                idempotencyKey: $withdrawal->getIdempotencyKey(),
-                amount: $withdrawal->getNetAmount()->getDecimal(),
-                pixKeyType: $withdrawal->getPixKey()->getType()->value,
                 pixKey: $withdrawal->getPixKey()->getValue(),
-                recipientName: $withdrawal->getRecipientName(),
-                recipientDocument: $withdrawal->getRecipientDocument(),
-                description: "Saque PIX - Flyerx",
+                taxNumber: $withdrawal->getRecipientDocument(),
+                payoutAmountInCents: (int) ($withdrawal->getNetAmount()->getDecimal() * 100),
+                idempotencyKey: $withdrawal->getIdempotencyKey(),
             ));
 
             if (!$response->success) {
