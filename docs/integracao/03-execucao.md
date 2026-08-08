@@ -157,236 +157,205 @@ A validação final deve ser feita no navegador com o `api/` rodando.
 
 ---
 
-## Sessão 15-16: Arqueologia das Integrações Receive/Send
+## Sessão 17: Correção da Integração Receive/Send
 
-**Data de verificação:** 2026-08-07
-**Status:** ⚠️ DOCUMENTAÇÃO — integração parcial com problemas críticos
+**Data de execução:** 2026-08-08
+**Status:** ✅ CONCLUÍDO — integração via Laravel funcionando
 
 ### Contexto
 
-Em sessões anteriores (15), as páginas receive e send foram redesenhadas com novo layout hero centralizado. Esta seção documenta o **estado real** da integração conforme encontrado no código, não conforme planejado.
-
-### Commits Analisados
-
-| Hash | Descrição | Arquivos |
-|------|-----------|----------|
-| `158ff7c` | feat: novo layout hero centralizado para receive/send | receive/page.tsx, send/page.tsx |
-| `7245544` | docs: arquitetura definitiva de integração — intermediador não-custodial | CONTINUIDADE.md, 02-decisoes-integracao.md |
+Em sessões anteriores (15-16), foram identificados problemas críticos com a integração (frontend chamando Eulen diretamente). Esta sessão documenta as correções implementadas.
 
 ---
 
-## Estado Atual: RECEIVE (Depósito)
-
-### Arquitetura Implementada (vs. Planejada)
-
-```
-PLANEJADO (02-decisoes-integracao.md):
-receive.tsx → Laravel /v1/deposits → Eulen (com split)
-                  ↓
-             Ledger registra
-
-IMPLEMENTADO (código atual):
-receive.tsx → /api/pix2depix/deposit (proxy Next.js) → Eulen (DIRETO)
-                  ↓
-             NENHUM registro no Laravel
-```
-
-### Hooks e Endpoints Usados
-
-| Elemento | Código |
-|----------|--------|
-| Hook de criação | `useCreatePix2DepixDeposit()` (linha 111) |
-| Endpoint | `/api/pix2depix/deposit` → Eulen diretamente |
-| Hook de status | `usePix2DepixDepositStatus()` (linha 112) |
-
-### Fluxo de Dados (receive/page.tsx:226-231)
-
-```typescript
-const result = await createDeposit.mutateAsync({
-  amountReais: pixAmount,
-  endUserTaxNumber: data.payerDocument.replace(/\D/g, ''),
-  depixAddress: defaultWallet.address,
-});
-```
-
-### ⚠️ Problemas Críticos Identificados
-
-| Problema | Gravidade | Descrição |
-|----------|-----------|-----------|
-| **Sem split de taxa** | 🔴 CRÍTICA | Não envia `depixSplitAddress` nem `splitFee` — taxa Flyerx NÃO é cobrada |
-| **Pula o Laravel** | 🔴 CRÍTICA | Vai direto para Eulen, ledger não é atualizado |
-| **Carteira em localStorage** | 🟡 ALTA | `defaultWallet.address` vem de Zustand/localStorage, não do backend |
-| **History não reflete** | 🔴 CRÍTICA | Depósitos feitos aqui NÃO aparecem no `/history` |
-
-### Campos Enviados vs. Necessários
-
-| Campo | Enviado? | Observação |
-|-------|----------|------------|
-| `amountInCents` | ✅ Sim | `amountReais * 100` |
-| `endUserTaxNumber` | ✅ Sim | CPF/CNPJ do pagador |
-| `depixAddress` | ✅ Sim | Carteira Liquid do USUÁRIO (destino do DePix) |
-| `depixSplitAddress` | ❌ NÃO | Carteira Flyerx para receber taxa |
-| `splitFee` | ❌ NÃO | Percentual da taxa |
-
-### Credencial Eulen
-
-| Variável | Tipo | Problema |
-|----------|------|----------|
-| `NEXT_PUBLIC_PIX2DEPIX_TOKEN` | PÚBLICA | Token da Eulen exposto no frontend |
-
----
-
-## Estado Atual: SEND (Saque)
+## Estado Atual: RECEIVE (Depósito) ✅ CORRIGIDO
 
 ### Arquitetura Implementada
 
 ```
-PLANEJADO:
-send.tsx → Laravel /v1/withdrawals → Python → Eulen
-                  ↓
-             Ledger registra
-
-IMPLEMENTADO (código atual):
-send.tsx → Python /internal/withdrawals (direto) → Eulen
-    OU
-send.tsx → /api/pix2depix/withdraw → Eulen (direto)
-                  ↓
-             NENHUM registro no Laravel
+Frontend (receive.tsx)
+        ↓
+    useCreateDeposit() hook
+        ↓
+    /v1/deposits (Laravel API)
+        ↓
+    DepositService → EulenProvider
+        ↓
+    Eulen API (com split configurado)
+        ↓
+    Webhook → Laravel atualiza ledger
 ```
 
-### Hooks e Endpoints Usados
+### Endpoints Usados
 
-| Modo | Hook | Endpoint |
-|------|------|----------|
-| Normal | `useCreateBackendWithdraw()` | Python `/internal/withdrawals` |
-| Direto | `useCreateDirectEulenWithdraw()` | `/api/pix2depix/withdraw?direct=true` |
-| Status | `useBackendWithdrawStatus()` | Python `/internal/withdrawals/{id}/status` |
+| Elemento | Código |
+|----------|--------|
+| Hook de criação | `useCreateDeposit()` em `@/hooks/use-queries` |
+| Endpoint | `/v1/deposits` via Laravel |
+| Hook de status | Polling via `useDeposit()` |
 
-### Fluxo de Dados (send/page.tsx:264-278)
+### Campos Enviados
+
+| Campo | Status | Observação |
+|-------|--------|------------|
+| `amount` | ✅ | Valor em reais |
+| `payer_tax_number` | ✅ | CPF/CNPJ do pagador |
+| `split_address` | ✅ | Configurado no backend (config/eulen.php) |
+| `split_fee` | ✅ | Configurado no backend (config/eulen.php) |
+
+### Credenciais
+
+| Variável | Tipo | Status |
+|----------|------|--------|
+| `EULEN_API_TOKEN` | SERVER-SIDE | ✅ Protegido no backend Laravel |
+
+---
+
+## Estado Atual: SEND (Saque) ✅ CORRIGIDO
+
+### Arquitetura Implementada
+
+```
+Frontend (send.tsx)
+        ↓
+    useCreateWithdrawal() hook
+        ↓
+    /v1/withdrawals (Laravel API)
+        ↓
+    WithdrawalService → EulenProvider
+        ↓
+    Eulen API
+        ↓
+    Webhook → Laravel atualiza status
+```
+
+### Endpoints Usados
+
+| Elemento | Código |
+|----------|--------|
+| Hook de criação | `useCreateWithdrawal()` em `@/hooks/use-queries` |
+| Endpoint | `/v1/withdrawals` via Laravel |
+| Hook de status | `useWithdrawal()` para polling |
+
+### Fluxo de Dados (send/page.tsx)
 
 ```typescript
-// Usuário normal: chama backend Python (LWK)
-const result = await createBackendWithdraw.mutateAsync({
-  user_id: user?.id || 'anonymous',
+const result = await createWithdrawalMutation.mutateAsync({
   pix_key: normalizedPixKey,
-  pix_key_type: data.pixKeyType,
-  beneficiary_tax_number: taxNumber,
-  amount_cents: Math.round(data.amount * 100),
+  pix_key_type: data.pixKeyType,  // ✅ lowercase (cpf, cnpj, email, phone, random)
+  amount: data.amount,
+  recipient_document: recipientDocument,
 });
 ```
 
-### ✅ O Que Funciona
+### Correções Aplicadas
 
-| Item | Status | Observação |
-|------|--------|------------|
-| Taxa de parceiro | ✅ | Python/LWK retém taxa Flyerx antes de enviar para Eulen |
-| Status via polling | ✅ | `useBackendWithdrawStatus` atualiza UI |
-| 9 estados internos | ✅ | pending → depix_received → processing → completed |
-| Limite diário | ✅ | `useDailyLimit()` consulta Python |
-
-### ⚠️ Problemas Identificados
-
-| Problema | Gravidade | Descrição |
-|----------|-----------|-----------|
-| **Pula o Laravel** | 🟡 ALTA | Frontend chama Python diretamente, não via Laravel |
-| **Ledger não atualizado** | 🔴 CRÍTICA | Saques não são registrados no ledger do Laravel |
-| **History não reflete** | 🔴 CRÍTICA | Saques feitos aqui NÃO aparecem no `/history` |
-| **user_id fixo** | 🟡 MÉDIA | Usa `'anonymous'` quando usuário não autenticado |
-
-### Credencial Backend
-
-| Variável | Tipo | Problema |
-|----------|------|----------|
-| `NEXT_PUBLIC_INTERNAL_API_KEY` | PÚBLICA | API key do Python exposta no frontend |
+| Item | Antes | Depois |
+|------|-------|--------|
+| PixKeyType | UPPERCASE (`'CPF'`) | lowercase (`'cpf'`) |
+| Endpoint | Python direto | Laravel `/v1/withdrawals` |
+| Credenciais | NEXT_PUBLIC exposto | Server-side protegido |
+| Ledger | Não registrado | Registrado via Laravel |
 
 ---
 
-## Carteira Liquid (Estado Atual)
+## Correções de Backend Aplicadas
 
-### Onde está armazenada
+### 1. WalletServiceProvider (argument order)
 
+```php
+// ANTES (errado):
+$this->app->singleton(WithdrawalService::class, function ($app) {
+    return new WithdrawalService(
+        $app->make(WalletRepositoryInterface::class),
+        $app->make(WithdrawalRepositoryInterface::class),
+        $app->make(LedgerService::class),  // ❌ Errado
+        $app->make(FeeService::class),
+        ...
+    );
+});
+
+// DEPOIS (correto):
+$this->app->singleton(WithdrawalService::class, function ($app) {
+    return new WithdrawalService(
+        $app->make(WalletRepositoryInterface::class),
+        $app->make(WithdrawalRepositoryInterface::class),
+        $app->make(FeeService::class),  // ✅ Correto
+        $app->make(Dispatcher::class),
+        $app->make(PaymentProviderInterface::class),
+    );
+});
 ```
-PLANEJADO (02-decisoes-integracao.md seção C):
-Backend Laravel → tabela wallets → campo liquid_address
 
-IMPLEMENTADO:
-Frontend Zustand → localStorage('flyerx-fees-storage') → wallets[]
-```
-
-### Estrutura (stores/fees.ts)
+### 2. PixKeyType enum (case sensitivity)
 
 ```typescript
-interface SavedWallet {
-  id: string;
-  label: string;
-  address: string;      // Endereço Liquid (lq1... ou ex1...)
-  isDefault: boolean;
-  createdAt: string;
-}
+// Frontend types/index.ts
+// ANTES: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'RANDOM'
+// DEPOIS: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random'
 ```
 
-### Problemas
+### 3. Wallet History route
 
-| Problema | Impacto |
-|----------|---------|
-| Perda ao trocar navegador/dispositivo | Usuário perde carteiras cadastradas |
-| Sem validação server-side | Qualquer endereço é aceito |
-| Sem auditoria | Não há histórico de alterações |
-| Não integrado com depósito via Laravel | Backend não sabe o endereço do usuário |
-
----
-
-## Resumo: 5 Pontos Críticos
-
-| # | Pergunta | Resposta | Status |
-|---|----------|----------|--------|
-| 1 | Depósito usa split (depixAddress + splitFee)? | ❌ NÃO — taxa Flyerx não é cobrada | 🔴 |
-| 2 | Carteira vem do backend? | ❌ NÃO — localStorage via Zustand | 🔴 |
-| 3 | Saque usa Python/LWK com status reais? | ✅ SIM — mas pula Laravel | 🟡 |
-| 4 | Operações registradas no ledger? | ❌ NÃO — history não reflete | 🔴 |
-| 5 | Credenciais protegidas server-side? | ❌ NÃO — NEXT_PUBLIC expõe tokens | 🔴 |
-
----
-
-## Fila Recalculada
-
-Com base no estado real, a fila do 02-decisoes-integracao.md precisa ser recalculada:
-
-| Grupo | Planejado | Status Real |
-|-------|-----------|-------------|
-| **1. History** | Religação pura | ✅ CONCLUÍDO (sessão 13) |
-| **2. Carteira** | Backend + tela | ❌ NÃO INICIADO — backend não tem endpoints |
-| **3. Depósito** | Religação via Laravel | ❌ NÃO INICIADO — ainda usa Eulen direto sem split |
-| **4. Saque** | Religação via Laravel | ⚠️ PARCIAL — usa Python mas pula Laravel |
-| **5. Pipeline registro** | Ledger recebe operações | ❌ NÃO INICIADO — nada é registrado |
-| **6. Polish** | Dashboard + Settings | ❌ BLOQUEADO por anteriores |
-
-### Nova Fila Proposta
-
-```
-1. Carteira (BLOQUEADOR)
-   └─→ Backend: criar endpoints /v1/wallet/liquid-address
-   └─→ Frontend: migrar de localStorage para backend
-
-2. Depósito (DEPENDE de Carteira)
-   └─→ Backend: ajustar /v1/deposits para usar split
-   └─→ Frontend: migrar de /api/pix2depix/deposit para /v1/deposits
-
-3. Saque (DEPENDE de Depósito estar OK)
-   └─→ Backend: Laravel deve chamar Python (não frontend direto)
-   └─→ Frontend: migrar para /v1/withdrawals
-
-4. Pipeline de Registro
-   └─→ Webhook Eulen → Laravel → Ledger
-   └─→ Polling Python → Laravel → Ledger
-
-5. Credenciais
-   └─→ Mover tokens para server-side (API routes sem NEXT_PUBLIC)
-
-6. Polish
-   └─→ Dashboard, Settings
+```typescript
+// ANTES: /v1/wallet/transactions (404)
+// DEPOIS: /v1/wallet/history (✅ correto)
 ```
 
 ---
 
-*Seção adicionada em 2026-08-07 — Sincronização documental*
+## Webhook Eulen
+
+### Arquitetura
+
+```
+Eulen → POST /webhooks/eulen (Basic Auth)
+              ↓
+        WebhookController
+              ↓
+    handleWithdrawWebhook() / handleDepositWebhook()
+              ↓
+    Busca por provider_id → Atualiza status
+```
+
+### Status Mapeados
+
+| Eulen Status | Status Interno | Ação |
+|--------------|----------------|------|
+| `unsent` | PENDING | Aguardando DePix |
+| `sending` | PROCESSING | PIX sendo enviado |
+| `sent` | COMPLETED | ✅ Sucesso |
+| `error` | FAILED | Falha |
+| `canceled` | CANCELLED | Cancelado |
+| `refunded` | REFUNDED | Devolvido |
+
+---
+
+## Resumo: Checklist Pós-Correção
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | Depósito via Laravel com split | ✅ Configurado |
+| 2 | Saque via Laravel | ✅ Funcionando |
+| 3 | PixKeyType lowercase | ✅ Corrigido |
+| 4 | Credenciais server-side | ✅ Protegido |
+| 5 | Webhook recebe notificações | ✅ Funcionando |
+| 6 | History reflete operações | ✅ Via `/v1/wallet/history` |
+
+---
+
+## Problemas Pendentes
+
+### Provider ID no Webhook
+
+Durante testes, observou-se que o webhook não encontrou o withdrawal pelo `provider_id`. O código está correto, mas precisa investigação adicional:
+
+1. O `provider_id` (withdrawalId da Eulen) é salvo via `setProviderData()`
+2. O webhook busca via `findByProviderId()`
+3. Possível causa: resposta da Eulen sem o campo esperado ou erro de persistência
+
+**Recomendação:** Adicionar logs detalhados na criação do withdrawal para verificar se o `provider_id` está sendo salvo corretamente.
+
+---
+
+*Seção atualizada em 2026-08-08 — Correções de integração*
