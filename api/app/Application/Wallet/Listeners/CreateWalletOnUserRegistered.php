@@ -22,7 +22,7 @@ class CreateWalletOnUserRegistered
 
     public function handle(UserRegistered $event): void
     {
-        $userId = $event->aggregateId;
+        $userId = $event->getAggregateId();
 
         // Check if wallet already exists
         $existingWallet = $this->walletRepository->findByUserId(
@@ -34,7 +34,7 @@ class CreateWalletOnUserRegistered
         }
 
         // Create new wallet
-        $walletId = Uuid::generate();
+        $walletId = Uuid::generate()->toString();
         $wallet = Wallet::create(
             id: $walletId,
             userId: $userId,
