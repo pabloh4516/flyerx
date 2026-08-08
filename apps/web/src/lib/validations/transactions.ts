@@ -48,7 +48,7 @@ export const withdrawalSchema = z
         WITHDRAWAL_LIMITS.max,
         `Valor máximo é R$ ${WITHDRAWAL_LIMITS.max.toLocaleString('pt-BR')}`
       ),
-    pixKeyType: z.enum(['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'RANDOM'], {
+    pixKeyType: z.enum(['cpf', 'cnpj', 'email', 'phone', 'random'], {
       message: 'Tipo de chave PIX é obrigatório',
     }),
     pixKey: z.string().min(1, 'Chave PIX é obrigatória'),
@@ -58,15 +58,15 @@ export const withdrawalSchema = z
     (data) => {
       const { pixKeyType, pixKey } = data;
       switch (pixKeyType) {
-        case 'CPF':
+        case 'cpf':
           return cpfRegex.test(pixKey);
-        case 'CNPJ':
+        case 'cnpj':
           return cnpjRegex.test(pixKey);
-        case 'EMAIL':
+        case 'email':
           return emailRegex.test(pixKey);
-        case 'PHONE':
+        case 'phone':
           return phoneRegex.test(pixKey.replace(/\D/g, ''));
-        case 'RANDOM':
+        case 'random':
           return randomKeyRegex.test(pixKey);
         default:
           return false;
@@ -122,22 +122,22 @@ export const parseCurrencyInput = (value: string): number => {
   return isNaN(parsed) ? 0 : parsed;
 };
 
-// Labels para tipos de chave PIX
+// Labels para tipos de chave PIX (chaves em minúsculas para compatibilidade com enum Laravel)
 export const PIX_KEY_TYPE_LABELS: Record<string, string> = {
-  CPF: 'CPF',
-  CNPJ: 'CNPJ',
-  EMAIL: 'E-mail',
-  PHONE: 'Telefone',
-  RANDOM: 'Chave aleatória',
+  cpf: 'CPF',
+  cnpj: 'CNPJ',
+  email: 'E-mail',
+  phone: 'Telefone',
+  random: 'Chave aleatória',
 };
 
-// Placeholders para chaves PIX
+// Placeholders para chaves PIX (chaves em minúsculas)
 export const PIX_KEY_PLACEHOLDERS: Record<string, string> = {
-  CPF: '000.000.000-00',
-  CNPJ: '00.000.000/0000-00',
-  EMAIL: 'email@exemplo.com',
-  PHONE: '+5511999999999',
-  RANDOM: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+  cpf: '000.000.000-00',
+  cnpj: '00.000.000/0000-00',
+  email: 'email@exemplo.com',
+  phone: '+5511999999999',
+  random: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
 };
 
 // ===== Pix2Depix Validations =====
@@ -249,7 +249,7 @@ export const pix2DepixWithdrawalSchema = z
         WITHDRAWAL_LIMITS.max,
         `Valor máximo é R$ ${WITHDRAWAL_LIMITS.max.toLocaleString('pt-BR')}`
       ),
-    pixKeyType: z.enum(['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'RANDOM'], {
+    pixKeyType: z.enum(['cpf', 'cnpj', 'email', 'phone', 'random'], {
       message: 'Tipo de chave PIX é obrigatório',
     }),
     pixKey: z.string().min(1, 'Chave PIX é obrigatória'),
@@ -261,15 +261,15 @@ export const pix2DepixWithdrawalSchema = z
     (data) => {
       const { pixKeyType, pixKey } = data;
       switch (pixKeyType) {
-        case 'CPF':
+        case 'cpf':
           return cpfRegex.test(pixKey);
-        case 'CNPJ':
+        case 'cnpj':
           return cnpjRegex.test(pixKey);
-        case 'EMAIL':
+        case 'email':
           return emailRegex.test(pixKey);
-        case 'PHONE':
+        case 'phone':
           return phoneRegex.test(pixKey.replace(/\D/g, ''));
-        case 'RANDOM':
+        case 'random':
           return randomKeyRegex.test(pixKey);
         default:
           return false;

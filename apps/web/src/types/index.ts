@@ -125,7 +125,8 @@ export interface CreateDepositResponse {
 }
 
 // ===== Withdrawal Types =====
-export type PixKeyType = 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'RANDOM';
+// IMPORTANTE: valores em minúsculas para compatibilidade com enum Laravel
+export type PixKeyType = 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
 
 export interface Withdrawal extends Transaction {
   type: 'WITHDRAWAL';

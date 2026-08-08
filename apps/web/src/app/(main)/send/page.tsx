@@ -38,7 +38,7 @@ import { cn } from '@/lib/utils';
 import type { PixKeyType } from '@/types';
 
 const formSchema = z.object({
-  pixKeyType: z.enum(['CPF', 'CNPJ', 'EMAIL', 'PHONE', 'RANDOM']),
+  pixKeyType: z.enum(['cpf', 'cnpj', 'email', 'phone', 'random']),
   pixKey: z.string().min(1, 'Informe a chave PIX'),
   recipientTaxNumber: z.string().optional(), // CPF/CNPJ do titular (obrigatório quando chave não é CPF/CNPJ)
   amount: z
@@ -56,18 +56,18 @@ interface WithdrawState {
 }
 
 const pixKeyTypes: { type: PixKeyType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { type: 'CPF', label: 'CPF', icon: User },
-  { type: 'CNPJ', label: 'CNPJ', icon: Building2 },
-  { type: 'EMAIL', label: 'Email', icon: Mail },
-  { type: 'PHONE', label: 'Tel', icon: Phone },
-  { type: 'RANDOM', label: 'Aleatória', icon: Key },
+  { type: 'cpf', label: 'CPF', icon: User },
+  { type: 'cnpj', label: 'CNPJ', icon: Building2 },
+  { type: 'email', label: 'Email', icon: Mail },
+  { type: 'phone', label: 'Tel', icon: Phone },
+  { type: 'random', label: 'Aleatória', icon: Key },
 ];
 
 const QUICK_AMOUNTS = [50, 100, 200, 500, 1000];
 
 // Normaliza a chave PIX para o formato esperado pela API
 const normalizePixKey = (pixKey: string, keyType: PixKeyType): string => {
-  if (keyType === 'PHONE') {
+  if (keyType === 'phone') {
     // Remove tudo que não é dígito
     const digits = pixKey.replace(/\D/g, '');
     // Se não começar com 55, adiciona +55
@@ -76,7 +76,7 @@ const normalizePixKey = (pixKey: string, keyType: PixKeyType): string => {
     }
     return `+55${digits}`;
   }
-  if (keyType === 'CPF' || keyType === 'CNPJ') {
+  if (keyType === 'cpf' || keyType === 'cnpj') {
     // Remove formatação
     return pixKey.replace(/\D/g, '');
   }
@@ -85,7 +85,7 @@ const normalizePixKey = (pixKey: string, keyType: PixKeyType): string => {
 
 // Normaliza e extrai CPF/CNPJ da chave PIX
 const extractTaxNumber = (pixKey: string, keyType: PixKeyType): string | null => {
-  if (keyType === 'CPF' || keyType === 'CNPJ') {
+  if (keyType === 'cpf' || keyType === 'cnpj') {
     // Remove formatação e retorna apenas dígitos
     return pixKey.replace(/\D/g, '');
   }
@@ -128,7 +128,7 @@ export default function SellerSendPage() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      pixKeyType: 'CPF',
+      pixKeyType: 'cpf',
       pixKey: '',
       recipientTaxNumber: '',
     },
@@ -140,7 +140,7 @@ export default function SellerSendPage() {
   const recipientTaxNumber = watch('recipientTaxNumber');
 
   // Se a chave é CPF/CNPJ, não precisa do campo extra
-  const needsTaxNumber = pixKeyType !== 'CPF' && pixKeyType !== 'CNPJ';
+  const needsTaxNumber = pixKeyType !== 'cpf' && pixKeyType !== 'cnpj';
 
   // Cálculo de taxa (apenas Eulen, sem taxa de parceiro por enquanto)
   const eulenFee = Math.max(
@@ -170,7 +170,7 @@ export default function SellerSendPage() {
     // Determina o document do TITULAR da chave PIX
     let recipientDocument: string;
 
-    if (data.pixKeyType === 'CPF' || data.pixKeyType === 'CNPJ') {
+    if (data.pixKeyType === 'cpf' || data.pixKeyType === 'cnpj') {
       // Se a chave É CPF/CNPJ, extraímos o número dela mesma
       recipientDocument = data.pixKey.replace(/\D/g, '');
     } else {
@@ -318,13 +318,21 @@ export default function SellerSendPage() {
               <div className="flex items-center gap-3 p-4 rounded-xl bg-surface border border-border focus-within:border-primary transition-colors">
                 <span className="text-neutral-500 text-lg">R$</span>
                 <input
-                  type="number"
-                  step={0.01}
-                  min={limits.withdraw.min}
-                  max={limits.withdraw.max}
+                  type="text"
+                  inputMode="decimal"
                   placeholder="0,00"
-                  className="flex-1 bg-transparent text-2xl font-semibold outline-none tabular-nums placeholder:text-neutral-700 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  {...register('amount', { valueAsNumber: true })}
+                  className="flex-1 bg-transparent text-2xl font-semibold outline-none tabular-nums placeholder:text-neutral-700"
+                  onChange={(e) => {
+                    // Permite vírgula e ponto, converte para número
+                    const value = e.target.value.replace(',', '.');
+                    const num = parseFloat(value);
+                    if (!isNaN(num)) {
+                      setValue('amount', num, { shouldValidate: true });
+                    } else if (value === '' || value === '.' || value === ',') {
+                      setValue('amount', 0, { shouldValidate: true });
+                    }
+                  }}
+                  defaultValue=""
                 />
               </div>
               {errors.amount && (
@@ -380,10 +388,10 @@ export default function SellerSendPage() {
               <Input
                 type="text"
                 placeholder={
-                  pixKeyType === 'CPF' ? '000.000.000-00' :
-                  pixKeyType === 'CNPJ' ? '00.000.000/0000-00' :
-                  pixKeyType === 'EMAIL' ? 'email@exemplo.com' :
-                  pixKeyType === 'PHONE' ? '(00) 00000-0000' :
+                  pixKeyType === 'cpf' ? '000.000.000-00' :
+                  pixKeyType === 'cnpj' ? '00.000.000/0000-00' :
+                  pixKeyType === 'email' ? 'email@exemplo.com' :
+                  pixKeyType === 'phone' ? '(00) 00000-0000' :
                   'Chave aleatória'
                 }
                 className="text-center text-lg"

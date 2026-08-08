@@ -40,14 +40,14 @@ export const listTransactions = async (
   }
 
   const response = await api.get<ApiResponse<PaginatedResponse<Transaction>>>(
-    `/v1/wallet/transactions?${params.toString()}`
+    `/v1/wallet/history?${params.toString()}`
   );
   return response.data.data;
 };
 
 // Obter detalhes de uma transação
 export const getTransaction = async (id: string): Promise<Transaction> => {
-  const response = await api.get<ApiResponse<Transaction>>(`/v1/wallet/transactions/${id}`);
+  const response = await api.get<ApiResponse<Transaction>>(`/v1/wallet/history/${id}`);
   return response.data.data;
 };
 
@@ -62,7 +62,7 @@ export const exportTransactionsCsv = async (filters?: TransactionFilters): Promi
     if (filters.endDate) params.append('endDate', filters.endDate);
   }
 
-  const response = await api.get(`/v1/wallet/transactions/export?format=csv&${params.toString()}`, {
+  const response = await api.get(`/v1/wallet/history/export?format=csv&${params.toString()}`, {
     responseType: 'blob',
   });
   return response.data;
@@ -79,7 +79,7 @@ export const exportTransactionsPdf = async (filters?: TransactionFilters): Promi
     if (filters.endDate) params.append('endDate', filters.endDate);
   }
 
-  const response = await api.get(`/v1/wallet/transactions/export?format=pdf&${params.toString()}`, {
+  const response = await api.get(`/v1/wallet/history/export?format=pdf&${params.toString()}`, {
     responseType: 'blob',
   });
   return response.data;

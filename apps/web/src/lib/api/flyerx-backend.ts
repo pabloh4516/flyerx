@@ -56,7 +56,7 @@ export interface FeeBreakdown {
 export interface CreateWithdrawalRequest {
   user_id: string;
   pix_key: string;
-  pix_key_type: 'CPF' | 'CNPJ' | 'EMAIL' | 'PHONE' | 'RANDOM';
+  pix_key_type: 'cpf' | 'cnpj' | 'email' | 'phone' | 'random';
   beneficiary_tax_number: string;
   amount_cents: number;
 }

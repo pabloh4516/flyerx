@@ -46,7 +46,8 @@ function mapWithdrawalResponse(data: LaravelWithdrawalResponse): Withdrawal {
     amount: data.amount,
     fee: data.fee_amount,
     netAmount: data.net_amount,
-    pixKeyType: data.pix?.key_type as PixKeyType,
+    // Laravel retorna key_type em minúsculas (cpf, cnpj, etc)
+    pixKeyType: (data.pix?.key_type ?? 'random') as PixKeyType,
     pixKey: data.pix?.key ?? '',
     recipientName: data.pix?.recipient_name ?? undefined,
     endToEndId: data.end_to_end_id ?? undefined,
