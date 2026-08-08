@@ -62,7 +62,15 @@ final readonly class CreateDepositRequest
         }
 
         if ($this->splitFee !== null) {
-            $payload['splitFee'] = $this->splitFee;
+            // Eulen espera formato "2%" e não "0.02"
+            // Se já contém %, usar direto; senão, converter decimal para percentual
+            if (str_contains($this->splitFee, '%')) {
+                $payload['splitFee'] = $this->splitFee;
+            } else {
+                // Converter decimal (0.02) para percentual (2%)
+                $percentage = (float) $this->splitFee * 100;
+                $payload['splitFee'] = rtrim(rtrim(number_format($percentage, 2, '.', ''), '0'), '.') . '%';
+            }
         }
 
         if ($this->delayDepixInHours !== null) {
