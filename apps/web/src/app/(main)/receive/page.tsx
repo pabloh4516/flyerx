@@ -35,13 +35,13 @@ import { StepsGuide } from '@/components/ui/steps-guide';
 import { Modal } from '@/components/ui/modal';
 import { Logo } from '@/components/ui/nocturne';
 
-import { useCreatePix2DepixDeposit, usePix2DepixDepositStatus, useInvalidateWalletData, useDailyLimit } from '@/hooks/use-queries';
+import { useCreateDeposit, useDeposit, useInvalidateWalletData } from '@/hooks/use-queries';
 import { useAuthStore } from '@/stores/auth';
 import { useFeesStore } from '@/stores/fees';
 import { formatCurrency } from '@/lib/validations/transactions';
 import { calculateDepositFee, formatFeeDisplay } from '@/types/fees';
 import { cn } from '@/lib/utils';
-import type { Pix2DepixDepositStatus } from '@/types/pix2depix';
+import type { TransactionStatus } from '@/types';
 
 const formSchema = z.object({
   amount: z
@@ -62,7 +62,7 @@ interface DepositState {
   qrImageUrl: string;
   valueInCents: number;
   expiration: string;
-  status: Pix2DepixDepositStatus;
+  status: TransactionStatus;
 }
 
 const QUICK_AMOUNTS = [50, 100, 200, 500];
@@ -108,8 +108,8 @@ export default function SellerReceivePage() {
   const [passToCustomer, setPassToCustomer] = useState(false);
 
   const invalidateWalletData = useInvalidateWalletData();
-  const createDeposit = useCreatePix2DepixDeposit();
-  const { data: depositStatus } = usePix2DepixDepositStatus(deposit?.id ?? '', !!deposit);
+  const createDepositMutation = useCreateDeposit();
+  const { data: depositData } = useDeposit(deposit?.id ?? '', !!deposit);
 
   const defaultWallet = getDefaultWallet();
 
@@ -150,8 +150,10 @@ export default function SellerReceivePage() {
   const amount = watch('amount') || 0;
   const payerDocument = watch('payerDocument') || '';
 
-  // Consultar limite diário do CPF/CNPJ digitado
-  const { data: dailyLimit, isLoading: isLoadingLimit } = useDailyLimit(payerDocument);
+  // TODO: Implementar limite diário no Laravel
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const dailyLimit = null as { daily_volume_reais: number; daily_limit_reais: number; remaining_reais: number } | null;
+  const isLoadingLimit = false;
 
   // Calcular taxas usando a função correta
   const feeCalc = calculateDepositFee(amount, feeConfig.deposit, passToCustomer);
@@ -163,17 +165,17 @@ export default function SellerReceivePage() {
   const feeDisplay = `${(feeConfig.deposit.partnerPercentFee * 100).toFixed(0)}% + R$ ${feeConfig.deposit.eulenFixedFee.toFixed(2).replace('.', ',')}`;
 
   // Verificar se o valor excede o limite diário disponível
-  const exceedsLimit = dailyLimit && amount > dailyLimit.remaining_reais;
+  const exceedsLimit = dailyLimit !== null && amount > dailyLimit.remaining_reais;
 
   // Update status from polling
-  if (depositStatus && deposit) {
-    if (deposit.status !== depositStatus.status) {
+  if (depositData && deposit) {
+    if (deposit.status !== depositData.status) {
       setDeposit({
         ...deposit,
-        status: depositStatus.status,
+        status: depositData.status,
       });
 
-      if (depositStatus.status === 'depix_sent') {
+      if (depositData.status === 'COMPLETED') {
         setStep(3);
         toast.success('Depósito confirmado!');
         invalidateWalletData();
@@ -219,27 +221,27 @@ export default function SellerReceivePage() {
       return;
     }
 
-    // Criar depósito diretamente
+    // Criar depósito via Laravel → Eulen
     // Se passToCustomer, enviar amountToCharge (valor + taxa) para a API
     const pixAmount = passToCustomer ? amountToCharge : data.amount;
 
     try {
-      const result = await createDeposit.mutateAsync({
-        amountReais: pixAmount,
-        endUserTaxNumber: data.payerDocument.replace(/\D/g, ''),
-        depixAddress: defaultWallet.address,
+      const result = await createDepositMutation.mutateAsync({
+        amount: pixAmount,
+        payer_tax_number: data.payerDocument.replace(/\D/g, ''),
+        depix_address: defaultWallet.address,
         // Split: taxa Flyerx vai para a carteira da plataforma
-        depixSplitAddress: feeConfig.deposit.partnerDepixAddress,
-        splitFee: String(feeConfig.deposit.partnerPercentFee),
+        split_address: feeConfig.deposit.partnerDepixAddress,
+        split_fee: String(feeConfig.deposit.partnerPercentFee),
       });
 
       setDeposit({
         id: result.id,
-        qrCopyPaste: result.qrCopyPaste,
-        qrImageUrl: result.qrImageUrl,
+        qrCopyPaste: result.pixCopyPaste ?? '',
+        qrImageUrl: result.qrCodeUrl ?? '',
         valueInCents: Math.round(pixAmount * 100),
-        expiration: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-        status: 'pending',
+        expiration: result.expiresAt,
+        status: result.status,
       });
 
       setStep(2);
@@ -289,9 +291,9 @@ export default function SellerReceivePage() {
             <div
               className={cn(
                 "h-full rounded-full transition-all",
-                dailyLimit && dailyLimit.remaining_reais <= 0 ? "bg-destructive" : "bg-accent-500"
+                dailyLimit !== null && dailyLimit.remaining_reais <= 0 ? "bg-destructive" : "bg-accent-500"
               )}
-              style={{ width: `${dailyLimit ? Math.min((dailyLimit.daily_volume_reais / dailyLimit.daily_limit_reais) * 100, 100) : 0}%` }}
+              style={{ width: `${dailyLimit !== null ? Math.min((dailyLimit.daily_volume_reais / dailyLimit.daily_limit_reais) * 100, 100) : 0}%` }}
             />
           </div>
         </div>
@@ -409,7 +411,7 @@ export default function SellerReceivePage() {
                 <span className="text-xs text-neutral-500 uppercase tracking-wide">
                   CPF/CNPJ do pagador
                 </span>
-                {dailyLimit && (
+                {dailyLimit !== null && (
                   <span className="text-xs text-accent-300 font-medium">
                     Disponível: R$ {dailyLimit.remaining_reais.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}
                   </span>
@@ -478,9 +480,9 @@ export default function SellerReceivePage() {
               variant="solid"
               size="lg"
               fullWidth
-              disabled={createDeposit.isPending || !defaultWallet || exceedsLimit}
+              disabled={createDepositMutation.isPending || !defaultWallet || !!exceedsLimit}
             >
-              {createDeposit.isPending && <Loader2 className="size-4 animate-spin" />}
+              {createDepositMutation.isPending && <Loader2 className="size-4 animate-spin" />}
               <QrCode className="size-4" />
               Gerar QR Code
             </Button>

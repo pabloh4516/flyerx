@@ -25,7 +25,6 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { GlowOrb, Logo } from '@/components/ui/nocturne';
 import { useAuthStore } from '@/stores/auth';
-import { useDailyLimit } from '@/hooks/use-queries';
 
 interface NavItem {
   href: string;
@@ -71,14 +70,10 @@ export default function SellerLayout({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
-  const { data: limitData } = useDailyLimit(user?.document ?? '', !!user?.document);
-
-  const limitPercent = limitData
-    ? Math.round((limitData.daily_volume_reais / limitData.daily_limit_reais) * 100)
-    : 34;
-
-  const limitUsed = limitData?.daily_volume_reais ?? 16900;
-  const limitTotal = limitData?.daily_limit_reais ?? 50000;
+  // TODO: Implementar limite diário no Laravel
+  const limitPercent = 34;
+  const limitUsed = 16900;
+  const limitTotal = 50000;
 
   const userName = user?.name?.split(' ')[0] ?? 'Usuário';
   const userInitial = userName.charAt(0).toUpperCase();

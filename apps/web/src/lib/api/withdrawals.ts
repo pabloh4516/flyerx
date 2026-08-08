@@ -1,4 +1,4 @@
-import api, { generateIdempotencyKey } from './client';
+import api from './client';
 import type {
   Withdrawal,
   CreateWithdrawalRequest,
@@ -7,7 +7,6 @@ import type {
   PaginatedResponse,
   PaginatedRequest,
   TransactionStatus,
-  PixKeyType,
 } from '@/types';
 
 export interface WithdrawalFilters extends PaginatedRequest {
@@ -16,7 +15,9 @@ export interface WithdrawalFilters extends PaginatedRequest {
   endDate?: string;
 }
 
-// Estimar taxa de saque
+/**
+ * Estimar taxa de saque
+ */
 export const estimateWithdrawalFee = async (amount: number): Promise<EstimateFeeResponse> => {
   const response = await api.post<ApiResponse<EstimateFeeResponse>>(
     '/v1/withdrawals/estimate-fee',
@@ -25,31 +26,35 @@ export const estimateWithdrawalFee = async (amount: number): Promise<EstimateFee
   return response.data.data;
 };
 
-// Criar saque
+/**
+ * Criar saque PIX via Laravel → Eulen
+ */
 export const createWithdrawal = async (
-  amount: number,
-  pixKeyType: PixKeyType,
-  pixKey: string,
-  twoFactorCode?: string,
-  idempotencyKey?: string
+  params: CreateWithdrawalRequest
 ): Promise<Withdrawal> => {
-  const response = await api.post<ApiResponse<Withdrawal>>('/v1/withdrawals', {
-    amount,
-    pixKeyType,
-    pixKey,
-    twoFactorCode,
-    idempotencyKey: idempotencyKey || generateIdempotencyKey(),
-  } as CreateWithdrawalRequest);
-  return response.data.data;
+  const response = await api.post<ApiResponse<{ withdrawal: Withdrawal }>>('/v1/withdrawals', params);
+  return response.data.data.withdrawal;
 };
 
-// Obter detalhes do saque
+/**
+ * Obter detalhes do saque
+ */
 export const getWithdrawal = async (id: string): Promise<Withdrawal> => {
   const response = await api.get<ApiResponse<Withdrawal>>(`/v1/withdrawals/${id}`);
   return response.data.data;
 };
 
-// Listar saques
+/**
+ * Listar saques pendentes
+ */
+export const getPendingWithdrawals = async (): Promise<Withdrawal[]> => {
+  const response = await api.get<ApiResponse<Withdrawal[]>>('/v1/withdrawals/pending');
+  return response.data.data;
+};
+
+/**
+ * Listar saques com filtros
+ */
 export const listWithdrawals = async (
   filters?: WithdrawalFilters
 ): Promise<PaginatedResponse<Withdrawal>> => {
@@ -71,27 +76,10 @@ export const listWithdrawals = async (
   return response.data.data;
 };
 
-// Cancelar saque pendente (se permitido)
+/**
+ * Cancelar saque pendente
+ */
 export const cancelWithdrawal = async (id: string): Promise<Withdrawal> => {
   const response = await api.post<ApiResponse<Withdrawal>>(`/v1/withdrawals/${id}/cancel`);
-  return response.data.data;
-};
-
-// Validar chave PIX antes de criar saque
-export const validatePixKey = async (
-  pixKeyType: PixKeyType,
-  pixKey: string
-): Promise<{
-  valid: boolean;
-  recipientName?: string;
-  recipientDocument?: string;
-}> => {
-  const response = await api.post<
-    ApiResponse<{
-      valid: boolean;
-      recipientName?: string;
-      recipientDocument?: string;
-    }>
-  >('/v1/withdrawals/validate-pix', { pixKeyType, pixKey });
   return response.data.data;
 };

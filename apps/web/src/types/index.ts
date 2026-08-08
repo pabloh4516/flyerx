@@ -113,7 +113,11 @@ export interface Deposit extends Transaction {
 
 export interface CreateDepositRequest {
   amount: number;
-  idempotencyKey: string;
+  payer_tax_number: string; // CPF/CNPJ do pagador (obrigatório pela Eulen)
+  depix_address?: string;   // Endereço Liquid para receber DePix
+  euid?: string;            // EUID do usuário na Eulen
+  split_address?: string;   // Endereço para split (comissão)
+  split_fee?: string;       // Porcentagem do split (ex: "0.02")
 }
 
 export interface CreateDepositResponse {
@@ -137,11 +141,11 @@ export interface Withdrawal extends Transaction {
 }
 
 export interface CreateWithdrawalRequest {
-  amount: number;
-  pixKeyType: PixKeyType;
-  pixKey: string;
-  twoFactorCode?: string;
-  idempotencyKey: string;
+  pix_key: string;
+  pix_key_type: PixKeyType;
+  amount: number;                    // Valor do saque em reais
+  recipient_name?: string;           // Nome do beneficiário (opcional)
+  recipient_document?: string;       // CPF/CNPJ do beneficiário (opcional, mas necessário para Eulen)
 }
 
 export interface EstimateFeeRequest {

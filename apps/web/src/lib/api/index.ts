@@ -3,4 +3,3 @@ export * from './auth';
 export * from './wallet';
 export * from './deposits';
 export * from './withdrawals';
-export * from './pix2depix';

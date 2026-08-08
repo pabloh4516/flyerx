@@ -15,12 +15,9 @@ import {
   Mail,
   Phone,
   Key,
-  Copy,
   Home,
   ExternalLink,
   Loader2,
-  Clock,
-  RefreshCw,
   CreditCard,
   QrCode,
   Zap,
@@ -28,15 +25,11 @@ import {
 
 import { Button, Input, Container } from '@/components/ui';
 import { StepsGuide } from '@/components/ui/steps-guide';
-import { Logo } from '@/components/ui/nocturne';
 
 import {
-  useCreateBackendWithdraw,
-  useBackendWithdrawStatus,
-  useCreateDirectEulenWithdraw,
-  useDirectEulenWithdrawStatus,
+  useCreateWithdrawal,
+  useWithdrawal,
   useInvalidateWalletData,
-  useDailyLimit,
 } from '@/hooks/use-queries';
 import { useAuthStore } from '@/stores/auth';
 import { useFeesStore } from '@/stores/fees';
@@ -58,10 +51,8 @@ type FormData = z.infer<typeof formSchema>;
 
 interface WithdrawState {
   id: string;
-  flyerxAddress: string;
   payoutAmountCents: number;
-  depositAmountCents: number;
-  status: string; // pending, depix_received, processing, sent_to_eulen, completed, failed
+  status: string;
 }
 
 const pixKeyTypes: { type: PixKeyType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -117,34 +108,16 @@ export default function SellerSendPage() {
   const user = useAuthStore((state) => state.user);
   const { limits, feeConfig } = useFeesStore();
 
-  // Detectar se é usuário direto (sem taxa de parceiro)
-  const isDirectUser = user?.useDirectEulen ?? false;
-
   const [step, setStep] = useState(1);
   const [withdraw, setWithdraw] = useState<WithdrawState | null>(null);
-  const [copied, setCopied] = useState(false);
 
   const invalidateWalletData = useInvalidateWalletData();
+  const createWithdrawalMutation = useCreateWithdrawal();
+  const { data: withdrawalData } = useWithdrawal(withdraw?.id ?? '', !!withdraw);
 
-  // Hooks para saque normal (via backend Python)
-  const createBackendWithdraw = useCreateBackendWithdraw();
-  const { data: backendStatus } = useBackendWithdrawStatus(
-    !isDirectUser ? (withdraw?.id ?? '') : '',
-    user?.id ?? '',
-    !!withdraw && !isDirectUser
-  );
-
-  // Hooks para saque direto (via Eulen)
-  const createDirectWithdraw = useCreateDirectEulenWithdraw();
-  const { data: directStatus } = useDirectEulenWithdrawStatus(
-    isDirectUser ? (withdraw?.id ?? '') : '',
-    !!withdraw && isDirectUser
-  );
-
-  // Combinar status baseado no tipo de usuário
-  const withdrawStatus = isDirectUser ? directStatus : backendStatus;
-
-  const { data: dailyLimit } = useDailyLimit(user?.document ?? '');
+  // TODO: Implementar limite diário no Laravel
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const dailyLimit = null as { daily_volume_reais: number; daily_limit_reais: number; remaining_reais: number } | null;
 
   const {
     register,
@@ -169,38 +142,23 @@ export default function SellerSendPage() {
   // Se a chave é CPF/CNPJ, não precisa do campo extra
   const needsTaxNumber = pixKeyType !== 'CPF' && pixKeyType !== 'CNPJ';
 
-  // Cálculo de taxa
-  // Usuário direto: só taxa da Eulen (sem taxa de parceiro)
-  // Usuário normal: taxa da Eulen + taxa do parceiro
+  // Cálculo de taxa (apenas Eulen, sem taxa de parceiro por enquanto)
   const eulenFee = Math.max(
     feeConfig.withdraw.eulenMinFee,
     amount * feeConfig.withdraw.eulenPercentFee
   );
-  // Sem fallbacks - usa exatamente o que está na config (que é 0 para parceiro)
-  const partnerMinFee = feeConfig.withdraw.partnerMinFee ?? 0;
-  const partnerPercentFee = feeConfig.withdraw.partnerPercentFee ?? 0;
-  const partnerFee = isDirectUser ? 0 : Math.max(
-    partnerMinFee,
-    amount * partnerPercentFee
-  );
-  const fee = eulenFee + partnerFee;
+  const fee = eulenFee;
   const totalToSend = amount + fee;
 
   // Update status from polling
-  if (withdrawStatus && withdraw) {
-    if (withdraw.status !== withdrawStatus.status) {
+  if (withdrawalData && withdraw) {
+    if (withdraw.status !== withdrawalData.status) {
       setWithdraw({
         ...withdraw,
-        status: withdrawStatus.status,
+        status: withdrawalData.status,
       });
 
-      // Para usuário direto, "sent" = completed
-      // Para usuário normal (backend), "completed" = completed
-      const isCompleted = isDirectUser
-        ? withdrawStatus.status === 'sent'
-        : withdrawStatus.status === 'completed';
-
-      if (isCompleted) {
+      if (withdrawalData.status === 'COMPLETED') {
         setStep(3);
         toast.success('PIX enviado com sucesso!');
         invalidateWalletData();
@@ -208,78 +166,42 @@ export default function SellerSendPage() {
     }
   }
 
-  const handleCopy = async () => {
-    if (!withdraw?.flyerxAddress) return;
-    try {
-      await navigator.clipboard.writeText(withdraw.flyerxAddress);
-      setCopied(true);
-      toast.success('Endereço copiado!');
-      setTimeout(() => setCopied(false), 3000);
-    } catch {
-      toast.error('Falha ao copiar');
-    }
-  };
-
   const onSubmit = async (data: FormData) => {
-    // Determina o taxNumber do TITULAR da chave PIX (não do usuário)
-    let taxNumber: string;
+    // Determina o document do TITULAR da chave PIX
+    let recipientDocument: string;
 
     if (data.pixKeyType === 'CPF' || data.pixKeyType === 'CNPJ') {
       // Se a chave É CPF/CNPJ, extraímos o número dela mesma
-      taxNumber = data.pixKey.replace(/\D/g, '');
+      recipientDocument = data.pixKey.replace(/\D/g, '');
     } else {
       // Se é outro tipo, usamos o campo que o usuário preencheu
       if (!data.recipientTaxNumber || !isValidTaxNumber(data.recipientTaxNumber)) {
         toast.error('Informe o CPF/CNPJ do titular da chave PIX');
         return;
       }
-      taxNumber = data.recipientTaxNumber.replace(/\D/g, '');
+      recipientDocument = data.recipientTaxNumber.replace(/\D/g, '');
     }
 
     // Normaliza a chave PIX (adiciona +55 em telefones, remove formatação de CPF/CNPJ)
     const normalizedPixKey = normalizePixKey(data.pixKey, data.pixKeyType);
 
     try {
-      if (isDirectUser) {
-        // Usuário direto: chama Eulen diretamente (sem taxa de parceiro, mais rápido)
-        // Eulen aceita OU taxNumber OU euid, não ambos
-        const result = await createDirectWithdraw.mutateAsync({
-          pixKey: normalizedPixKey,
-          ...(user?.euid
-            ? { euid: user.euid }
-            : { taxNumber: taxNumber }
-          ),
-          payoutAmountInCents: Math.round(data.amount * 100),
-        });
+      // Chama Laravel que processa via Eulen
+      const result = await createWithdrawalMutation.mutateAsync({
+        pix_key: normalizedPixKey,
+        pix_key_type: data.pixKeyType,
+        amount: data.amount,
+        recipient_document: recipientDocument,
+      });
 
-        setWithdraw({
-          id: result.withdrawalId,
-          flyerxAddress: result.depositAddress,
-          payoutAmountCents: result.payoutAmountInCents,
-          depositAmountCents: result.depositAmountInCents,
-          status: 'unsent', // Status inicial da Eulen
-        });
-      } else {
-        // Usuário normal: chama backend Python (com taxa de parceiro)
-        const result = await createBackendWithdraw.mutateAsync({
-          user_id: user?.id || 'anonymous',
-          pix_key: normalizedPixKey,
-          pix_key_type: data.pixKeyType,
-          beneficiary_tax_number: taxNumber,
-          amount_cents: Math.round(data.amount * 100),
-        });
+      setWithdraw({
+        id: result.id,
+        payoutAmountCents: Math.round(data.amount * 100),
+        status: result.status,
+      });
 
-        setWithdraw({
-          id: result.id,
-          flyerxAddress: result.flyerx_address,
-          payoutAmountCents: Math.round(result.breakdown.requested_amount * 100),
-          depositAmountCents: Math.round(result.breakdown.total_depix * 100),
-          status: result.status,
-        });
-      }
-
-      setStep(2);
-      toast.success('Saque criado! Envie o DePix para o endereço abaixo.');
+      setStep(3); // Saque custodial não precisa de step 2 (enviar DePix)
+      toast.success('Saque solicitado com sucesso!');
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Erro ao criar saque';
       toast.error(message);
@@ -321,9 +243,9 @@ export default function SellerSendPage() {
             <div
               className={cn(
                 "h-full rounded-full transition-all",
-                dailyLimit && dailyLimit.remaining_reais <= 0 ? "bg-destructive" : "bg-accent-500"
+                dailyLimit !== null && dailyLimit.remaining_reais <= 0 ? "bg-destructive" : "bg-accent-500"
               )}
-              style={{ width: `${dailyLimit ? Math.min((dailyLimit.daily_volume_reais / dailyLimit.daily_limit_reais) * 100, 100) : 0}%` }}
+              style={{ width: `${dailyLimit !== null ? Math.min((dailyLimit.daily_volume_reais / dailyLimit.daily_limit_reais) * 100, 100) : 0}%` }}
             />
           </div>
         </div>
@@ -494,14 +416,13 @@ export default function SellerSendPage() {
               size="lg"
               fullWidth
               disabled={
-                createBackendWithdraw.isPending ||
-                createDirectWithdraw.isPending ||
+                createWithdrawalMutation.isPending ||
                 !amount ||
                 !pixKey ||
                 (needsTaxNumber && (!recipientTaxNumber || !isValidTaxNumber(recipientTaxNumber)))
               }
             >
-              {(createBackendWithdraw.isPending || createDirectWithdraw.isPending) && <Loader2 className="size-4 animate-spin" />}
+              {createWithdrawalMutation.isPending && <Loader2 className="size-4 animate-spin" />}
               <Send className="size-4" />
               Enviar PIX
             </Button>
@@ -523,60 +444,26 @@ export default function SellerSendPage() {
         </div>
       )}
 
-      {/* Step 2: Pay */}
+      {/* Step 2: Processing - mostrado enquanto processa */}
       {step === 2 && withdraw && (
-        <div className="flex flex-col items-center gap-6">
+        <div className="flex flex-col items-center gap-6 py-8">
           {/* Status */}
           <div className="flex items-center gap-3 px-5 py-3 rounded-full border border-amber-700/50 bg-amber-900/20">
-            <Clock className="size-4 text-amber-400" />
-            <span className="text-sm text-amber-300">Aguardando pagamento</span>
+            <Loader2 className="size-4 text-amber-400 animate-spin" />
+            <span className="text-sm text-amber-300">Processando saque...</span>
           </div>
 
           {/* Amount */}
           <div className="text-center">
-            <p className="text-sm text-neutral-500">Envie exatamente</p>
+            <p className="text-sm text-neutral-500">Enviando</p>
             <p className="text-4xl font-bold text-accent-200 tabular-nums mt-2">
-              {formatCurrency(withdraw.depositAmountCents / 100)}
-            </p>
-            <p className="text-sm text-neutral-600 mt-1">
-              Destinatário recebe {formatCurrency(withdraw.payoutAmountCents / 100)}
+              {formatCurrency(withdraw.payoutAmountCents / 100)}
             </p>
           </div>
 
-          {/* QR Placeholder */}
-          <div className="bg-neutral-100 rounded-xl p-6">
-            <div className="w-[180px] h-[180px] flex items-center justify-center">
-              <Logo size="lg" className="opacity-30" />
-            </div>
-          </div>
-
-          {/* Address */}
-          <div className="w-full max-w-xl flex flex-col gap-3">
-            <p className="text-sm text-neutral-400 text-center">Endereço Liquid (DePix)</p>
-            <div className="border border-border rounded-xl p-4 bg-surface">
-              <p className="text-xs font-mono text-neutral-400 break-all text-center leading-relaxed">
-                {withdraw.flyerxAddress}
-              </p>
-            </div>
-            <Button variant="primary" size="lg" fullWidth onClick={handleCopy}>
-              {copied ? <Check className="size-4" /> : <Copy className="size-4" />}
-              {copied ? 'Copiado!' : 'Copiar endereço'}
-            </Button>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-3">
-            <Button variant="secondary" onClick={handleNewWithdraw}>
-              <ArrowUpRight className="size-4" />
-              Novo PIX
-            </Button>
-            <Link href="/dashboard">
-              <Button variant="ghost">
-                <Home className="size-4" />
-                Início
-              </Button>
-            </Link>
-          </div>
+          <p className="text-sm text-neutral-500">
+            O PIX será enviado em instantes
+          </p>
         </div>
       )}
 

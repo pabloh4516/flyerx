@@ -1,8 +1,7 @@
-import api, { generateIdempotencyKey } from './client';
+import api from './client';
 import type {
   Deposit,
   CreateDepositRequest,
-  CreateDepositResponse,
   ApiResponse,
   PaginatedResponse,
   PaginatedRequest,
@@ -15,25 +14,35 @@ export interface DepositFilters extends PaginatedRequest {
   endDate?: string;
 }
 
-// Criar depósito PIX
+/**
+ * Criar depósito PIX via Laravel → Eulen
+ */
 export const createDeposit = async (
-  amount: number,
-  idempotencyKey?: string
+  params: CreateDepositRequest
 ): Promise<Deposit> => {
-  const response = await api.post<ApiResponse<CreateDepositResponse>>('/v1/deposits', {
-    amount,
-    idempotencyKey: idempotencyKey || generateIdempotencyKey(),
-  } as CreateDepositRequest);
+  const response = await api.post<ApiResponse<{ deposit: Deposit }>>('/v1/deposits', params);
   return response.data.data.deposit;
 };
 
-// Obter detalhes do depósito
+/**
+ * Obter detalhes do depósito
+ */
 export const getDeposit = async (id: string): Promise<Deposit> => {
   const response = await api.get<ApiResponse<Deposit>>(`/v1/deposits/${id}`);
   return response.data.data;
 };
 
-// Listar depósitos
+/**
+ * Listar depósitos pendentes
+ */
+export const getPendingDeposits = async (): Promise<Deposit[]> => {
+  const response = await api.get<ApiResponse<Deposit[]>>('/v1/deposits/pending');
+  return response.data.data;
+};
+
+/**
+ * Listar depósitos com filtros
+ */
 export const listDeposits = async (
   filters?: DepositFilters
 ): Promise<PaginatedResponse<Deposit>> => {
@@ -55,7 +64,9 @@ export const listDeposits = async (
   return response.data.data;
 };
 
-// Cancelar depósito pendente
+/**
+ * Cancelar depósito pendente
+ */
 export const cancelDeposit = async (id: string): Promise<Deposit> => {
   const response = await api.post<ApiResponse<Deposit>>(`/v1/deposits/${id}/cancel`);
   return response.data.data;
