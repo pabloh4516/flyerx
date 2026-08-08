@@ -113,10 +113,11 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Evitar loop infinito no endpoint de refresh
-    if (originalRequest.url?.includes('/auth/refresh')) {
-      clearTokens();
-      window.location.href = '/login';
+    // Não interceptar endpoints de autenticação (login, register, refresh, etc.)
+    // Esses endpoints devem tratar seus próprios erros 401
+    const authEndpoints = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/forgot-password'];
+    const isAuthEndpoint = authEndpoints.some(endpoint => originalRequest.url?.includes(endpoint));
+    if (isAuthEndpoint) {
       return Promise.reject(error);
     }
 

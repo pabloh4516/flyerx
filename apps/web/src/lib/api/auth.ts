@@ -58,25 +58,77 @@ export const register = async (data: RegisterRequest): Promise<User> => {
   }
 };
 
+// Interface para resposta real da API (snake_case do Laravel)
+interface LaravelLoginResponse {
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+  token_type?: string;
+  user?: {
+    id: string;
+    email: string;
+    full_name: string;
+    status: string;
+    kyc_level: string;
+    two_factor_enabled: boolean;
+  };
+  requires_two_factor?: boolean;
+  two_factor_token?: string;
+  message?: string;
+}
+
 // Login
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
   try {
-    const response = await api.post<ApiResponse<LoginResponse>>('/v1/auth/login', data);
-    const result = response.data.data;
+    // A API retorna diretamente os dados, não encapsulados em { data: ... }
+    const response = await api.post<LaravelLoginResponse>('/v1/auth/login', data);
+    const result = response.data;
 
-    // Se não requer 2FA, salvar tokens
-    if (result.tokens && !result.requiresTwoFactor) {
-      setTokens(result.tokens.accessToken, result.tokens.refreshToken);
+    // Se requer 2FA
+    if (result.requires_two_factor && result.two_factor_token) {
+      return {
+        requiresTwoFactor: true,
+        twoFactorToken: result.two_factor_token,
+      };
     }
 
-    return result;
+    // Se tem tokens (login bem sucedido)
+    if (result.access_token && result.refresh_token) {
+      setTokens(result.access_token, result.refresh_token);
+
+      // Mapear user do snake_case para camelCase
+      const user = result.user ? {
+        id: result.user.id,
+        email: result.user.email,
+        name: result.user.full_name,
+        document: '',
+        documentType: 'CPF' as const,
+        kycLevel: (result.user.kyc_level?.toUpperCase() || 'NONE') as 'NONE' | 'BASIC' | 'VERIFIED' | 'FULL',
+        status: (result.user.status?.toUpperCase() || 'ACTIVE') as 'ACTIVE' | 'BLOCKED' | 'PENDING',
+        twoFactorEnabled: result.user.two_factor_enabled || false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      } : undefined;
+
+      return {
+        user,
+        tokens: {
+          accessToken: result.access_token,
+          refreshToken: result.refresh_token,
+          expiresIn: result.expires_in || 3600,
+        },
+      };
+    }
+
+    // Resposta inesperada
+    throw new Error('Resposta inesperada do servidor');
   } catch (error: unknown) {
     // Extrair mensagem de erro do response
     if (error && typeof error === 'object' && 'response' in error) {
       const axiosError = error as { response?: { data?: { message?: string; error?: { message?: string } } } };
       const message = axiosError.response?.data?.message
         || axiosError.response?.data?.error?.message
-        || 'Erro ao fazer login';
+        || 'Credenciais inválidas';
       throw new Error(message);
     }
     throw error;
