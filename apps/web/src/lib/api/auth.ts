@@ -12,6 +12,7 @@ export interface RegisterRequest {
   password: string;
   full_name: string;
   phone?: string;
+  accept_terms?: boolean;
 }
 
 export interface LoginRequest {

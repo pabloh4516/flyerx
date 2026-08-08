@@ -60,6 +60,7 @@ export default function RegisterPage() {
         password: data.password,
         full_name: data.name,
         phone: data.phone?.replace(/\D/g, ''),
+        accept_terms: data.acceptTerms,
       });
 
       toast.success('Conta criada com sucesso! Verifique seu email.');

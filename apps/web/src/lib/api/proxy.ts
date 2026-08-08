@@ -38,11 +38,13 @@ export async function proxyToLaravel(
   // Preparar headers
   const headers = new Headers();
 
+  // Sempre enviar Accept: application/json para garantir resposta JSON do Laravel
+  headers.set('Accept', 'application/json');
+
   // Copiar headers relevantes da requisição original
   const headersToForward = [
     'content-type',
     'authorization',
-    'accept',
     'accept-language',
     'x-requested-with',
     'x-idempotency-key',
