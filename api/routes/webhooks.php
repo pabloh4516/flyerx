@@ -14,8 +14,7 @@ use App\Http\Controllers\Api\V1\WebhookController;
 Route::prefix('eulen')->group(function () {
 
     // Main webhook endpoint
-    // The webhook.signature:eulen middleware validates HMAC-SHA256 signatures
-    // and protects against replay attacks (timestamps older than 5 minutes are rejected)
+    // The webhook.signature:eulen middleware validates Basic Auth (secret as username)
     Route::post('/', [WebhookController::class, 'eulen'])
         ->middleware([
             'throttle:100,1',

@@ -11,12 +11,10 @@ use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Middleware to validate HMAC signatures for incoming webhooks.
+ * Middleware to validate webhook authentication.
  *
- * This middleware provides security for webhook endpoints by:
- * - Validating the HMAC-SHA256 signature of the request
- * - Protecting against replay attacks via timestamp validation
- * - Logging all invalid signature attempts for security monitoring
+ * Supports:
+ * - Basic Auth (Eulen): Authorization: Basic base64(secret:)
  *
  * Usage in routes:
  *   Route::post('/webhook', [WebhookController::class, 'handle'])
@@ -25,19 +23,12 @@ use Symfony\Component\HttpFoundation\Response;
 class ValidateWebhookSignature
 {
     /**
-     * Maximum age (in seconds) for webhook timestamps.
-     * Requests with older timestamps are rejected to prevent replay attacks.
-     */
-    private const MAX_TIMESTAMP_AGE_SECONDS = 300; // 5 minutes
-
-    /**
      * Provider-specific configuration.
-     * Each provider can have different header names and secrets.
+     * Each provider can have different auth methods and secrets.
      */
     private const PROVIDERS = [
         'eulen' => [
-            'signature_header' => 'X-Eulen-Signature',
-            'timestamp_header' => 'X-Eulen-Timestamp',
+            'auth_method' => 'basic_auth',
             'secret_config' => 'services.eulen.webhook_secret',
             'enabled_config' => 'services.eulen.webhook_signature_validation',
         ],
@@ -74,23 +65,23 @@ class ValidateWebhookSignature
                 'provider' => $provider,
                 'config_key' => $config['secret_config'],
             ]);
-            // In production, fail closed - require secret to be configured
             throw InvalidWebhookSignatureException::invalidSignature();
         }
 
-        // Validate the signature
-        $this->validateSignature($request, $config, $secret, $provider);
+        // Validate based on auth method
+        $authMethod = $config['auth_method'] ?? 'basic_auth';
+
+        if ($authMethod === 'basic_auth') {
+            $this->validateBasicAuth($request, $secret, $provider);
+        } else {
+            throw new \InvalidArgumentException("Unknown auth method: {$authMethod}");
+        }
 
         return $next($request);
     }
 
     /**
      * Get provider-specific configuration.
-     *
-     * @param string $provider
-     * @return array{signature_header: string, timestamp_header: string, secret_config: string, enabled_config: string}
-     *
-     * @throws \InvalidArgumentException
      */
     private function getProviderConfig(string $provider): array
     {
@@ -104,10 +95,7 @@ class ValidateWebhookSignature
     }
 
     /**
-     * Check if signature validation is enabled for the provider.
-     *
-     * @param array{enabled_config: string} $config
-     * @return bool
+     * Check if validation is enabled for the provider.
      */
     private function isValidationEnabled(array $config): bool
     {
@@ -118,87 +106,51 @@ class ValidateWebhookSignature
     }
 
     /**
-     * Validate the webhook signature.
-     *
-     * @param Request $request
-     * @param array{signature_header: string, timestamp_header: string} $config
-     * @param string $secret
-     * @param string $provider
-     *
-     * @throws InvalidWebhookSignatureException
+     * Validate Basic Auth header.
+     * Eulen format: Authorization: Basic base64(secret:)
      */
-    private function validateSignature(
-        Request $request,
-        array $config,
-        string $secret,
-        string $provider
-    ): void {
-        // Extract headers
-        $signature = $request->header($config['signature_header']);
-        $timestamp = $request->header($config['timestamp_header']);
+    private function validateBasicAuth(Request $request, string $secret, string $provider): void
+    {
+        $authHeader = $request->header('Authorization');
 
-        // Validate signature header presence
-        if (empty($signature)) {
-            $this->logInvalidAttempt($request, $provider, 'missing_signature');
+        if (empty($authHeader)) {
+            $this->logInvalidAttempt($request, $provider, 'missing_authorization');
             throw InvalidWebhookSignatureException::missingSignature();
         }
 
-        // Validate timestamp header presence
-        if (empty($timestamp)) {
-            $this->logInvalidAttempt($request, $provider, 'missing_timestamp');
-            throw InvalidWebhookSignatureException::missingTimestamp();
-        }
-
-        // Validate timestamp format (should be numeric Unix timestamp)
-        if (!ctype_digit($timestamp)) {
-            $this->logInvalidAttempt($request, $provider, 'invalid_timestamp_format', [
-                'timestamp' => $timestamp,
-            ]);
-            throw InvalidWebhookSignatureException::invalidTimestamp();
-        }
-
-        $timestampInt = (int) $timestamp;
-
-        // Validate timestamp age (replay attack protection)
-        $currentTime = time();
-        $age = abs($currentTime - $timestampInt);
-
-        if ($age > self::MAX_TIMESTAMP_AGE_SECONDS) {
-            $this->logInvalidAttempt($request, $provider, 'expired_timestamp', [
-                'timestamp' => $timestampInt,
-                'current_time' => $currentTime,
-                'age_seconds' => $age,
-            ]);
-            throw InvalidWebhookSignatureException::expiredTimestamp($age);
-        }
-
-        // Calculate expected signature
-        $payload = $request->getContent();
-        $signedPayload = $timestamp . '.' . $payload;
-        $expectedSignature = hash_hmac('sha256', $signedPayload, $secret);
-
-        // Compare signatures using timing-safe comparison
-        if (!hash_equals($expectedSignature, $signature)) {
-            $this->logInvalidAttempt($request, $provider, 'signature_mismatch', [
-                'payload_length' => strlen($payload),
-            ]);
+        // Check if it's Basic auth
+        if (!str_starts_with($authHeader, 'Basic ')) {
+            $this->logInvalidAttempt($request, $provider, 'invalid_auth_type');
             throw InvalidWebhookSignatureException::invalidSignature();
         }
 
-        // Log successful validation (debug level)
-        Log::debug('Webhook signature validated successfully', [
+        // Extract and decode credentials
+        $encoded = substr($authHeader, 6); // Remove "Basic "
+        $decoded = base64_decode($encoded, true);
+
+        if ($decoded === false) {
+            $this->logInvalidAttempt($request, $provider, 'invalid_base64');
+            throw InvalidWebhookSignatureException::invalidSignature();
+        }
+
+        // Eulen sends: secret: (username=secret, password=empty)
+        // So decoded should be "secret:" or just match the secret as username
+        $parts = explode(':', $decoded, 2);
+        $username = $parts[0] ?? '';
+
+        // Compare using timing-safe comparison
+        if (!hash_equals($secret, $username)) {
+            $this->logInvalidAttempt($request, $provider, 'secret_mismatch');
+            throw InvalidWebhookSignatureException::invalidSignature();
+        }
+
+        Log::debug('Webhook Basic Auth validated successfully', [
             'provider' => $provider,
-            'timestamp' => $timestampInt,
         ]);
     }
 
     /**
-     * Log an invalid signature attempt for security monitoring.
-     *
-     * @param Request $request
-     * @param string $provider
-     * @param string $reason
-     * @param array<string, mixed> $context
+     * Log an invalid attempt for security monitoring.
      */
     private function logInvalidAttempt(
         Request $request,
@@ -206,7 +158,7 @@ class ValidateWebhookSignature
         string $reason,
         array $context = []
     ): void {
-        Log::warning('Webhook signature validation failed', array_merge([
+        Log::warning('Webhook authentication failed', array_merge([
             'provider' => $provider,
             'reason' => $reason,
             'ip' => $request->ip(),
