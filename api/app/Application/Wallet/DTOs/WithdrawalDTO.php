@@ -24,10 +24,20 @@ final readonly class WithdrawalDTO
         public ?string $completedAt,
         public ?string $failureReason,
         public string $createdAt,
+        // Dados do saque Eulen (DePix → PIX)
+        public ?string $depositAddress,
+        public ?int $depositAmountInCents,
+        public ?int $payoutAmountInCents,
     ) {}
 
     public static function fromEntity(Withdrawal $withdrawal): self
     {
+        // Extrair dados do provider response
+        $providerResponse = $withdrawal->getProviderResponse();
+        $depositAddress = $providerResponse['depositAddress'] ?? null;
+        $depositAmountInCents = $providerResponse['depositAmountInCents'] ?? null;
+        $payoutAmountInCents = $providerResponse['payoutAmountInCents'] ?? null;
+
         return new self(
             id: $withdrawal->getId(),
             walletId: $withdrawal->getWalletId(),
@@ -44,6 +54,9 @@ final readonly class WithdrawalDTO
             completedAt: $withdrawal->getCompletedAt()?->format('c'),
             failureReason: $withdrawal->getFailureReason(),
             createdAt: $withdrawal->getCreatedAt()->format('c'),
+            depositAddress: $depositAddress,
+            depositAmountInCents: $depositAmountInCents,
+            payoutAmountInCents: $payoutAmountInCents,
         );
     }
 
@@ -62,6 +75,12 @@ final readonly class WithdrawalDTO
                 'key' => $this->pixKey,
                 'recipient_name' => $this->recipientName,
             ],
+            // Dados para o usuário enviar DePix
+            'deposit' => [
+                'address' => $this->depositAddress,
+                'amount_in_cents' => $this->depositAmountInCents,
+            ],
+            'payout_amount_in_cents' => $this->payoutAmountInCents,
             'end_to_end_id' => $this->endToEndId,
             'processed_at' => $this->processedAt,
             'completed_at' => $this->completedAt,

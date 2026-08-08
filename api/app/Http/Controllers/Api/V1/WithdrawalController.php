@@ -8,9 +8,7 @@ use App\Application\Wallet\DTOs\WithdrawalDTO;
 use App\Application\Wallet\Services\WithdrawalService;
 use App\Domain\Wallet\Enums\PixKeyType;
 use App\Domain\Wallet\Exceptions\DuplicateOperationException;
-use App\Domain\Wallet\Exceptions\InsufficientBalanceException;
 use App\Domain\Wallet\Exceptions\WalletNotActiveException;
-use App\Domain\Wallet\Exceptions\WithdrawalLimitExceededException;
 use App\Domain\Wallet\Repositories\WalletRepositoryInterface;
 use App\Domain\Wallet\ValueObjects\Money;
 use App\Domain\Wallet\ValueObjects\PixKey;
@@ -89,32 +87,6 @@ class WithdrawalController extends Controller
                     'message' => 'Sua carteira não está ativa para realizar saques.',
                 ],
             ], 403);
-
-        } catch (InsufficientBalanceException $e) {
-            return response()->json([
-                'success' => false,
-                'error' => [
-                    'code' => 'INSUFFICIENT_BALANCE',
-                    'message' => 'Saldo insuficiente para realizar este saque.',
-                    'details' => [
-                        'required' => $e->getRequired(),
-                        'available' => $e->getAvailable(),
-                    ],
-                ],
-            ], 400);
-
-        } catch (WithdrawalLimitExceededException $e) {
-            return response()->json([
-                'success' => false,
-                'error' => [
-                    'code' => 'LIMIT_EXCEEDED',
-                    'message' => $e->getMessage(),
-                    'details' => [
-                        'limit_type' => $e->getLimitType(),
-                        'limit_amount' => $e->getLimitAmount(),
-                    ],
-                ],
-            ], 400);
 
         } catch (\DomainException $e) {
             return response()->json([
