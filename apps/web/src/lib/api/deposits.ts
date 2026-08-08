@@ -14,22 +14,58 @@ export interface DepositFilters extends PaginatedRequest {
   endDate?: string;
 }
 
+// Tipo da resposta do Laravel (snake_case)
+interface LaravelDepositResponse {
+  id: string;
+  wallet_id: string;
+  status: string;
+  amount: number;
+  fee_amount: number;
+  net_amount: number;
+  currency: string;
+  pix: {
+    qr_code: string | null;
+    copy_paste: string | null;
+    tx_id: string | null;
+  };
+  expires_at: string | null;
+  paid_at: string | null;
+  failure_reason: string | null;
+  created_at: string;
+}
+
+// Mapear resposta Laravel para tipo frontend
+function mapDepositResponse(data: LaravelDepositResponse): Deposit {
+  return {
+    id: data.id,
+    type: 'DEPOSIT',
+    status: data.status.toUpperCase() as TransactionStatus,
+    amount: data.amount,
+    fee: data.fee_amount,
+    netAmount: data.net_amount,
+    pixCopyPaste: data.pix?.copy_paste ?? undefined,
+    qrCodeUrl: data.pix?.qr_code ?? undefined,
+    expiresAt: data.expires_at ?? '',
+    createdAt: data.created_at,
+  };
+}
+
 /**
  * Criar depósito PIX via Laravel → Eulen
  */
 export const createDeposit = async (
   params: CreateDepositRequest
 ): Promise<Deposit> => {
-  const response = await api.post<ApiResponse<{ deposit: Deposit }>>('/v1/deposits', params);
-  return response.data.data.deposit;
+  const response = await api.post<ApiResponse<LaravelDepositResponse>>('/v1/deposits', params);
+  return mapDepositResponse(response.data.data);
 };
 
 /**
  * Obter detalhes do depósito
  */
 export const getDeposit = async (id: string): Promise<Deposit> => {
-  const response = await api.get<ApiResponse<Deposit>>(`/v1/deposits/${id}`);
-  return response.data.data;
+  const response = await api.get<ApiResponse<LaravelDepositResponse>>(`/v1/deposits/${id}`);
+  return mapDepositResponse(response.data.data);
 };
 
 /**

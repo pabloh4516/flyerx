@@ -7,12 +7,51 @@ import type {
   PaginatedResponse,
   PaginatedRequest,
   TransactionStatus,
+  PixKeyType,
 } from '@/types';
 
 export interface WithdrawalFilters extends PaginatedRequest {
   status?: TransactionStatus;
   startDate?: string;
   endDate?: string;
+}
+
+// Tipo da resposta do Laravel (snake_case)
+interface LaravelWithdrawalResponse {
+  id: string;
+  wallet_id: string;
+  status: string;
+  amount: number;
+  fee_amount: number;
+  net_amount: number;
+  currency: string;
+  pix: {
+    key_type: string;
+    key: string;
+    recipient_name: string | null;
+  };
+  end_to_end_id: string | null;
+  processed_at: string | null;
+  completed_at: string | null;
+  failure_reason: string | null;
+  created_at: string;
+}
+
+// Mapear resposta Laravel para tipo frontend
+function mapWithdrawalResponse(data: LaravelWithdrawalResponse): Withdrawal {
+  return {
+    id: data.id,
+    type: 'WITHDRAWAL',
+    status: data.status.toUpperCase() as TransactionStatus,
+    amount: data.amount,
+    fee: data.fee_amount,
+    netAmount: data.net_amount,
+    pixKeyType: data.pix?.key_type as PixKeyType,
+    pixKey: data.pix?.key ?? '',
+    recipientName: data.pix?.recipient_name ?? undefined,
+    endToEndId: data.end_to_end_id ?? undefined,
+    createdAt: data.created_at,
+  };
 }
 
 /**
@@ -32,16 +71,16 @@ export const estimateWithdrawalFee = async (amount: number): Promise<EstimateFee
 export const createWithdrawal = async (
   params: CreateWithdrawalRequest
 ): Promise<Withdrawal> => {
-  const response = await api.post<ApiResponse<{ withdrawal: Withdrawal }>>('/v1/withdrawals', params);
-  return response.data.data.withdrawal;
+  const response = await api.post<ApiResponse<LaravelWithdrawalResponse>>('/v1/withdrawals', params);
+  return mapWithdrawalResponse(response.data.data);
 };
 
 /**
  * Obter detalhes do saque
  */
 export const getWithdrawal = async (id: string): Promise<Withdrawal> => {
-  const response = await api.get<ApiResponse<Withdrawal>>(`/v1/withdrawals/${id}`);
-  return response.data.data;
+  const response = await api.get<ApiResponse<LaravelWithdrawalResponse>>(`/v1/withdrawals/${id}`);
+  return mapWithdrawalResponse(response.data.data);
 };
 
 /**
