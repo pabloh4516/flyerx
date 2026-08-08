@@ -23,7 +23,8 @@ enum UserStatus: string
 
     public function canLogin(): bool
     {
-        return $this === self::ACTIVE;
+        // TODO: Reverter para apenas ACTIVE quando email estiver configurado
+        return $this === self::ACTIVE || $this === self::PENDING;
     }
 
     public function canTransact(): bool
