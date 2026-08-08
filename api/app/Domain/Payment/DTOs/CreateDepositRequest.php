@@ -22,8 +22,9 @@ final readonly class CreateDepositRequest
         public ?string $endUserFullName = null,
 
         // Campos de split (comissão do parceiro)
+        // IMPORTANTE: splitFee e depixSplitAddress devem ser informados JUNTOS
         public ?string $depixSplitAddress = null,
-        public ?string $splitFee = null, // Porcentagem como string, ex: "0.02" para 2%
+        public ?string $splitFee = null, // Porcentagem como string, ex: "0.02" para 2% ou "2%"
 
         // Delay opcional (1-720 horas)
         public ?int $delayDepixInHours = null,
@@ -34,6 +35,58 @@ final readonly class CreateDepositRequest
         // Metadata interno (não enviado para Eulen)
         public array $metadata = [],
     ) {}
+
+    /**
+     * Valida se o request está correto para a Eulen.
+     *
+     * @return array Lista de erros de validação (vazia se válido)
+     */
+    public function validate(): array
+    {
+        $errors = [];
+
+        // Validar campos obrigatórios
+        if ($this->amountInCents < 1 || $this->amountInCents > 10000000) {
+            $errors[] = 'amountInCents deve estar entre 1 e 10.000.000 (R$ 0,01 a R$ 100.000,00)';
+        }
+
+        if (empty($this->endUserTaxNumber)) {
+            $errors[] = 'endUserTaxNumber (CPF/CNPJ) é obrigatório';
+        }
+
+        // IMPORTANTE: splitFee e depixSplitAddress devem ser informados JUNTOS
+        // A API Eulen exige ambos ou nenhum
+        $hasSplitFee = $this->splitFee !== null && $this->splitFee !== '';
+        $hasSplitAddress = $this->depixSplitAddress !== null && $this->depixSplitAddress !== '';
+
+        if ($hasSplitFee && !$hasSplitAddress) {
+            $errors[] = 'depixSplitAddress é obrigatório quando splitFee é informado';
+        }
+
+        if ($hasSplitAddress && !$hasSplitFee) {
+            $errors[] = 'splitFee é obrigatório quando depixSplitAddress é informado';
+        }
+
+        // Validar delayDepixInHours se informado
+        if ($this->delayDepixInHours !== null) {
+            if ($this->delayDepixInHours < 1 || $this->delayDepixInHours > 720) {
+                $errors[] = 'delayDepixInHours deve estar entre 1 e 720 horas';
+            }
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Verifica se o request usa split (comissão do parceiro).
+     */
+    public function hasSplit(): bool
+    {
+        return $this->splitFee !== null
+            && $this->splitFee !== ''
+            && $this->depixSplitAddress !== null
+            && $this->depixSplitAddress !== '';
+    }
 
     /**
      * Converte para o formato esperado pela API da Eulen

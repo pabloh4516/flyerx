@@ -52,6 +52,15 @@ class EulenProvider implements PaymentProviderInterface
     public function createDeposit(CreateDepositRequest $request): CreateDepositResponse
     {
         try {
+            // Validar request antes de enviar
+            $errors = $request->validate();
+            if (!empty($errors)) {
+                return CreateDepositResponse::failure(
+                    errorCode: 'VALIDATION_ERROR',
+                    errorMessage: implode(', ', $errors),
+                );
+            }
+
             $headers = [];
             if ($request->idempotencyKey !== null) {
                 $headers['X-Nonce'] = $request->idempotencyKey;
@@ -327,7 +336,15 @@ class EulenProvider implements PaymentProviderInterface
     }
 
     /**
-     * Mapeia status de saque da Eulen para status interno
+     * Mapeia status de saque da Eulen para status interno.
+     *
+     * Status Eulen (oficiais):
+     * - unsent: Aguardando DePix do usuário
+     * - sending: Processando envio do PIX
+     * - sent: PIX enviado com sucesso
+     * - error: Erro no processamento
+     * - canceled: Cancelado
+     * - refunded: Reembolsado
      *
      * @see https://docs.eulen.app/-withdraw-statuses-1966899m0.md
      */
@@ -335,13 +352,10 @@ class EulenProvider implements PaymentProviderInterface
     {
         return match (strtolower($eulenStatus)) {
             'unsent' => 'pending',
-            'pending' => 'pending',
-            'depix_received' => 'processing',
-            'processing' => 'processing',
+            'sending' => 'processing',
             'sent' => 'completed',
-            'completed' => 'completed',
-            'failed' => 'failed',
             'error' => 'failed',
+            'canceled' => 'failed',
             'refunded' => 'refunded',
             default => 'pending',
         };

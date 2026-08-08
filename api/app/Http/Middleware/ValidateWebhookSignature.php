@@ -29,8 +29,8 @@ class ValidateWebhookSignature
     private const PROVIDERS = [
         'eulen' => [
             'auth_method' => 'basic_auth',
-            'secret_config' => 'services.eulen.webhook_secret',
-            'enabled_config' => 'services.eulen.webhook_signature_validation',
+            'secret_config' => 'eulen.webhook.secret',
+            'enabled_config' => 'eulen.webhook.validate_signature',
         ],
     ];
 

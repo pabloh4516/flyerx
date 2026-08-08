@@ -69,6 +69,40 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Split Settings (Taxa do Parceiro)
+    |--------------------------------------------------------------------------
+    | Configuração da taxa Flyerx cobrada nos depósitos via split da Eulen.
+    | A carteira de split pode ser configurada via env ou admin panel.
+    */
+
+    'split' => [
+        // Endereço Liquid da carteira Flyerx para receber taxa de depósito
+        // Pode ser sobrescrito pelo admin panel
+        'deposit_address' => env('FLYERX_SPLIT_ADDRESS'),
+
+        // Taxa de depósito (porcentagem) - ex: "2" para 2%
+        // Pode ser sobrescrito pelo admin panel
+        'deposit_fee_percent' => env('FLYERX_DEPOSIT_FEE_PERCENT', '2'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Withdrawal Settings (Saque)
+    |--------------------------------------------------------------------------
+    | Taxa de saque é descontada do valor antes de enviar para Eulen.
+    | A Eulen não suporta split em saques, então cobramos antes.
+    */
+
+    'withdrawal' => [
+        // Taxa de saque (porcentagem) - ex: "1.5" para 1.5%
+        'fee_percent' => env('FLYERX_WITHDRAWAL_FEE_PERCENT', '1.5'),
+
+        // Taxa mínima de saque em centavos (R$ 0,50 = 50)
+        'fee_min_cents' => (int) env('FLYERX_WITHDRAWAL_FEE_MIN_CENTS', 50),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Status Mapping
     |--------------------------------------------------------------------------
     | Maps Eulen statuses to internal statuses
