@@ -40,7 +40,7 @@ class CreateWithdrawalRequest extends FormRequest
                 'max:255',
             ],
             'recipient_document' => [
-                'nullable',
+                'required',
                 'string',
                 'max:20',
             ],
@@ -58,6 +58,7 @@ class CreateWithdrawalRequest extends FormRequest
             'pix_key_type.in' => 'Tipo de chave PIX inválido.',
             'pix_key.required' => 'A chave PIX é obrigatória.',
             'pix_key.max' => 'A chave PIX é muito longa.',
+            'recipient_document.required' => 'O CPF/CNPJ do destinatário é obrigatório.',
         ];
     }
 }
