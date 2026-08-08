@@ -29,12 +29,26 @@ class DepositService
     ) {}
 
     /**
-     * Create a new deposit request.
+     * Create a new deposit request via Eulen Pix2Depix.
+     *
+     * @param string $walletId ID da carteira
+     * @param int $amountInCents Valor em centavos
+     * @param string $payerTaxNumber CPF/CNPJ do pagador (obrigatório pela Eulen)
+     * @param string $idempotencyKey Chave de idempotência
+     * @param string|null $depixAddress Endereço Liquid para receber DePix
+     * @param string|null $euid EUID do usuário na Eulen
+     * @param string|null $splitAddress Endereço Liquid para split (comissão)
+     * @param string|null $splitFee Porcentagem do split (ex: "0.02")
      */
     public function createDeposit(
         string $walletId,
-        Money $amount,
-        string $idempotencyKey
+        int $amountInCents,
+        string $payerTaxNumber,
+        string $idempotencyKey,
+        ?string $depixAddress = null,
+        ?string $euid = null,
+        ?string $splitAddress = null,
+        ?string $splitFee = null,
     ): Deposit {
         // Check for duplicate
         $existing = $this->depositRepository->findByIdempotencyKey($idempotencyKey);
@@ -56,9 +70,10 @@ class DepositService
         }
 
         // Calculate fee
+        $amount = Money::fromCents($amountInCents);
         $fee = $this->feeService->calculateDepositFee($amount);
 
-        // Create deposit
+        // Create deposit entity
         $deposit = Deposit::create(
             id: $this->depositRepository->nextIdentity()->toString(),
             walletId: $walletId,
@@ -67,13 +82,16 @@ class DepositService
             idempotencyKey: $idempotencyKey,
         );
 
-        // Call payment provider
+        // Call Eulen provider
         $provider = $this->paymentProvider;
         $response = $provider->createDeposit(new CreateDepositRequest(
+            amountInCents: $amountInCents,
+            endUserTaxNumber: $payerTaxNumber,
+            depixAddress: $depixAddress,
+            euid: $euid,
+            depixSplitAddress: $splitAddress,
+            splitFee: $splitFee,
             idempotencyKey: $idempotencyKey,
-            amount: $amount->getDecimal(),
-            description: "Depósito PIX - Flyerx",
-            expirationMinutes: config('flyerx.deposits.expiration_minutes', 30),
         ));
 
         if (!$response->success) {
@@ -211,9 +229,6 @@ class DepositService
 
     /**
      * Get the user's main account ID for a wallet.
-     *
-     * @param string $walletId The wallet ID
-     * @return string The account ID
      */
     private function getUserAccountId(string $walletId): string
     {
@@ -223,9 +238,6 @@ class DepositService
 
     /**
      * Get the system account ID for a given category.
-     *
-     * @param string $category The account category (e.g., 'provider_payable', 'fee_revenue')
-     * @return string The account ID
      */
     private function getSystemAccountId(string $category): string
     {

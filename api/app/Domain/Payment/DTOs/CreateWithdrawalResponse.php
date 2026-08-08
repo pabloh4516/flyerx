@@ -4,15 +4,29 @@ declare(strict_types=1);
 
 namespace App\Domain\Payment\DTOs;
 
+/**
+ * Response da criação de saque via Eulen API
+ *
+ * @see https://docs.eulen.app/withdraw-25979382e0.md
+ */
 final readonly class CreateWithdrawalResponse
 {
     public function __construct(
         public bool $success,
         public ?string $providerId,
         public ?string $status,
-        public ?string $endToEndId,
-        public ?string $recipientName,
-        public ?string $recipientDocument,
+
+        // Campos específicos da Eulen para saque
+        public ?string $depositAddress = null,      // Endereço Liquid para enviar DePix
+        public ?int $depositAmountInCents = null,   // Valor em centavos a enviar em DePix
+        public ?int $payoutAmountInCents = null,    // Valor em centavos que será enviado via PIX
+
+        // Campos opcionais
+        public ?string $endToEndId = null,
+        public ?string $recipientName = null,
+        public ?string $recipientDocument = null,
+
+        // Erro
         public ?string $errorCode = null,
         public ?string $errorMessage = null,
         public array $rawResponse = [],
@@ -21,6 +35,9 @@ final readonly class CreateWithdrawalResponse
     public static function success(
         string $providerId,
         string $status,
+        ?string $depositAddress = null,
+        ?int $depositAmountInCents = null,
+        ?int $payoutAmountInCents = null,
         ?string $endToEndId = null,
         ?string $recipientName = null,
         ?string $recipientDocument = null,
@@ -30,6 +47,9 @@ final readonly class CreateWithdrawalResponse
             success: true,
             providerId: $providerId,
             status: $status,
+            depositAddress: $depositAddress,
+            depositAmountInCents: $depositAmountInCents,
+            payoutAmountInCents: $payoutAmountInCents,
             endToEndId: $endToEndId,
             recipientName: $recipientName,
             recipientDocument: $recipientDocument,
@@ -46,9 +66,6 @@ final readonly class CreateWithdrawalResponse
             success: false,
             providerId: null,
             status: null,
-            endToEndId: null,
-            recipientName: null,
-            recipientDocument: null,
             errorCode: $errorCode,
             errorMessage: $errorMessage,
             rawResponse: $rawResponse,

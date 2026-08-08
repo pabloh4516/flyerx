@@ -9,7 +9,6 @@ use App\Application\Wallet\Services\DepositService;
 use App\Domain\Wallet\Exceptions\DuplicateOperationException;
 use App\Domain\Wallet\Exceptions\WalletNotActiveException;
 use App\Domain\Wallet\Repositories\WalletRepositoryInterface;
-use App\Domain\Wallet\ValueObjects\Money;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\Wallet\CreateDepositRequest;
 use Illuminate\Http\JsonResponse;
@@ -51,8 +50,13 @@ class DepositController extends Controller
         try {
             $deposit = $this->depositService->createDeposit(
                 walletId: $wallet->getId(),
-                amount: Money::fromDecimal((float) $request->input('amount')),
+                amountInCents: $request->getAmountInCents(),
+                payerTaxNumber: $request->getPayerTaxNumber(),
                 idempotencyKey: $idempotencyKey,
+                depixAddress: $request->input('depix_address'),
+                euid: $request->input('euid'),
+                splitAddress: $request->input('split_address'),
+                splitFee: $request->input('split_fee'),
             );
 
             return response()->json([

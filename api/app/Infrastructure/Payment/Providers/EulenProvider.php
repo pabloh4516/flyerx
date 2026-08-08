@@ -16,6 +16,11 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Integração com Eulen Pix2Depix API
+ *
+ * @see https://docs.eulen.app/-api-overview-782111m0.md
+ */
 class EulenProvider implements PaymentProviderInterface
 {
     private PendingRequest $client;
@@ -23,7 +28,7 @@ class EulenProvider implements PaymentProviderInterface
 
     public function __construct()
     {
-        $this->baseUrl = rtrim(config('eulen.base_url'), '/');
+        $this->baseUrl = rtrim(config('eulen.base_url', 'https://depix.eulen.app/api'), '/');
 
         $this->client = Http::withHeaders([
             'Authorization' => 'Bearer ' . config('eulen.api_token'),
@@ -39,47 +44,57 @@ class EulenProvider implements PaymentProviderInterface
         return 'eulen';
     }
 
+    /**
+     * Cria um depósito PIX → DePix
+     *
+     * @see https://docs.eulen.app/deposit-pix-depix-12532107e0.md
+     */
     public function createDeposit(CreateDepositRequest $request): CreateDepositResponse
     {
         try {
+            $headers = [];
+            if ($request->idempotencyKey !== null) {
+                $headers['X-Nonce'] = $request->idempotencyKey;
+            }
+
             $response = $this->client
-                ->withHeader('X-Nonce', $request->idempotencyKey)
-                ->post("{$this->baseUrl}/deposit", [
-                    'amount' => $request->amount,
-                    'currency' => $request->currency,
-                    'description' => $request->description ?? 'Depósito PIX',
-                    'expiration_minutes' => $request->expirationMinutes ?? config('eulen.deposit_expiration_minutes', 30),
-                    'metadata' => $request->metadata,
-                ]);
+                ->withHeaders($headers)
+                ->post("{$this->baseUrl}/deposit", $request->toEulenPayload());
 
             $data = $response->json();
 
-            $this->logRequest('createDeposit', $request, $response->status(), $data);
+            $this->logRequest('createDeposit', $request->toEulenPayload(), $response->status(), $data);
 
             if ($response->failed()) {
+                $errorMessage = $data['response']['errorMessage']
+                    ?? $data['errorMessage']
+                    ?? $data['message']
+                    ?? 'Erro ao criar depósito';
+
                 return CreateDepositResponse::failure(
                     errorCode: $data['error_code'] ?? 'PROVIDER_ERROR',
-                    errorMessage: $data['message'] ?? 'Provider request failed',
+                    errorMessage: $errorMessage,
                     rawResponse: $data,
                 );
             }
 
-            // Map Eulen response to our format
-            $expiresAt = isset($data['expires_at'])
-                ? new DateTimeImmutable($data['expires_at'])
-                : (new DateTimeImmutable())->modify('+30 minutes');
+            // Eulen retorna: { response: { id, qrCopyPaste, qrImageUrl }, async: false }
+            $depositData = $data['response'] ?? $data;
+
+            // Depósitos Eulen expiram em 24 horas por padrão
+            $expiresAt = (new DateTimeImmutable())->modify('+24 hours');
 
             return CreateDepositResponse::success(
-                providerId: $data['id'] ?? $data['deposit_id'],
-                status: $this->mapDepositStatus($data['status'] ?? 'pending'),
-                pixQrCode: $data['qr_code'] ?? $data['pix_qr_code'],
-                pixCopyPaste: $data['copy_paste'] ?? $data['pix_copy_paste'] ?? $data['qr_code_text'],
-                pixTxId: $data['txid'] ?? $data['pix_txid'] ?? $data['id'],
+                providerId: $depositData['id'],
+                status: 'awaiting_payment',
+                pixQrCode: $depositData['qrImageUrl'] ?? null,
+                pixCopyPaste: $depositData['qrCopyPaste'],
+                pixTxId: $depositData['id'],
                 expiresAt: $expiresAt,
                 rawResponse: $data,
             );
         } catch (\Throwable $e) {
-            $this->logError('createDeposit', $request, $e);
+            $this->logError('createDeposit', $request->toEulenPayload(), $e);
 
             return CreateDepositResponse::failure(
                 errorCode: 'CONNECTION_ERROR',
@@ -88,6 +103,11 @@ class EulenProvider implements PaymentProviderInterface
         }
     }
 
+    /**
+     * Consulta status de um depósito
+     *
+     * @see https://docs.eulen.app/deposit-status-12667971e0.md
+     */
     public function getDepositStatus(string $providerId): DepositStatusResponse
     {
         try {
@@ -102,18 +122,19 @@ class EulenProvider implements PaymentProviderInterface
             if ($response->failed()) {
                 return DepositStatusResponse::failure(
                     errorCode: $data['error_code'] ?? 'PROVIDER_ERROR',
-                    errorMessage: $data['message'] ?? 'Provider request failed',
+                    errorMessage: $data['message'] ?? 'Erro ao consultar status',
                     rawResponse: $data,
                 );
             }
 
-            $paidAt = isset($data['paid_at']) ? new DateTimeImmutable($data['paid_at']) : null;
+            $statusData = $data['response'] ?? $data;
+            $paidAt = isset($statusData['paidAt']) ? new DateTimeImmutable($statusData['paidAt']) : null;
 
             return DepositStatusResponse::success(
                 providerId: $providerId,
-                status: $this->mapDepositStatus($data['status']),
-                amount: (float) ($data['amount'] ?? 0),
-                paidAmount: isset($data['paid_amount']) ? (float) $data['paid_amount'] : null,
+                status: $this->mapDepositStatus($statusData['status'] ?? 'pending'),
+                amount: (float) ($statusData['valueInCents'] ?? 0) / 100,
+                paidAmount: isset($statusData['paidValueInCents']) ? (float) $statusData['paidValueInCents'] / 100 : null,
                 paidAt: $paidAt,
                 rawResponse: $data,
             );
@@ -127,43 +148,62 @@ class EulenProvider implements PaymentProviderInterface
         }
     }
 
+    /**
+     * Cria um saque DePix → PIX
+     *
+     * @see https://docs.eulen.app/withdraw-25979382e0.md
+     */
     public function createWithdrawal(CreateWithdrawalRequest $request): CreateWithdrawalResponse
     {
         try {
+            // Validar request
+            $errors = $request->validate();
+            if (!empty($errors)) {
+                return CreateWithdrawalResponse::failure(
+                    errorCode: 'VALIDATION_ERROR',
+                    errorMessage: implode(', ', $errors),
+                );
+            }
+
+            $headers = [];
+            if ($request->idempotencyKey !== null) {
+                $headers['X-Nonce'] = $request->idempotencyKey;
+            }
+
             $response = $this->client
-                ->withHeader('X-Nonce', $request->idempotencyKey)
-                ->post("{$this->baseUrl}/withdraw", [
-                    'amount' => $request->amount,
-                    'pix_key_type' => $request->pixKeyType,
-                    'pix_key' => $request->pixKey,
-                    'recipient_name' => $request->recipientName,
-                    'recipient_document' => $request->recipientDocument,
-                    'description' => $request->description ?? 'Saque PIX',
-                    'metadata' => $request->metadata,
-                ]);
+                ->withHeaders($headers)
+                ->post("{$this->baseUrl}/withdraw", $request->toEulenPayload());
 
             $data = $response->json();
 
-            $this->logRequest('createWithdrawal', $request, $response->status(), $data);
+            $this->logRequest('createWithdrawal', $request->toEulenPayload(), $response->status(), $data);
 
             if ($response->failed()) {
+                $errorMessage = $data['response']['errorMessage']
+                    ?? $data['errorMessage']
+                    ?? $data['message']
+                    ?? 'Erro ao criar saque';
+
                 return CreateWithdrawalResponse::failure(
                     errorCode: $data['error_code'] ?? 'PROVIDER_ERROR',
-                    errorMessage: $data['message'] ?? 'Provider request failed',
+                    errorMessage: $errorMessage,
                     rawResponse: $data,
                 );
             }
 
+            // Eulen retorna: { response: { withdrawalId, depositAddress, depositAmountInCents, payoutAmountInCents }, async: false }
+            $withdrawData = $data['response'] ?? $data;
+
             return CreateWithdrawalResponse::success(
-                providerId: $data['id'] ?? $data['withdrawal_id'],
-                status: $this->mapWithdrawalStatus($data['status'] ?? 'pending'),
-                endToEndId: $data['end_to_end_id'] ?? $data['e2e_id'] ?? null,
-                recipientName: $data['recipient_name'] ?? $request->recipientName,
-                recipientDocument: $data['recipient_document'] ?? $request->recipientDocument,
+                providerId: $withdrawData['withdrawalId'],
+                status: 'pending',
+                depositAddress: $withdrawData['depositAddress'],
+                depositAmountInCents: $withdrawData['depositAmountInCents'],
+                payoutAmountInCents: $withdrawData['payoutAmountInCents'],
                 rawResponse: $data,
             );
         } catch (\Throwable $e) {
-            $this->logError('createWithdrawal', $request, $e);
+            $this->logError('createWithdrawal', $request->toEulenPayload(), $e);
 
             return CreateWithdrawalResponse::failure(
                 errorCode: 'CONNECTION_ERROR',
@@ -172,6 +212,11 @@ class EulenProvider implements PaymentProviderInterface
         }
     }
 
+    /**
+     * Consulta status de um saque
+     *
+     * @see https://docs.eulen.app/withdraw-status-25979384e0.md
+     */
     public function getWithdrawalStatus(string $providerId): WithdrawalStatusResponse
     {
         try {
@@ -186,18 +231,19 @@ class EulenProvider implements PaymentProviderInterface
             if ($response->failed()) {
                 return WithdrawalStatusResponse::failure(
                     errorCode: $data['error_code'] ?? 'PROVIDER_ERROR',
-                    errorMessage: $data['message'] ?? 'Provider request failed',
+                    errorMessage: $data['message'] ?? 'Erro ao consultar status',
                     rawResponse: $data,
                 );
             }
 
-            $completedAt = isset($data['completed_at']) ? new DateTimeImmutable($data['completed_at']) : null;
+            $statusData = $data['response'] ?? $data;
+            $completedAt = isset($statusData['completedAt']) ? new DateTimeImmutable($statusData['completedAt']) : null;
 
             return WithdrawalStatusResponse::success(
                 providerId: $providerId,
-                status: $this->mapWithdrawalStatus($data['status']),
-                amount: (float) ($data['amount'] ?? 0),
-                endToEndId: $data['end_to_end_id'] ?? $data['e2e_id'] ?? null,
+                status: $this->mapWithdrawalStatus($statusData['status'] ?? 'pending'),
+                amount: (float) ($statusData['payoutAmountInCents'] ?? 0) / 100,
+                endToEndId: $statusData['endToEndId'] ?? $statusData['e2eId'] ?? null,
                 completedAt: $completedAt,
                 rawResponse: $data,
             );
@@ -211,10 +257,47 @@ class EulenProvider implements PaymentProviderInterface
         }
     }
 
+    /**
+     * Consulta informações do usuário e limites
+     *
+     * @see https://docs.eulen.app/user-info-21725604e0.md
+     */
+    public function getUserInfo(string $euid): array
+    {
+        try {
+            $response = $this->client->get("{$this->baseUrl}/user-info", [
+                'euid' => $euid,
+            ]);
+
+            $data = $response->json();
+
+            $this->logRequest('getUserInfo', ['euid' => $euid], $response->status(), $data);
+
+            if ($response->failed()) {
+                return [
+                    'success' => false,
+                    'error' => $data['message'] ?? 'Erro ao consultar usuário',
+                ];
+            }
+
+            return [
+                'success' => true,
+                'data' => $data['response'] ?? $data,
+            ];
+        } catch (\Throwable $e) {
+            $this->logError('getUserInfo', ['euid' => $euid], $e);
+
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
     public function healthCheck(): bool
     {
         try {
-            $response = $this->client->get("{$this->baseUrl}/health");
+            $response = $this->client->get("{$this->baseUrl}/ping");
 
             return $response->successful();
         } catch (\Throwable) {
@@ -223,33 +306,43 @@ class EulenProvider implements PaymentProviderInterface
     }
 
     /**
-     * Map Eulen deposit status to internal status.
+     * Mapeia status de depósito da Eulen para status interno
+     *
+     * @see https://docs.eulen.app/-deposit-statuses-1443187m0.md
      */
     private function mapDepositStatus(string $eulenStatus): string
     {
-        // Based on Eulen documentation research
         return match (strtolower($eulenStatus)) {
-            'pending', 'waiting', 'awaiting' => 'awaiting_payment',
-            'processing', 'in_progress' => 'processing',
-            'paid', 'completed', 'confirmed', 'success' => 'completed',
-            'expired', 'timeout' => 'expired',
-            'failed', 'error', 'cancelled' => 'failed',
+            'pending' => 'awaiting_payment',
+            'delayed' => 'awaiting_payment',
+            'under_review' => 'processing',
+            'approved' => 'processing',
+            'depix_sent' => 'completed',
+            'expired' => 'expired',
+            'canceled' => 'failed',
+            'refunded' => 'refunded',
+            'error' => 'failed',
             default => 'pending',
         };
     }
 
     /**
-     * Map Eulen withdrawal status to internal status.
+     * Mapeia status de saque da Eulen para status interno
+     *
+     * @see https://docs.eulen.app/-withdraw-statuses-1966899m0.md
      */
     private function mapWithdrawalStatus(string $eulenStatus): string
     {
         return match (strtolower($eulenStatus)) {
-            'pending', 'waiting' => 'pending',
-            'approved' => 'approved',
-            'processing', 'in_progress' => 'processing',
-            'completed', 'paid', 'confirmed', 'success' => 'completed',
-            'failed', 'error' => 'failed',
-            'cancelled', 'rejected' => 'cancelled',
+            'unsent' => 'pending',
+            'pending' => 'pending',
+            'depix_received' => 'processing',
+            'processing' => 'processing',
+            'sent' => 'completed',
+            'completed' => 'completed',
+            'failed' => 'failed',
+            'error' => 'failed',
+            'refunded' => 'refunded',
             default => 'pending',
         };
     }
@@ -257,9 +350,7 @@ class EulenProvider implements PaymentProviderInterface
     private function logRequest(string $method, mixed $request, int $statusCode, array $response): void
     {
         Log::channel('eulen')->info("Eulen API: {$method}", [
-            'request' => $request instanceof CreateDepositRequest || $request instanceof CreateWithdrawalRequest
-                ? (array) $request
-                : $request,
+            'request' => is_array($request) ? $request : (array) $request,
             'status_code' => $statusCode,
             'response' => $this->sanitizeResponse($response),
         ]);
@@ -268,9 +359,7 @@ class EulenProvider implements PaymentProviderInterface
     private function logError(string $method, mixed $request, \Throwable $e): void
     {
         Log::channel('eulen')->error("Eulen API Error: {$method}", [
-            'request' => $request instanceof CreateDepositRequest || $request instanceof CreateWithdrawalRequest
-                ? (array) $request
-                : $request,
+            'request' => is_array($request) ? $request : (array) $request,
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
         ]);
@@ -278,8 +367,7 @@ class EulenProvider implements PaymentProviderInterface
 
     private function sanitizeResponse(array $response): array
     {
-        // Remove sensitive data from logs
-        $sensitive = ['token', 'api_key', 'secret'];
+        $sensitive = ['token', 'api_key', 'secret', 'authorization'];
 
         foreach ($sensitive as $key) {
             if (isset($response[$key])) {
