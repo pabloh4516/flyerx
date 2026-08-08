@@ -16,6 +16,7 @@ use App\Application\Audit\Listeners\AuditUserLoggedOut;
 use App\Application\Audit\Listeners\AuditUserLoginFailed;
 use App\Application\Audit\Listeners\AuditUserRegistered;
 use App\Application\Audit\Listeners\AuditWalletCreated;
+use App\Application\Wallet\Listeners\CreateWalletOnUserRegistered;
 use App\Application\Audit\Listeners\AuditWalletSuspended;
 use App\Application\Audit\Listeners\AuditWithdrawalCompleted;
 use App\Application\Audit\Listeners\AuditWithdrawalCreated;
@@ -60,6 +61,7 @@ class EventServiceProvider extends ServiceProvider
         // -------------------------------------------------------------------------
         UserRegistered::class => [
             AuditUserRegistered::class,
+            CreateWalletOnUserRegistered::class,
         ],
 
         UserEmailVerified::class => [

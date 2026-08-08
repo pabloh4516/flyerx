@@ -37,21 +37,50 @@ export interface ResetPasswordRequest {
 
 // Registro
 export const register = async (data: RegisterRequest): Promise<User> => {
-  const response = await api.post<ApiResponse<User>>('/v1/auth/register', data);
-  return response.data.data;
+  try {
+    const response = await api.post<ApiResponse<User>>('/v1/auth/register', data);
+    return response.data.data;
+  } catch (error: unknown) {
+    // Extrair mensagem de erro do response
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } };
+      // Se há erros de validação, pegar a primeira mensagem
+      if (axiosError.response?.data?.errors) {
+        const firstError = Object.values(axiosError.response.data.errors)[0];
+        if (firstError && firstError[0]) {
+          throw new Error(firstError[0]);
+        }
+      }
+      const message = axiosError.response?.data?.message || 'Erro ao criar conta';
+      throw new Error(message);
+    }
+    throw error;
+  }
 };
 
 // Login
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
-  const response = await api.post<ApiResponse<LoginResponse>>('/v1/auth/login', data);
-  const result = response.data.data;
+  try {
+    const response = await api.post<ApiResponse<LoginResponse>>('/v1/auth/login', data);
+    const result = response.data.data;
 
-  // Se não requer 2FA, salvar tokens
-  if (result.tokens && !result.requiresTwoFactor) {
-    setTokens(result.tokens.accessToken, result.tokens.refreshToken);
+    // Se não requer 2FA, salvar tokens
+    if (result.tokens && !result.requiresTwoFactor) {
+      setTokens(result.tokens.accessToken, result.tokens.refreshToken);
+    }
+
+    return result;
+  } catch (error: unknown) {
+    // Extrair mensagem de erro do response
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { message?: string; error?: { message?: string } } } };
+      const message = axiosError.response?.data?.message
+        || axiosError.response?.data?.error?.message
+        || 'Erro ao fazer login';
+      throw new Error(message);
+    }
+    throw error;
   }
-
-  return result;
 };
 
 // Verificar 2FA no login
