@@ -64,9 +64,9 @@ class WalletServiceProvider extends ServiceProvider
             return new WithdrawalService(
                 $app->make(WalletRepositoryInterface::class),
                 $app->make(WithdrawalRepositoryInterface::class),
-                $app->make(LedgerService::class),
                 $app->make(FeeService::class),
                 $app->make(\Illuminate\Contracts\Events\Dispatcher::class),
+                $app->make(PaymentProviderInterface::class),
             );
         });
     }
