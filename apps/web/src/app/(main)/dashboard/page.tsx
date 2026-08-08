@@ -59,7 +59,7 @@ const quickActions: QuickAction[] = [
   {
     href: '/subaccounts',
     label: 'Subcontas',
-    description: '3 membros ativos',
+    description: 'Gerencie membros',
     icon: Users,
   },
 ];
@@ -103,10 +103,17 @@ export default function SellerDashboardPage() {
   const userName = user?.name?.split(' ')[0] ?? 'Usuário';
   const isVerified = user?.kycLevel === 'VERIFIED' || user?.kycLevel === 'FULL';
 
-  // Mock data for today's summary
-  const todayIncome = 4820;
-  const todayOutcome = 1648;
-  const weekGrowth = 3172;
+  // Calcular totais do dia a partir das transações reais
+  const today = new Date().toDateString();
+  const todayTransactions = transactions.filter(
+    (tx) => new Date(tx.createdAt).toDateString() === today
+  );
+  const todayIncome = todayTransactions
+    .filter((tx) => tx.type === 'DEPOSIT' && tx.status === 'COMPLETED')
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const todayOutcome = todayTransactions
+    .filter((tx) => tx.type === 'WITHDRAWAL' && tx.status === 'COMPLETED')
+    .reduce((sum, tx) => sum + tx.amount, 0);
 
   const handleCopyLink = async () => {
     const link = `pix.flyerx.cc/${userName.toLowerCase()}`;
@@ -148,24 +155,32 @@ export default function SellerDashboardPage() {
               <div className="flex items-baseline gap-2 tabular-nums">
                 <span className="text-base text-neutral-500">R$</span>
                 <span className="text-5xl font-medium tracking-tight leading-none">
-                  {Math.floor(balance?.available ?? 24318).toLocaleString('pt-BR')}
+                  {Math.floor((balance?.available ?? 0) / 100).toLocaleString('pt-BR')}
                   <span className="text-2xl text-neutral-400">
-                    ,{String((balance?.available ?? 24318.72) % 1).slice(2, 4).padEnd(2, '0')}
+                    ,{String(((balance?.available ?? 0) / 100) % 1).slice(2, 4).padEnd(2, '0')}
                   </span>
                 </span>
               </div>
-              <span className="text-xs text-accent-300 flex items-center gap-1.5">
-                <TrendingUp className="size-3" />
-                + R$ {weekGrowth.toLocaleString('pt-BR')},00 esta semana
-              </span>
+              {balance?.available === 0 ? (
+                <span className="text-xs text-neutral-500">
+                  Faça seu primeiro depósito
+                </span>
+              ) : (
+                <span className="text-xs text-accent-300 flex items-center gap-1.5">
+                  <TrendingUp className="size-3" />
+                  Saldo disponível para saque
+                </span>
+              )}
             </div>
 
-            {/* Sparkline */}
-            <Sparkline
-              data={[56, 50, 52, 40, 44, 24, 14]}
-              width={180}
-              height={72}
-            />
+            {/* Sparkline - só mostra se houver transações */}
+            {transactions.length > 0 && (
+              <Sparkline
+                data={transactions.slice(0, 7).map((tx) => tx.amount / 100)}
+                width={180}
+                height={72}
+              />
+            )}
           </div>
 
           {/* Divider */}
@@ -178,7 +193,7 @@ export default function SellerDashboardPage() {
                 Entradas · hoje
               </span>
               <span className="text-base font-medium text-accent-200 tabular-nums">
-                R$ {todayIncome.toLocaleString('pt-BR')},00
+                {formatCurrency(todayIncome)}
               </span>
             </div>
 
@@ -189,7 +204,7 @@ export default function SellerDashboardPage() {
                 Saídas · hoje
               </span>
               <span className="text-base font-medium tabular-nums">
-                R$ {todayOutcome.toLocaleString('pt-BR')},00
+                {formatCurrency(todayOutcome)}
               </span>
             </div>
 
@@ -197,9 +212,11 @@ export default function SellerDashboardPage() {
 
             <div className="flex flex-col gap-1">
               <span className="text-[10px] text-neutral-600 uppercase tracking-wider">
-                Pendências
+                Transações
               </span>
-              <span className="text-base font-medium text-neutral-500">Nenhuma</span>
+              <span className="text-base font-medium text-neutral-500">
+                {transactions.length}
+              </span>
             </div>
 
             <Link href="/history" className="ml-auto">
@@ -232,7 +249,7 @@ export default function SellerDashboardPage() {
                   pix.flyerx.cc/{userName.toLowerCase()}
                 </span>
                 <span className="text-[10px] text-neutral-600">
-                  recebeu 12 pagamentos esta semana
+                  Seu link de pagamento personalizado
                 </span>
               </div>
               <div className="flex gap-2">
@@ -255,7 +272,7 @@ export default function SellerDashboardPage() {
           <div className="h-px bg-[linear-gradient(to_right,transparent,var(--color-divider)_20%,var(--color-divider)_80%,transparent)]" />
 
           <div className="flex justify-between text-xs text-neutral-600">
-            <span>2 chaves cadastradas</span>
+            <span>Gerencie suas chaves PIX</span>
             <Link href="/pix-keys" className="text-accent-300 hover:underline">
               Gerenciar chaves →
             </Link>

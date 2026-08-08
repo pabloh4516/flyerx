@@ -35,32 +35,9 @@ interface WebhookConfig {
   lastTriggered: string | null;
 }
 
-const mockApiKeys: ApiKey[] = [
-  {
-    id: 'key_001',
-    name: 'Produção',
-    key: 'sk_live_abc123xyz789def456...',
-    lastUsed: '2026-08-05T14:30:00Z',
-    createdAt: '2026-06-01T10:00:00Z',
-  },
-  {
-    id: 'key_002',
-    name: 'Desenvolvimento',
-    key: 'sk_test_qwe789rty456uio123...',
-    lastUsed: '2026-08-04T09:15:00Z',
-    createdAt: '2026-07-20T11:00:00Z',
-  },
-];
-
-const mockWebhooks: WebhookConfig[] = [
-  {
-    id: 'wh_001',
-    url: 'https://api.minhaempresa.com/webhooks/flyerx',
-    events: ['payment.received', 'payment.failed'],
-    status: 'active',
-    lastTriggered: '2026-08-05T14:35:00Z',
-  },
-];
+// TODO: Integrar com API quando os endpoints estiverem disponíveis
+const apiKeys: ApiKey[] = [];
+const webhooks: WebhookConfig[] = [];
 
 export default function DevelopersPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
@@ -156,7 +133,7 @@ export default function DevelopersPage() {
         </div>
 
         <div className="divide-y divide-divider">
-          {mockApiKeys.map((apiKey) => (
+          {apiKeys.map((apiKey) => (
             <div key={apiKey.id} className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -230,7 +207,7 @@ export default function DevelopersPage() {
         </div>
 
         <div className="divide-y divide-divider">
-          {mockWebhooks.map((webhook) => (
+          {webhooks.map((webhook) => (
             <div key={webhook.id} className="p-4">
               <div className="flex items-center justify-between">
                 <div>

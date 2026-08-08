@@ -27,48 +27,8 @@ interface PaymentLink {
   createdAt: string;
 }
 
-const mockLinks: PaymentLink[] = [
-  {
-    id: 'link_001',
-    name: 'Produto Premium',
-    amount: 299.90,
-    url: 'https://pay.flyerx.com/l/abc123',
-    uses: 45,
-    totalReceived: 13495.50,
-    status: 'active',
-    createdAt: '2026-07-15T10:00:00Z',
-  },
-  {
-    id: 'link_002',
-    name: 'Doação',
-    amount: null,
-    url: 'https://pay.flyerx.com/l/xyz789',
-    uses: 123,
-    totalReceived: 8540.00,
-    status: 'active',
-    createdAt: '2026-06-20T14:30:00Z',
-  },
-  {
-    id: 'link_003',
-    name: 'Consultoria 1h',
-    amount: 150.00,
-    url: 'https://pay.flyerx.com/l/qwe456',
-    uses: 8,
-    totalReceived: 1200.00,
-    status: 'active',
-    createdAt: '2026-08-01T09:00:00Z',
-  },
-  {
-    id: 'link_004',
-    name: 'Curso Antigo',
-    amount: 497.00,
-    url: 'https://pay.flyerx.com/l/old001',
-    uses: 200,
-    totalReceived: 99400.00,
-    status: 'inactive',
-    createdAt: '2026-01-10T08:00:00Z',
-  },
-];
+// TODO: Integrar com API quando o endpoint estiver disponível
+const paymentLinks: PaymentLink[] = [];
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('pt-BR', {
@@ -92,8 +52,8 @@ export default function PaymentLinksPage() {
     }
   };
 
-  const activeLinks = mockLinks.filter((l) => l.status === 'active').length;
-  const totalReceived = mockLinks.reduce((acc, l) => acc + l.totalReceived, 0);
+  const activeLinks = paymentLinks.filter((l) => l.status === 'active').length;
+  const totalReceived = paymentLinks.reduce((acc, l) => acc + l.totalReceived, 0);
 
   return (
     <Container size="lg" padded={false} className="p-6 flex flex-col gap-5">
@@ -120,7 +80,7 @@ export default function PaymentLinksPage() {
         </div>
         <div className="rounded-xl border border-divider bg-surface p-4">
           <p className="text-xs text-neutral-500 mb-1">Total de usos</p>
-          <p className="text-2xl font-semibold">{mockLinks.reduce((acc, l) => acc + l.uses, 0)}</p>
+          <p className="text-2xl font-semibold">{paymentLinks.reduce((acc, l) => acc + l.uses, 0)}</p>
         </div>
         <div className="rounded-xl border border-divider bg-surface p-4">
           <p className="text-xs text-neutral-500 mb-1">Total recebido</p>
@@ -130,7 +90,7 @@ export default function PaymentLinksPage() {
 
       {/* Links Grid */}
       <div className="grid gap-4">
-        {mockLinks.map((link) => (
+        {paymentLinks.map((link) => (
           <div
             key={link.id}
             className={`rounded-xl border bg-surface p-4 transition-colors ${

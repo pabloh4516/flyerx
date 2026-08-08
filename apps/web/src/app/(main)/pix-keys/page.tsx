@@ -33,18 +33,6 @@ interface LiquidWallet {
   isVerified: boolean;
 }
 
-// Mock data - será substituído por dados reais da API
-const mockWallets: LiquidWallet[] = [
-  {
-    id: 'wallet_001',
-    name: 'Carteira Principal',
-    address: 'lq1qqwnunstyuf8yyr7scnj06ycp4dzk8drzxrsyan6xq7gymevy7d27ec4gs0pnv909ggvttn36qn270p33ft09wtdttvfe7wu2h',
-    createdAt: '2026-08-01T10:00:00Z',
-    isPrimary: true,
-    isVerified: true,
-  },
-];
-
 // Validação de endereço Liquid
 function isValidLiquidAddress(address: string): boolean {
   if (!address) return false;
@@ -70,7 +58,8 @@ function truncateAddress(address: string): string {
 }
 
 export default function WalletsPage() {
-  const [wallets, setWallets] = useState<LiquidWallet[]>(mockWallets);
+  // TODO: Integrar com API quando o endpoint estiver disponível
+  const [wallets, setWallets] = useState<LiquidWallet[]>([]);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);

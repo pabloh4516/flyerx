@@ -29,35 +29,8 @@ interface Subaccount {
   createdAt: string;
 }
 
-const mockSubaccounts: Subaccount[] = [
-  {
-    id: 'sub_001',
-    name: 'Maria Silva',
-    email: 'maria@empresa.com',
-    role: 'admin',
-    status: 'active',
-    lastAccess: '2026-08-05T10:30:00Z',
-    createdAt: '2026-06-01T09:00:00Z',
-  },
-  {
-    id: 'sub_002',
-    name: 'João Santos',
-    email: 'joao@empresa.com',
-    role: 'operator',
-    status: 'active',
-    lastAccess: '2026-08-04T16:45:00Z',
-    createdAt: '2026-07-15T14:00:00Z',
-  },
-  {
-    id: 'sub_003',
-    name: 'Ana Costa',
-    email: 'ana@empresa.com',
-    role: 'viewer',
-    status: 'pending',
-    lastAccess: null,
-    createdAt: '2026-08-03T11:00:00Z',
-  },
-];
+// TODO: Integrar com API quando o endpoint estiver disponível
+const subaccounts: Subaccount[] = [];
 
 const roleConfig: Record<SubaccountRole, { label: string; className: string }> = {
   admin: { label: 'Administrador', className: 'bg-purple-500/20 text-purple-400 border-purple-500/30' },
@@ -75,7 +48,7 @@ export default function SubaccountsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
 
-  const filteredSubaccounts = mockSubaccounts.filter((sub) => {
+  const filteredSubaccounts = subaccounts.filter((sub) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       return (
@@ -117,18 +90,18 @@ export default function SubaccountsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="rounded-xl border border-divider bg-surface p-4">
           <p className="text-xs text-neutral-500 mb-1">Total de usuários</p>
-          <p className="text-2xl font-semibold">{mockSubaccounts.length}</p>
+          <p className="text-2xl font-semibold">{subaccounts.length}</p>
         </div>
         <div className="rounded-xl border border-divider bg-surface p-4">
           <p className="text-xs text-neutral-500 mb-1">Ativos</p>
           <p className="text-2xl font-semibold text-green-400">
-            {mockSubaccounts.filter((s) => s.status === 'active').length}
+            {subaccounts.filter((s) => s.status === 'active').length}
           </p>
         </div>
         <div className="rounded-xl border border-divider bg-surface p-4">
           <p className="text-xs text-neutral-500 mb-1">Pendentes</p>
           <p className="text-2xl font-semibold text-yellow-400">
-            {mockSubaccounts.filter((s) => s.status === 'pending').length}
+            {subaccounts.filter((s) => s.status === 'pending').length}
           </p>
         </div>
       </div>
