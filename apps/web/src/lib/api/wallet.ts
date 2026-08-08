@@ -20,6 +20,24 @@ export const getBalance = async (): Promise<Balance> => {
   return response.data.data;
 };
 
+// Tipo da resposta do Laravel para history
+interface LaravelHistoryResponse {
+  transactions: Array<{
+    id: string;
+    type: string;
+    status: string;
+    amount: number;
+    fee: number;
+    net_amount: number;
+    created_at: string;
+  }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
 // Listar transações com filtros
 export const listTransactions = async (
   filters?: TransactionFilters
@@ -39,10 +57,31 @@ export const listTransactions = async (
     if (filters.sortOrder) params.append('sortOrder', filters.sortOrder);
   }
 
-  const response = await api.get<ApiResponse<PaginatedResponse<Transaction>>>(
+  const response = await api.get<ApiResponse<LaravelHistoryResponse>>(
     `/v1/wallet/history?${params.toString()}`
   );
-  return response.data.data;
+
+  // Mapear resposta Laravel para estrutura esperada
+  const laravelData = response.data.data;
+  const transactions: Transaction[] = laravelData.transactions.map((tx) => ({
+    id: tx.id,
+    type: tx.type.toUpperCase() as Transaction['type'],
+    status: tx.status.toUpperCase() as Transaction['status'],
+    amount: tx.amount,
+    fee: tx.fee,
+    netAmount: tx.net_amount,
+    createdAt: tx.created_at,
+  }));
+
+  return {
+    data: transactions,
+    meta: {
+      total: laravelData.pagination.total,
+      page: laravelData.pagination.page,
+      limit: laravelData.pagination.limit,
+      totalPages: Math.ceil(laravelData.pagination.total / laravelData.pagination.limit) || 1,
+    },
+  };
 };
 
 // Obter detalhes de uma transação
